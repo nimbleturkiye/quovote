@@ -1,8 +1,34 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const Event = require('../models/event');
+const Question = require('../models/question');
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
+
+router.post('/events', async function(req, res, next) {
+  const event = new Event({title: 'test event'})
+  await event.save()
+
+  res.send(event)
+})
+
+router.post('/events/:eventId/questions', async function(req, res, next) {
+  if (!req.body.text) return next(new Error('Question cannot be left blank'))
+
+  const event = await Event.findOne({ _id: req.params.eventId })
+
+  if (!event) return next(new Error('Event not found'))
+
+  event.questions.push({ text: req.body.text })
+
+  try {
+    await event.save()
+    res.send(event)
+  } catch(e) {
+    next(e)
+  }
+})
 
 module.exports = router;
