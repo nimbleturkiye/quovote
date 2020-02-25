@@ -1,5 +1,10 @@
 version: '3'
 services:
+  mongodb:
+    image: mongo
+    ports:
+      - 37017:27017
+
   backend:
     image: backend
     build:
