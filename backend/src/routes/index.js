@@ -29,7 +29,7 @@ router.post('/events/:eventId/questions', async function(req, res, next) {
 
   if (!event) return next(new Error('Event not found'))
 
-  event.questions.push({ text: req.body.text })
+  event.questions.push({ text: req.body.text, user: req.body.user })
 
   try {
     await event.save()
