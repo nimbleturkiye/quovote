@@ -4,6 +4,10 @@ import router from './router'
 import store from './store'
 import 'ant-design-vue/dist/antd.css'
 
+import { Button, Input } from 'ant-design-vue'
+Vue.use(Button)
+Vue.use(Input)
+
 Vue.config.productionTip = false
 
 new Vue({
