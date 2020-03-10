@@ -10,8 +10,10 @@ const Question = new mongoose.Schema({
     default: 0
   },
   user: {
-    type: 'ObjectId',
-    ref: 'User'
+    // type: 'ObjectId',
+    // ref: 'User'
+    type: String,
+    default: 'Anonymous'
   },
   is_highlighted: Boolean
 })
