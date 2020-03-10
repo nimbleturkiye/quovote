@@ -14,6 +14,14 @@ router.post('/events', async function(req, res, next) {
   res.send(event)
 })
 
+router.get('/events/:eventId/questions', async (req, res, next) => {
+  const event = await Event.findOne({ _id: req.params.eventId })
+
+  if (!event) return next(new Error('Event not found'))
+
+  res.send(event.questions)
+})
+
 router.post('/events/:eventId/questions', async function(req, res, next) {
   if (!req.body.text) return next(new Error('Question cannot be left blank'))
 
