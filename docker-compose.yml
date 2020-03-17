@@ -11,7 +11,7 @@ services:
       context: backend
       dockerfile: dev.Dockerfile
     environment:
-      - VIRTUAL_HOST=vue-node-starter.localhost/api,vue-node-starter.localhost/api/*
+      - VIRTUAL_HOST=vue-node-starter.localhost/api,vue-node-starter.localhost/api/*,vue-node-starter.localhost/socket.io/*
       - VIRTUAL_HOST_WEIGHT=1
     expose:
       - 3000
