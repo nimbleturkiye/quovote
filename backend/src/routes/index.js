@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Event = require('../models/event');
 const Question = require('../models/question');
+const socketServer = require('../socket-connection');
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
@@ -29,10 +30,13 @@ router.post('/events/:eventId/questions', async function(req, res, next) {
 
   if (!event) return next(new Error('Event not found'))
 
-  event.questions.push({ text: req.body.text, user: req.body.user })
+  event.questions.unshift({ text: req.body.text, user: req.body.user })
 
   try {
     await event.save()
+
+    socketServer().to(req.params.eventId).emit('questions updated', event.questions)
+
     res.send(event)
   } catch(e) {
     next(e)

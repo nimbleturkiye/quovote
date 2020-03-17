@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import io from 'socket.io-client'
 
 Vue.use(Vuex)
 
@@ -8,7 +9,9 @@ const mutations = {
   SET_PROPERTY: 'setProperty'
 }
 
-export default new Vuex.Store({
+const socket = io()
+
+const store = new Vuex.Store({
   state: {
     questions: [],
     loading: false,
@@ -32,15 +35,23 @@ export default new Vuex.Store({
       } finally {
         commit(mutations.SET_PROPERTY, { loading: false })
       }
-
-      dispatch('fetchQuestions')
     },
     async fetchQuestions ({ commit, state }) {
       const req = await axios.get(`/api/events/${state.eventId}/questions`)
+
       commit(mutations.SET_PROPERTY, { questions: req.data })
     },
     async setProperty ({ commit }, obj) {
       commit(mutations.SET_PROPERTY, obj)
+    },
+    async joinEvent ({ commit, state }) {
+      socket.emit('join-room', state.eventId)
     }
   }
 })
+
+socket.on('questions updated', questions => {
+  store.dispatch('setProperty', { questions })
+})
+
+export default store
