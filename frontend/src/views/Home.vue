@@ -1,5 +1,5 @@
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapMutations } from 'vuex'
 import { notification } from 'ant-design-vue'
 
 export default {
@@ -16,7 +16,7 @@ export default {
     this.fetchQuestions()
   },
   methods: {
-    ...mapActions(['submitQuestion', 'fetchQuestions', 'setProperty', 'joinEvent']),
+    ...mapActions(['submitQuestion', 'fetchQuestions', 'setProperty', 'joinEvent', 'vote']),
     async sendQuestion () {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
@@ -44,7 +44,12 @@ export default {
     a-input(placeholder="Your name (optional)" v-model="name")
     a-button(type="primary" @click="sendQuestion" :disabled="loading") {{ loading ? 'Loading' : 'Send' }}
   div(v-for="question in questions" :key="question._id")
-    strong {{ question.user }}
-    p {{ question.text }}
-    p {{ question.votes }}
+    p Question: {{ question.text }}
+    strong Author: {{ question.user }}
+    div
+      p {{ question.votes }}
+      div
+        a-button-group
+          a-button(type="primary" icon="like" @click="vote({ questionId: question._id, vote: 'like' })")
+          a-button(type="primary" icon="dislike" @click="vote({ questionId: question._id, vote: 'dislike' })")
 </template>

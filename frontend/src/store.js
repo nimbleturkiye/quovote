@@ -41,6 +41,17 @@ const store = new Vuex.Store({
 
       commit(mutations.SET_PROPERTY, { questions: req.data })
     },
+    async vote ({ commit, state }, { questionId, vote }) {
+      commit(mutations.SET_PROPERTY, { loading: true })
+
+      try {
+        await axios.patch(`/api/events/${state.eventId}/questions/${questionId}`, { vote })
+      } catch (e) {
+        throw e
+      } finally {
+        commit(mutations.SET_PROPERTY, { loading: false })
+      }
+    },
     async setProperty ({ commit }, obj) {
       commit(mutations.SET_PROPERTY, obj)
     },

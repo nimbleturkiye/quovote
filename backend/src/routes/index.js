@@ -43,4 +43,29 @@ router.post('/events/:eventId/questions', async function(req, res, next) {
   }
 })
 
+router.patch('/events/:eventId/questions/:questionId', async function(req, res, next) {
+  const event = await Event.findOneAndUpdate({
+    _id: req.params.eventId,
+  }, {
+    $inc: {
+      'questions.$.votes': req.body.vote == 'like' ? 1 : -1
+    }
+  }, { new: true }).elemMatch('questions', {
+    _id: req.params.questionId,
+    votes: {
+      $gte: req.body.vote == 'like' ? 0 : 1
+    }
+  })
+
+  if (!event) return next(new Error('Event or question not found'))
+
+  event.questions.sort((a, b) => b.votes - a.votes)
+
+  await event.save()
+
+  socketServer().to(req.params.eventId).emit('questions updated', event.questions)
+
+  res.sendStatus(200)
+})
+
 module.exports = router;
