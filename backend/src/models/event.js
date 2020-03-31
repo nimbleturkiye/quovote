@@ -15,6 +15,10 @@ const Event = new mongoose.Schema({
       ref: 'User'
     }
   ]
+}, {
+  toObject: {
+    virtuals: true
+  }
 })
 
 Event.pre('save', async function (next) {
@@ -30,5 +34,13 @@ Event.pre('save', async function (next) {
 
   next();
 });
+
+Event.static('decorateForUser', function (event, userId) {
+  const updatedQuestions = event.questions.toObject().map(q => {
+    return { ...q, voted: q.voters.includes(userId) }
+  })
+
+  return { ...event.toObject(), questions: updatedQuestions }
+})
 
 module.exports = mongoose.model('Event', Event)

@@ -5,9 +5,9 @@ const Question = new mongoose.Schema({
     type: String,
     required: true,
   },
-  votes: {
-    type: Number,
-    default: 0
+  voters: {
+    type: [String],
+    default: []
   },
   user: {
     // type: 'ObjectId',
@@ -16,6 +16,22 @@ const Question = new mongoose.Schema({
     default: 'Anonymous'
   },
   is_highlighted: Boolean
-}, { timestamps: true })
+}, {
+  timestamps: true,
+  toObject: {
+    virtuals: true
+  },
+  toJSON: {
+    virtuals: true,
+    transform(doc,  ret, options) {
+      delete ret.voters
+      return ret
+    }
+  }
+})
+
+Question.virtual('votes').get(function() {
+  return this.voters.length
+})
 
 module.exports = Question

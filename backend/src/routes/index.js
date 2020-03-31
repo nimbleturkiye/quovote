@@ -20,7 +20,9 @@ router.get('/events/:eventId/questions', async (req, res, next) => {
 
   if (!event) return next(new Error('Event not found'))
 
-  res.send(event.questions)
+  const { questions } = Event.decorateForUser(event, req.session.id)
+
+  res.send(questions)
 })
 
 router.post('/events/:eventId/questions', async function(req, res, next) {
@@ -35,7 +37,9 @@ router.post('/events/:eventId/questions', async function(req, res, next) {
   try {
     await event.save()
 
-    socketServer().to(req.params.eventId).emit('questions updated', event.questions)
+    const { questions } = Event.decorateForUser(event, req.session.id)
+
+    socketServer().to(req.params.eventId).emit('questions updated', questions)
 
     res.send(event)
   } catch(e) {
@@ -44,17 +48,19 @@ router.post('/events/:eventId/questions', async function(req, res, next) {
 })
 
 router.patch('/events/:eventId/questions/:questionId', async function(req, res, next) {
+  const update = {}
+
+  const predicate = {
+    'questions.$.voters': req.session.id
+  }
+
+  if (req.body.vote == 'like') update.$addToSet = predicate
+  else if (req.body.vote == 'dislike') update.$pull = predicate
+
   const event = await Event.findOneAndUpdate({
-    _id: req.params.eventId,
-  }, {
-    $inc: {
-      'questions.$.votes': req.body.vote == 'like' ? 1 : -1
-    }
-  }, { new: true }).elemMatch('questions', {
-    _id: req.params.questionId,
-    votes: {
-      $gte: req.body.vote == 'like' ? 0 : 1
-    }
+    _id: req.params.eventId
+  }, update, { new: true }).elemMatch('questions', {
+    _id: req.params.questionId
   })
 
   if (!event) return next(new Error('Event or question not found'))
@@ -63,7 +69,9 @@ router.patch('/events/:eventId/questions/:questionId', async function(req, res, 
 
   await event.save()
 
-  socketServer().to(req.params.eventId).emit('questions updated', event.questions)
+  const { questions } = Event.decorateForUser(event, req.session.id)
+
+  socketServer().to(req.params.eventId).emit('questions updated', questions)
 
   res.sendStatus(200)
 })

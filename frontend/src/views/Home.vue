@@ -42,7 +42,7 @@ export default {
       v-model="question"
     )
     a-input(placeholder="Your name (optional)" v-model="name")
-    a-button(type="primary" @click="sendQuestion" :disabled="loading") {{ loading ? 'Loading' : 'Send' }}
+    a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
   div(v-for="question in questions" :key="question._id")
     p Question: {{ question.text }}
     strong Author: {{ question.user }}
@@ -50,6 +50,5 @@ export default {
       p {{ question.votes }}
       div
         a-button-group
-          a-button(type="primary" icon="like" @click="vote({ questionId: question._id, vote: 'like' })")
-          a-button(type="primary" icon="dislike" @click="vote({ questionId: question._id, vote: 'dislike' })")
+          a-button(:type="question.voted ? 'primary' : 'default'" icon="like" @click="vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })")
 </template>
