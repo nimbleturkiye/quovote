@@ -2,12 +2,25 @@ var createError = require('http-errors');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cookieSession = require('cookie-session');
+var uuid = require('uuid');
 
 require('./bootstrap');
 
 var indexRouter = require('./routes/index');
 
 var app = express();
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['i don\'t know', 'how many keys', 'i need?'],
+  maxAge: 365 * 24 * 60 * 60 * 1000
+}))
+
+app.use(function (req, res, next) {
+  req.session.id = req.session.id || uuid.v4()
+  next()
+})
 
 // view engine setup
 app.set('view engine', 'pug');
