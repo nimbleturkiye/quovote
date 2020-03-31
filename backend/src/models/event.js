@@ -22,6 +22,8 @@ const Event = new mongoose.Schema({
 })
 
 Event.pre('save', async function (next) {
+  this.questions.sort((a, b) => b.votes - a.votes)
+
   if (this.code) return next()
 
   let code

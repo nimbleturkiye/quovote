@@ -65,8 +65,6 @@ router.patch('/events/:eventId/questions/:questionId', async function(req, res, 
 
   if (!event) return next(new Error('Event or question not found'))
 
-  event.questions.sort((a, b) => b.votes - a.votes)
-
   await event.save()
 
   const { questions } = Event.decorateForUser(event, req.session.id)
