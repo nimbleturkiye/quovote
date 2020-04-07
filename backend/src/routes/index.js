@@ -3,10 +3,25 @@ const router = express.Router();
 const Event = require('../models/event');
 const Question = require('../models/question');
 const socketServer = require('../socket-connection');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
+
+router.get('/events', async (req, res, next) => {
+  let query = { code: new RegExp(`^${req.query.code}$`, 'i') }
+
+  if (ObjectId.isValid(req.query.code)) {
+    query = { _id: req.query.code }
+  }
+
+  const event = await Event.findOne(query)
+
+  if (!event) return res.send(null)
+
+  res.send(event._id)
+})
 
 router.post('/events', async function(req, res, next) {
   const event = new Event({title: 'test event'})

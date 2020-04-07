@@ -25,6 +25,10 @@ const store = new Vuex.Store({
     }
   },
   actions: {
+    async fetchEventIdByCode (ctx, code) {
+      const res = await axios.get(`/api/events?code=${code}`)
+      return res.data
+    },
     async submitQuestion ({ commit, dispatch, state }, { question, name }) {
       commit(mutations.SET_PROPERTY, { loading: true })
 
