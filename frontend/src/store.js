@@ -6,22 +6,26 @@ import io from 'socket.io-client'
 Vue.use(Vuex)
 
 const mutations = {
-  SET_PROPERTY: 'setProperty'
+  SET_PROPERTY: 'setProperty',
+  UPDATE_QUESTIONS: 'updateQuestions'
 }
 
 const socket = io()
 
 const store = new Vuex.Store({
   state: {
-    questions: [],
     loading: false,
-    eventId: null
+    eventId: null,
+    event: {}
   },
   mutations: {
     [mutations.SET_PROPERTY] (state, obj) {
       for (var key in obj) {
         state[key] = obj[key]
       }
+    },
+    [mutations.UPDATE_QUESTIONS] (state, obj) {
+      state.event.questions = obj
     }
   },
   actions: {
@@ -40,10 +44,10 @@ const store = new Vuex.Store({
         commit(mutations.SET_PROPERTY, { loading: false })
       }
     },
-    async fetchQuestions ({ commit, state }) {
-      const req = await axios.get(`/api/events/${state.eventId}/questions`)
+    async fetchEvent ({ commit, state }) {
+      const req = await axios.get(`/api/events/${state.eventId}`)
 
-      commit(mutations.SET_PROPERTY, { questions: req.data })
+      commit(mutations.SET_PROPERTY, { event: req.data })
     },
     async vote ({ commit, state }, { questionId, vote }) {
       commit(mutations.SET_PROPERTY, { loading: true })
@@ -59,14 +63,18 @@ const store = new Vuex.Store({
     async setProperty ({ commit }, obj) {
       commit(mutations.SET_PROPERTY, obj)
     },
-    async joinEvent ({ commit, state }) {
+    async joinEvent ({ commit, dispatch, state }) {
       socket.emit('join-room', state.eventId)
+      dispatch('fetchEvent')
+    },
+    updateQuestions ({ commit }, questions) {
+      commit(mutations.UPDATE_QUESTIONS, questions)
     }
   }
 })
 
 socket.on('questions updated', questions => {
-  store.dispatch('setProperty', { questions })
+  store.dispatch('updateQuestions', questions)
 })
 
 export default store

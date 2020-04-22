@@ -30,14 +30,14 @@ router.post('/events', async function(req, res, next) {
   res.send(event)
 })
 
-router.get('/events/:eventId/questions', async (req, res, next) => {
-  const event = await Event.findOne({ _id: req.params.eventId })
+router.get('/events/:eventId', async (req, res, next) => {
+  let event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
 
-  const { questions } = Event.decorateForUser(event, req.session.id)
+  event = Event.decorateForUser(event, req.session.id)
 
-  res.send(questions)
+  res.send(event)
 })
 
 router.post('/events/:eventId/questions', async function(req, res, next) {
