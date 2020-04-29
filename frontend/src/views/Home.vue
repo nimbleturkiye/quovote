@@ -44,32 +44,47 @@ a-layout.home
           span Ask the speaker
           a-textarea(
             placeholder="Type your question"
-            :autosize="{ minRows: 2, maxRows: 6 }"
+            :autoSize="{ minRows: 2, maxRows: 6 }"
             v-model="question"
           )
           a-input(placeholder="Your name (optional)" size="large" v-model="name")
           a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
-        a-card(v-for="question in event.questions" :key="question._id" :bodyStyle="{'padding-bottom': '8px'}")
-          a-comment
-            template(slot="actions")
-              a-tooltip(:title="question.voted ? 'Dislike' : 'Like'" @click="vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })")
-                span(key="comment-basic-like")
-                  a-icon(type="like" :theme="question.voted ? 'filled' : 'outlined'")
-                span(style="padding-left: 4px") {{ question.votes }}
-            a(slot="author") {{ question.user }}
-            a-avatar(
-              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-              alt="Han Solo"
-              slot="avatar")
-            p(slot="content") {{ question.text }}
-            a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
-              span {{ moment(question.createdAt).fromNow() }}
+        a-layout-content
+          a-row(type="flex" justify="space-between")
+            a-col(span="16")
+            a-col(span="8" class="question-counter")
+              a-tag(color="purple" class="questions-tag") {{event.questions && event.questions.length}} questions
+          a-row
+            a-card(v-for="question in event.questions" :key="question._id" :bodyStyle="{'padding-bottom': '8px'}")
+              a-comment
+                template(slot="actions")
+                  a-tooltip(:title="question.voted ? 'Dislike' : 'Like'" @click="vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })")
+                    span(key="comment-basic-like")
+                      a-icon(type="like" :theme="question.voted ? 'filled' : 'outlined'")
+                    span(style="padding-left: 4px") {{ question.votes }}
+                a(slot="author") {{ question.user }}
+                a-avatar(
+                  src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+                  alt="Han Solo"
+                  slot="avatar")
+                p(slot="content") {{ question.text }}
+                a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
+                  span {{ moment(question.createdAt).fromNow() }}
     </a-tooltip>
 </template>
 
 <style lang="scss" scoped>
   .home {
     padding: 4em;
+  }
+
+  .question-counter {
+    display: flex;
+    justify-content: flex-end
+  }
+
+  .questions-tag {
+    margin-right: 0;
   }
 
   .ant-comment {
