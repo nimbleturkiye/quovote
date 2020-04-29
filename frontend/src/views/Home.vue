@@ -9,7 +9,9 @@ export default {
     return {
       question: '',
       name: undefined,
-      moment
+      moment,
+      sortBy: 'popular',
+      questions: []
     }
   },
   created () {
@@ -26,10 +28,28 @@ export default {
       } catch (e) {
         notification.error({ message: e.message })
       }
+    },
+    updateSorting (e) {
+      this.sortBy = e.target.value
+
+      this.sortQuestions()
+    },
+    sortQuestions () {
+      this.questions.sort((a, b) => {
+        if (this.sortBy == 'popular') return b.votes - a.votes
+
+        return new Date(b.createdAt) - new Date(a.createdAt)
+      })
     }
   },
   computed: {
     ...mapState(['event', 'loading'])
+  },
+  watch: {
+    'event.questions' (questions) {
+      this.questions = questions.slice()
+      this.sortQuestions()
+    }
   }
 }
 </script>
@@ -47,15 +67,20 @@ a-layout.home
             :autoSize="{ minRows: 2, maxRows: 6 }"
             v-model="question"
           )
-          a-input(placeholder="Your name (optional)" size="large" v-model="name")
+          a-input(placeholder="Your name (optional)" v-model="name")
           a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
+          a-row(type="flex" justify="space-between")
         a-layout-content
           a-row(type="flex" justify="space-between")
             a-col(span="16")
+              span Sort questions by &nbsp;
+              a-radio-group(size="small" defaultValue="popular" buttonStyle="solid" @change="updateSorting")
+                a-radio-button(value="popular") Popular
+                a-radio-button(value="recent") Recent
             a-col(span="8" class="question-counter")
               a-tag(color="purple" class="questions-tag") {{event.questions && event.questions.length}} questions
           a-row
-            a-card(v-for="question in event.questions" :key="question._id" :bodyStyle="{'padding-bottom': '8px'}")
+            a-card(v-for="question in questions" :key="question._id" :bodyStyle="{'padding-bottom': '8px'}")
               a-comment
                 template(slot="actions")
                   a-tooltip(:title="question.voted ? 'Dislike' : 'Like'" @click="vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })")
@@ -80,7 +105,8 @@ a-layout.home
 
   .question-counter {
     display: flex;
-    justify-content: flex-end
+    justify-content: flex-end;
+    align-items: flex-end;
   }
 
   .questions-tag {
