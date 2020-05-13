@@ -115,7 +115,7 @@ a-layout.home
                 p(slot="content") {{ question.text }}
                 a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
                   span(:id="'question-' + question._id.slice(-4)") {{ moment(question.createdAt).fromNow() }}
-                div.question-id.disabled {{ '#' + question._id.slice(-4) }}
+              div.question-id {{ '#' + question._id.slice(-4) }}
     </a-tooltip>
 </template>
 
