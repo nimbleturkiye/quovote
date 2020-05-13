@@ -102,6 +102,7 @@ a-layout.home
                   a-radio-button(value="recent" @click="updateSorting") Recent {{ recentSortOrderIndicator }}
                   a-radio-button(value="random" @click="updateSorting") Random {{ randomSortOrderIndicator }}
           a-row
+            p.no-questions(v-if="!questions.length") This event has no questions, be the first one and ask the first question!
             a-card(v-for="question in questions" :key="question._id" :bodyStyle="{'padding-bottom': '8px'}")
               a-comment
                 template(slot="actions")
@@ -124,6 +125,10 @@ a-layout.home
 <style lang="scss" scoped>
   .home {
     padding: 4em;
+  }
+
+  .no-questions {
+    margin-top: 1em;
   }
 
   .questions h2 {
