@@ -37,9 +37,19 @@ export default {
 
       this.sortBy = e.target.value
 
-      this.sortQuestions()
+      this.sortQuestions({ intentional: true })
     },
-    sortQuestions () {
+    sortQuestions ({ intentional = false }) {
+      if (this.sortBy == 'random' && !intentional) {
+        this.previousQuestionsSortedIds.reverse().forEach(cq => {
+          const i = this.questions.findIndex(q => q._id == cq)
+          if (i == -1) return
+          this.questions.unshift(this.questions.splice(i, 1)[0])
+        })
+
+        return
+      }
+
       this.questions.sort((a, b) => {
         if (this.sortBy == 'popular') return (a.votes - b.votes) * this.orderBy
         else if (this.sortBy == 'random') return Math.random() * 2 - 1
@@ -66,6 +76,8 @@ export default {
   },
   watch: {
     'event.questions' (questions) {
+      this.previousQuestionsSortedIds = this.questions.map(q => q._id)
+
       this.questions = questions.slice()
       this.sortQuestions()
     }
