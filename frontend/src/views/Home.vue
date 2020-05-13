@@ -89,16 +89,18 @@ a-layout.home
           a-input(placeholder="Your name (optional)" v-model="name")
           a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
           a-row(type="flex" justify="space-between")
-        a-layout-content
-          a-row(type="flex" justify="space-between")
-            a-col(span="16")
-              span Sort questions by &nbsp;
-              a-radio-group(size="small" defaultValue="popular" buttonStyle="solid")
-                a-radio-button(value="popular" @click="updateSorting") Popular {{ popularSortOrderIndicator }}
-                a-radio-button(value="recent" @click="updateSorting") Recent {{ recentSortOrderIndicator }}
-                a-radio-button(value="random" @click="updateSorting") Random {{ randomSortOrderIndicator }}
-            a-col(span="8" class="question-counter")
-              a-tag(color="purple" class="questions-tag") {{event.questions && event.questions.length}} questions
+        a-layout-content.questions
+          a-row(type="flex" justify="space-between" align="middle")
+            a-col(span="8")
+              h2 Questions
+                a-avatar.question-count {{ questions.length }}
+            a-col(span="16" class="sort-container")
+              div(v-if="questions.length")
+                span Sort questions by &nbsp;
+                a-radio-group(size="small" defaultValue="popular" buttonStyle="solid" :value="sortBy")
+                  a-radio-button(value="popular" @click="updateSorting") Popular {{ popularSortOrderIndicator }}
+                  a-radio-button(value="recent" @click="updateSorting") Recent {{ recentSortOrderIndicator }}
+                  a-radio-button(value="random" @click="updateSorting") Random {{ randomSortOrderIndicator }}
           a-row
             a-card(v-for="question in questions" :key="question._id" :bodyStyle="{'padding-bottom': '8px'}")
               a-comment
@@ -124,7 +126,15 @@ a-layout.home
     padding: 4em;
   }
 
-  .question-counter {
+  .questions h2 {
+    margin-bottom: 0;
+  }
+
+  .question-count {
+    margin-left: 8px;
+  }
+
+  .sort-container {
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
