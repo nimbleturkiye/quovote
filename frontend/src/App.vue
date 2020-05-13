@@ -4,6 +4,10 @@
 </template>
 
 <style lang="scss">
+* {
+  position: relative;
+}
+
 #app {
   font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
