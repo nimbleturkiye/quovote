@@ -109,7 +109,8 @@ a-layout.home
                   slot="avatar")
                 p(slot="content") {{ question.text }}
                 a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
-                  span {{ moment(question.createdAt).fromNow() }}
+                  span(:id="'question-' + question._id.slice(-4)") {{ moment(question.createdAt).fromNow() }}
+                div.question-id.disabled {{ '#' + question._id.slice(-4) }}
     </a-tooltip>
 </template>
 
@@ -122,6 +123,15 @@ a-layout.home
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
+  }
+
+  .question-id {
+    position: absolute;
+    right: 0em;
+    top: 0em;
+    font-size: 12px;
+    line-height: 18px;
+    color: #ccc;
   }
 
   .questions-tag {
