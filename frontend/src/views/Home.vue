@@ -52,12 +52,12 @@ export default {
     popularSortOrderIndicator () {
       if (this.sortBy != 'popular') return ''
       if (this.orderBy == -1) return ' ▼'
-      else return ' ▲'
+      return ' ▲'
     },
     recentSortOrderIndicator () {
       if (this.sortBy != 'recent') return ''
       if (this.orderBy == -1) return ' ▼'
-      else return ' ▲'
+      return ' ▲'
     }
   },
   watch: {
