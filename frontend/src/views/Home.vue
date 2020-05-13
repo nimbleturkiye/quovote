@@ -11,6 +11,7 @@ export default {
       name: undefined,
       moment,
       sortBy: 'popular',
+      orderBy: -1,
       questions: []
     }
   },
@@ -30,20 +31,34 @@ export default {
       }
     },
     updateSorting (e) {
+      if (this.sortBy == e.target.value) {
+        this.orderBy = -this.orderBy
+      }
+
       this.sortBy = e.target.value
 
       this.sortQuestions()
     },
     sortQuestions () {
       this.questions.sort((a, b) => {
-        if (this.sortBy == 'popular') return b.votes - a.votes
+        if (this.sortBy == 'popular') return (a.votes - b.votes) * this.orderBy
 
-        return new Date(b.createdAt) - new Date(a.createdAt)
+        return (new Date(a.createdAt) - new Date(b.createdAt)) * this.orderBy
       })
     }
   },
   computed: {
-    ...mapState(['event', 'loading'])
+    ...mapState(['event', 'loading']),
+    popularSortOrderIndicator () {
+      if (this.sortBy != 'popular') return ''
+      if (this.orderBy == -1) return ' ▼'
+      else return ' ▲'
+    },
+    recentSortOrderIndicator () {
+      if (this.sortBy != 'recent') return ''
+      if (this.orderBy == -1) return ' ▼'
+      else return ' ▲'
+    }
   },
   watch: {
     'event.questions' (questions) {
@@ -74,9 +89,9 @@ a-layout.home
           a-row(type="flex" justify="space-between")
             a-col(span="16")
               span Sort questions by &nbsp;
-              a-radio-group(size="small" defaultValue="popular" buttonStyle="solid" @change="updateSorting")
-                a-radio-button(value="popular") Popular
-                a-radio-button(value="recent") Recent
+              a-radio-group(size="small" defaultValue="popular" buttonStyle="solid")
+                a-radio-button(value="popular" @click="updateSorting") Popular {{ popularSortOrderIndicator }}
+                a-radio-button(value="recent" @click="updateSorting") Recent {{ recentSortOrderIndicator }}
             a-col(span="8" class="question-counter")
               a-tag(color="purple" class="questions-tag") {{event.questions && event.questions.length}} questions
           a-row
