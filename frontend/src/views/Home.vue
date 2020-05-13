@@ -125,6 +125,7 @@ a-layout.home
 <style lang="scss" scoped>
   .home {
     padding: 4em;
+    min-height: 100vh;
   }
 
   .no-questions {
