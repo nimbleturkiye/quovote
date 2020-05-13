@@ -134,6 +134,7 @@ a-layout.home
     position: absolute;
     right: 0em;
     top: 0em;
+    padding: 24px;
     font-size: 12px;
     line-height: 18px;
     color: #ccc;
