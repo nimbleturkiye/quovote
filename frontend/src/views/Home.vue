@@ -42,7 +42,7 @@ export default {
     sortQuestions () {
       this.questions.sort((a, b) => {
         if (this.sortBy == 'popular') return (a.votes - b.votes) * this.orderBy
-
+        else if (this.sortBy == 'random') return Math.random() * 2 - 1
         return (new Date(a.createdAt) - new Date(b.createdAt)) * this.orderBy
       })
     }
@@ -58,6 +58,10 @@ export default {
       if (this.sortBy != 'recent') return ''
       if (this.orderBy == -1) return ' ▼'
       return ' ▲'
+    },
+    randomSortOrderIndicator () {
+      if (this.sortBy != 'random') return ''
+      return '◆'
     }
   },
   watch: {
@@ -92,6 +96,7 @@ a-layout.home
               a-radio-group(size="small" defaultValue="popular" buttonStyle="solid")
                 a-radio-button(value="popular" @click="updateSorting") Popular {{ popularSortOrderIndicator }}
                 a-radio-button(value="recent" @click="updateSorting") Recent {{ recentSortOrderIndicator }}
+                a-radio-button(value="random" @click="updateSorting") Random {{ randomSortOrderIndicator }}
             a-col(span="8" class="question-counter")
               a-tag(color="purple" class="questions-tag") {{event.questions && event.questions.length}} questions
           a-row
