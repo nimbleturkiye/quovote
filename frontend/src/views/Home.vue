@@ -39,7 +39,7 @@ export default {
 
       this.sortQuestions({ intentional: true })
     },
-    sortQuestions ({ intentional = false }) {
+    sortQuestions ({ intentional = false } = {}) {
       if (this.sortBy == 'random' && !intentional) {
         this.previousQuestionsSortedIds.reverse().forEach(cq => {
           const i = this.questions.findIndex(q => q._id == cq)
