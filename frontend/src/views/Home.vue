@@ -20,7 +20,7 @@ export default {
     this.joinEvent(this.$route.params.eventId)
   },
   methods: {
-    ...mapActions(['submitQuestion', 'setProperty', 'joinEvent', 'vote']),
+    ...mapActions(['submitQuestion', 'setProperty', 'joinEvent', 'vote', 'withdrawQuestion']),
     async sendQuestion () {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
@@ -120,7 +120,9 @@ export default {
                   span(key="comment-basic-like")
                     a-icon(type="like" :theme="question.voted ? 'filled' : 'outlined'")
                   span(style="padding-left: 4px") {{ question.votes }}
-              a(slot="author") {{ question.user }}
+                span
+                  a-button(type="secondary" v-if="question.ownQuestion" @click="withdrawQuestion(question._id)") Withdraw
+              a(slot="author") {{ question.author }}
               a-avatar(
                 src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
                 alt="Han Solo"

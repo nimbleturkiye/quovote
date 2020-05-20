@@ -10,8 +10,10 @@ const Question = new mongoose.Schema({
     default: []
   },
   user: {
-    // type: 'ObjectId',
-    // ref: 'User'
+    type: 'ObjectId',
+    ref: 'User'
+  },
+  author: {
     type: String,
     default: 'Anonymous'
   },
@@ -25,6 +27,7 @@ const Question = new mongoose.Schema({
     virtuals: true,
     transform(doc,  ret, options) {
       delete ret.voters
+      delete ret.user
       return ret
     }
   }

@@ -1,9 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/event');
-const Question = require('../models/question');
+const User = require('../models/user');
 const socketServer = require('../socket-connection');
 const ObjectId = require('mongoose').Types.ObjectId;
+
+async function ensureUser(req, res, next) {
+  if (!req.session.user)
+    req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id }, { upsert: true, new: true })
+
+  next()
+}
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
@@ -35,24 +42,24 @@ router.get('/events/:eventId', async (req, res, next) => {
 
   if (!event) return next(new Error('Event not found'))
 
-  event = Event.decorateForUser(event, req.session.id)
+  event = Event.decorateForUser(event, req.session.user && req.session.user._id)
 
   res.send(event)
 })
 
-router.post('/events/:eventId/questions', async function(req, res, next) {
+router.post('/events/:eventId/questions', ensureUser, async function(req, res, next) {
   if (!req.body.text) return next(new Error('Question cannot be left blank'))
 
   const event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
 
-  event.questions.unshift({ text: req.body.text, user: req.body.user })
+  event.questions.unshift({ text: req.body.text, author: req.body.user, user: req.session.user._id })
 
   try {
     await event.save()
 
-    const { questions } = Event.decorateForUser(event, req.session.id)
+    const { questions } = Event.decorateForUser(event, req.session.user._id)
 
     socketServer().to(req.params.eventId).emit('questions updated', questions)
 
@@ -62,11 +69,30 @@ router.post('/events/:eventId/questions', async function(req, res, next) {
   }
 })
 
-router.patch('/events/:eventId/questions/:questionId', async function(req, res, next) {
+router.delete('/events/:eventId/questions/:questionId', async function(req, res, next) {
+  let event = await Event.findOne({ _id: req.params.eventId })
+
+  if (!event) return next(new Error('Event not found'))
+
+  const question = event.questions.find(q => q.user.equals(req.session.user._id) && q._id.equals(req.params.questionId))
+
+  if (!question) return res.sendStatus(404)
+
+  question.remove()
+  await event.save()
+
+  const { questions } = Event.decorateForUser(event, req.session.user && req.session.user._id)
+
+  socketServer().to(req.params.eventId).emit('questions updated', questions)
+
+  res.sendStatus(200)
+})
+
+router.patch('/events/:eventId/questions/:questionId', ensureUser, async function(req, res, next) {
   const update = {}
 
   const predicate = {
-    'questions.$.voters': req.session.id
+    'questions.$.voters': req.session.user._id
   }
 
   if (req.body.vote == 'like') update.$addToSet = predicate
@@ -82,7 +108,7 @@ router.patch('/events/:eventId/questions/:questionId', async function(req, res, 
 
   await event.save()
 
-  const { questions } = Event.decorateForUser(event, req.session.id)
+  const { questions } = Event.decorateForUser(event, req.session.user._id)
 
   socketServer().to(req.params.eventId).emit('questions updated', questions)
 

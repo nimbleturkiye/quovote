@@ -67,6 +67,9 @@ const store = new Vuex.Store({
       socket.emit('join-room', state.eventId)
       dispatch('fetchEvent')
     },
+    async withdrawQuestion ({ state }, questionId) {
+      await axios.delete(`/api/events/${state.eventId}/questions/${questionId}`)
+    },
     updateQuestions ({ commit }, questions) {
       commit(mutations.UPDATE_QUESTIONS, questions)
     }
