@@ -10,6 +10,7 @@
   "dependencies": {
     "ant-design-vue": "^1.5.3",
     "axios": "^0.18.0",
+    "biri": "^0.3.0",
     "moment": "^2.24.0",
     "socket.io-client": "^2.3.0",
     "vue": "^2.6.6",

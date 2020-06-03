@@ -7,16 +7,24 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 async function ensureUser(req, res, next) {
   if (!req.session.user)
-    req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id }, { upsert: true, new: true })
+    req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
 
   next()
 }
+
+router.post('/register', async (req, res, next) => {
+  req.session.computerId = req.body.computerId
+  req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+
+  req.session.save()
+  res.sendStatus(200)
+})
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-router.get('/events', async (req, res, next) => {
+router.get('/events', ensureUser, async (req, res, next) => {
   let query = { code: new RegExp(`^${req.query.code}$`, 'i') }
 
   if (ObjectId.isValid(req.query.code)) {
@@ -42,7 +50,7 @@ router.get('/events/:eventId', async (req, res, next) => {
 
   if (!event) return next(new Error('Event not found'))
 
-  event = Event.decorateForUser(event, req.session.user && req.session.user._id)
+  event = Event.decorateForUser(event, req.session.user && req.session.computerId)
 
   res.send(event)
 })
@@ -54,12 +62,12 @@ router.post('/events/:eventId/questions', ensureUser, async function(req, res, n
 
   if (!event) return next(new Error('Event not found'))
 
-  event.questions.unshift({ text: req.body.text, author: req.body.user, user: req.session.user._id })
+  event.questions.unshift({ text: req.body.text, author: req.body.user, user: req.session.computerId })
 
   try {
     await event.save()
 
-    const { questions } = Event.decorateForUser(event, req.session.user._id)
+    const { questions } = Event.decorateForUser(event, req.session.computerId)
 
     socketServer().to(req.params.eventId).emit('questions updated', questions)
 
@@ -74,14 +82,14 @@ router.delete('/events/:eventId/questions/:questionId', async function(req, res,
 
   if (!event) return next(new Error('Event not found'))
 
-  const question = event.questions.find(q => q.user.equals(req.session.user._id) && q._id.equals(req.params.questionId))
+  const question = event.questions.find(q => q.user == req.session.computerId && q._id.equals(req.params.questionId))
 
   if (!question) return res.sendStatus(404)
 
   question.remove()
   await event.save()
 
-  const { questions } = Event.decorateForUser(event, req.session.user && req.session.user._id)
+  const { questions } = Event.decorateForUser(event, req.session.user && req.session.computerId)
 
   socketServer().to(req.params.eventId).emit('questions updated', questions)
 
@@ -92,7 +100,7 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
   const update = {}
 
   const predicate = {
-    'questions.$.voters': req.session.user._id
+    'questions.$.voters': req.session.computerId
   }
 
   if (req.body.vote == 'like') update.$addToSet = predicate
@@ -108,7 +116,7 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
 
   await event.save()
 
-  const { questions } = Event.decorateForUser(event, req.session.user._id)
+  const { questions } = Event.decorateForUser(event, req.session.computerId)
 
   socketServer().to(req.params.eventId).emit('questions updated', questions)
 

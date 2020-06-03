@@ -1,13 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import biri from 'biri'
 import io from 'socket.io-client'
 
 Vue.use(Vuex)
 
 const mutations = {
   SET_PROPERTY: 'setProperty',
-  UPDATE_QUESTIONS: 'updateQuestions'
+  UPDATE_QUESTIONS: 'updateQuestions',
+  SET_COMPUTER_ID: 'setComputerId'
 }
 
 const socket = io()
@@ -16,7 +18,8 @@ const store = new Vuex.Store({
   state: {
     loading: false,
     eventId: null,
-    event: {}
+    event: {},
+    computerId: 0
   },
   mutations: {
     [mutations.SET_PROPERTY] (state, obj) {
@@ -26,6 +29,9 @@ const store = new Vuex.Store({
     },
     [mutations.UPDATE_QUESTIONS] (state, obj) {
       state.event.questions = obj
+    },
+    [mutations.SET_COMPUTER_ID] (state, computerId) {
+      state.computerId = computerId
     }
   },
   actions: {
@@ -64,6 +70,7 @@ const store = new Vuex.Store({
       commit(mutations.SET_PROPERTY, obj)
     },
     async joinEvent ({ commit, dispatch, state }) {
+      console.log('join event')
       socket.emit('join-room', state.eventId)
       dispatch('fetchEvent')
     },
@@ -72,6 +79,11 @@ const store = new Vuex.Store({
     },
     updateQuestions ({ commit }, questions) {
       commit(mutations.UPDATE_QUESTIONS, questions)
+    },
+    async registerComputerId ({ commit }, computerId) {
+      commit(mutations.SET_COMPUTER_ID, computerId)
+
+      await axios.post('/api/register', { computerId })
     }
   }
 })
@@ -80,4 +92,7 @@ socket.on('questions updated', questions => {
   store.dispatch('updateQuestions', questions)
 })
 
-export default store
+export default async function init() {
+  await store.dispatch('registerComputerId', await biri())
+  return store
+}

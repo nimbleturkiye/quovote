@@ -39,7 +39,7 @@ Event.pre('save', async function (next) {
 
 Event.static('decorateForUser', function (event, userId) {
   const updatedQuestions = event.questions.toObject().map(q => {
-    return { ...q, voted: q.voters.includes(userId), ownQuestion: q.user.equals(userId), user: undefined, voters: undefined }
+    return { ...q, voted: q.voters.includes(userId), ownQuestion: q.user == userId, user: undefined, voters: undefined }
   })
 
   return { ...event.toObject(), questions: updatedQuestions }
