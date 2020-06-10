@@ -2,12 +2,23 @@ const express = require('express');
 const router = express.Router();
 const Event = require('../models/event');
 const User = require('../models/user');
+const Singularity = require('../models/singularity');
 const socketServer = require('../socket-connection');
 const ObjectId = require('mongoose').Types.ObjectId;
+
+async function ensureSingularity(singularity) {
+  try {
+    await Singularity.create(singularity)
+  } catch(e) {
+    console.log('this user was previously seen', singularity)
+  }
+}
 
 async function ensureUser(req, res, next) {
   if (!req.session.user)
     req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+
+  await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
 
   next()
 }
@@ -15,6 +26,8 @@ async function ensureUser(req, res, next) {
 router.post('/register', async (req, res, next) => {
   req.session.computerId = req.body.computerId
   req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+
+  await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
 
   req.session.save()
   res.sendStatus(200)
@@ -97,19 +110,27 @@ router.delete('/events/:eventId/questions/:questionId', async function(req, res,
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureUser, async function(req, res, next) {
-  const update = {}
+  const singularities = await Singularity.find({
+    $or: [
+      { userId: req.session.user._id },
+      { computerId: req.session.computerId },
+      { sessionId: req.session._id }
+    ]
+  }).select('userId')
 
-  const predicate = {
-    'questions.$.voters': req.session.computerId
+  const operator = req.body.vote == 'like' ? '$addToSet' : '$pull'
+
+  const update = {
+    [operator]: {
+      'questions.$.voters': req.session.user._id
+    }
   }
-
-  if (req.body.vote == 'like') update.$addToSet = predicate
-  else if (req.body.vote == 'dislike') update.$pull = predicate
 
   const event = await Event.findOneAndUpdate({
     _id: req.params.eventId
   }, update, { new: true }).elemMatch('questions', {
-    _id: req.params.questionId
+    _id: req.params.questionId,
+    voters: { $nin: singularities.map(s => s.userId) }
   })
 
   if (!event) return next(new Error('Event or question not found'))
