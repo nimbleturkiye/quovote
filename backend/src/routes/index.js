@@ -23,6 +23,16 @@ async function ensureUser(req, res, next) {
   next()
 }
 
+async function fetchUserIdsBySingularities({sessionId, userId, computerId}) {
+  return Singularity.find({
+      $or: [
+        { sessionId },
+        { userId },
+        { computerId }
+      ]
+    }).select('-_id userId').distinct('userId')
+}
+
 router.post('/register', async (req, res, next) => {
   req.session.computerId = req.body.computerId
   req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
@@ -62,25 +72,47 @@ router.get('/events/:eventId', async (req, res, next) => {
   let event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
-
-  event = Event.decorateForUser(event, req.session.user && req.session.computerId)
-
-  res.send(event)
+  try {
+    const {
+      id: sessionId,
+      user: {
+        _id: userId
+      },
+      computerId
+    } =  req.session;
+    const userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
+    event = Event.decorateForUser(event, userIds)
+    res.send(event)
+  } catch (error) {
+    return next(new Error('UserId not found'))
+  }
 })
 
 router.post('/events/:eventId/questions', ensureUser, async function(req, res, next) {
   if (!req.body.text) return next(new Error('Question cannot be left blank'))
 
   const event = await Event.findOne({ _id: req.params.eventId })
-
   if (!event) return next(new Error('Event not found'))
+  let userIds;
+  try {
+    const {
+      id: sessionId,
+      user: {
+        _id: userId
+      },
+      computerId
+    } =  req.session;
+    userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
+    event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
+  } catch (error) {
+    return next(new Error('UserId not found'))
+  }
 
-  event.questions.unshift({ text: req.body.text, author: req.body.user, user: req.session.computerId })
 
   try {
     await event.save()
 
-    const { questions } = Event.decorateForUser(event, req.session.computerId)
+    const { questions } = Event.decorateForUser(event, userIds)
 
     socketServer().to(req.params.eventId).emit('questions updated', questions)
 
@@ -95,29 +127,35 @@ router.delete('/events/:eventId/questions/:questionId', async function(req, res,
 
   if (!event) return next(new Error('Event not found'))
 
-  const question = event.questions.find(q => q.user == req.session.computerId && q._id.equals(req.params.questionId))
+  try {
+    const {
+      id: sessionId,
+      user: {
+        _id: userId
+      },
+      computerId
+    } =  req.session;
+    const userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
 
-  if (!question) return res.sendStatus(404)
+    const question = event.questions.find(q => userIds.some((i) => i.equals(q.user)) && q._id.equals(req.params.questionId))
 
-  question.remove()
-  await event.save()
+    if (!question) return res.sendStatus(404)
 
-  const { questions } = Event.decorateForUser(event, req.session.user && req.session.computerId)
+    question.remove()
+    await event.save()
 
-  socketServer().to(req.params.eventId).emit('questions updated', questions)
+    const { questions } = Event.decorateForUser(event, userIds)
 
-  res.sendStatus(200)
+    socketServer().to(req.params.eventId).emit('questions updated', questions)
+
+    res.sendStatus(200)
+  } catch (error) {
+    return next(new Error('UserId not found'))
+  }
+
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureUser, async function(req, res, next) {
-  const singularities = await Singularity.find({
-    $or: [
-      { userId: req.session.user._id },
-      { computerId: req.session.computerId },
-      { sessionId: req.session._id }
-    ]
-  }).select('userId')
-
   const operator = req.body.vote == 'like' ? '$addToSet' : '$pull'
 
   const update = {
@@ -137,11 +175,16 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
 
   await event.save()
 
-  const { questions } = Event.decorateForUser(event, req.session.computerId)
+  try {
+    const { questions } = Event.decorateForUser(event, userIds)
 
-  socketServer().to(req.params.eventId).emit('questions updated', questions)
+    socketServer().to(req.params.eventId).emit('questions updated', questions)
 
-  res.sendStatus(200)
+    res.sendStatus(200)
+  } catch (error) {
+    return next(new Error('UserId not found'))
+  }
+
 })
 
 module.exports = router;
