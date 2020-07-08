@@ -156,11 +156,21 @@ router.delete('/events/:eventId/questions/:questionId', async function(req, res,
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureUser, async function(req, res, next) {
-  const operator = req.body.vote == 'like' ? '$addToSet' : '$pull'
+  const operator = req.body.vote == 'like' ? '$addToSet' : '$pullAll'
+  const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
+
+  const {
+    id: sessionId,
+    user: {
+      _id: userId
+    },
+    computerId
+  } =  req.session;
+  const userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
 
   const update = {
     [operator]: {
-      'questions.$.voters': req.session.user._id
+      'questions.$.voters': req.body.vote == 'like' ? req.session.user._id : userIds
     }
   }
 
@@ -168,7 +178,7 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
     _id: req.params.eventId
   }, update, { new: true }).elemMatch('questions', {
     _id: req.params.questionId,
-    voters: { $nin: singularities.map(s => s.userId) }
+    voters: { [inOperator]: userIds }
   })
 
   if (!event) return next(new Error('Event or question not found'))
