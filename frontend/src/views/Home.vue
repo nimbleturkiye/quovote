@@ -151,21 +151,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-  .home {
-    min-height: 100vh;
-    background-color: #f6f6f6;
-    padding: 4em;
-    @media (max-width: 576px) {
-      padding: 1em;
-    }
-  }
-
-  .content {
-    max-width: 760px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
   .questions {
     .questions-header {
       display: flex;
