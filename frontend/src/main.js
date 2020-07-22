@@ -4,8 +4,8 @@ import router from './router'
 import store from './store'
 import 'ant-design-vue/dist/antd.css'
 
-import { Button, Input, Icon, Layout, Row, Col, Comment, Tooltip, Avatar, Card, Tag, Radio, Menu, Form } from 'ant-design-vue'
-const components = [ Button, Input, Icon, Layout, Row, Col, Comment, Tooltip, Avatar, Card, Tag, Radio, Menu, Form ]
+import { Button, Input, Icon, Layout, Row, Col, Comment, Tooltip, Avatar, Card, Tag, Radio, Menu, Form, Alert } from 'ant-design-vue'
+const components = [ Button, Input, Icon, Layout, Row, Col, Comment, Tooltip, Avatar, Card, Tag, Radio, Menu, Form, Alert ]
 
 components.forEach(c => Vue.use(c))
 
