@@ -5,7 +5,8 @@
         .logo
         a-menu(theme='light', mode='horizontal', :style="{ lineHeight: '64px' }")
           a-menu-item(key='1')
-            | Log in
+            router-link(to="/login")
+              | Log in
           a-menu-item(key='2')
             router-link(to="/register")
               | Sign up

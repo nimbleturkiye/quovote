@@ -87,6 +87,9 @@ const store = new Vuex.Store({
     },
     async registerUser(store, user) {
       return axios.post('/api/account/register', { user })
+    },
+    async login(store, user) {
+      return axios.post('/api/account/login', user)
     }
   }
 })

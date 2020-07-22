@@ -15,10 +15,10 @@ async function ensureSingularity(singularity) {
 }
 
 async function ensureUser(req, res, next) {
-  if (!req.session.user)
-    req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+  // if (!req.session.user)
+  //   req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
 
-  await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
+  // await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
 
   next()
 }
@@ -34,12 +34,12 @@ async function fetchUserIdsBySingularities({sessionId, userId, computerId}) {
 }
 
 router.post('/register', async (req, res, next) => {
-  req.session.computerId = req.body.computerId
-  req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+  // req.session.computerId = req.body.computerId
+  // req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
 
-  await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
+  // await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
 
-  req.session.save()
+  // req.session.save()
   res.sendStatus(200)
 })
 
