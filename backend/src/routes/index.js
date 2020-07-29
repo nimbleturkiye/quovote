@@ -4,20 +4,28 @@ const Event = require('../models/event')
 const Singularity = require('../models/singularity')
 const socketServer = require('../socket-connection')
 const User = require('../models/user')
+const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
-async function ensureSingularity(singularity) {
-  try {
-    await Singularity.create(singularity)
-  } catch(e) {
-    console.log('this user was previously seen', singularity)
-  }
-}
 
 async function ensureUser(req, res, next) {
-  // if (!req.session.user)
-  //   req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+  if (!req.session.userId) {
+    if (req.user) req.session.userId = req.user._id
+    else {
+      const user = await User.findOneAndUpdate(
+        { sessionId: req.session.id },
+        { sessionId: req.session.id, computerId: req.session.computerId, email: Math.random() },
+        { upsert: true, new: true }
+      )
 
-  // await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
+      req.session.userId = user._id
+    }
+  }
+
+  await ensureSingularity({
+    userId: req.session.userId,
+    sessionId: req.session.id,
+    computerId: req.session.computerId,
+  })
 
   next()
 }
@@ -30,13 +38,18 @@ async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
     .distinct('userId')
 }
 
-router.post('/register', async (req, res, next) => {
-  // req.session.computerId = req.body.computerId
-  // req.session.user = await User.findOneAndUpdate({ sessionId: req.session.id }, { sessionId: req.session.id, computerId: req.session.computerId }, { upsert: true, new: true })
+router.post('/singularity', async (req, res, next) => {
+  req.session.computerId = req.body.computerId
 
-  // await ensureSingularity({ userId: req.session.user._id, sessionId: req.session.id, computerId: req.session.computerId })
+  let userId = req.user && req.user._id
 
-  // req.session.save()
+  await ensureSingularity({
+    userId,
+    sessionId: req.session.id,
+    computerId: req.session.computerId,
+  })
+
+  await req.session.save()
   res.sendStatus(200)
 })
 
@@ -65,19 +78,13 @@ router.post('/events', async function (req, res, next) {
   res.send(event)
 })
 
-router.get('/events/:eventId', async (req, res, next) => {
+router.get('/events/:eventId', ensureUser, async (req, res, next) => {
   let event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
   try {
-    const {
-      id: sessionId,
-      user: {
-        _id: userId
-      },
-      computerId
-    } =  req.session;
-    const userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
+    const { id: sessionId, userId, computerId } = req.session
+    const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
     event = Event.decorateForUser(event, userIds)
     res.send(event)
   } catch (error) {
@@ -92,19 +99,12 @@ router.post('/events/:eventId/questions', ensureUser, async function (req, res, 
   if (!event) return next(new Error('Event not found'))
   let userIds
   try {
-    const {
-      id: sessionId,
-      user: {
-        _id: userId
-      },
-      computerId
-    } =  req.session;
-    userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
+    const { id: sessionId, userId, computerId } = req.session
+    userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
     event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
   } catch (error) {
     return next(new Error('UserId not found'))
   }
-
 
   try {
     await event.save()
@@ -125,16 +125,12 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
   if (!event) return next(new Error('Event not found'))
 
   try {
-    const {
-      id: sessionId,
-      user: {
-        _id: userId
-      },
-      computerId
-    } =  req.session;
-    const userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
+    const { id: sessionId, userId, computerId } = req.session
+    const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
-    const question = event.questions.find(q => userIds.some((i) => i.equals(q.user)) && q._id.equals(req.params.questionId))
+    const question = event.questions.find(
+      q => userIds.some(i => i.equals(q.user)) && q._id.equals(req.params.questionId)
+    )
 
     if (!question) return res.sendStatus(404)
 
@@ -149,26 +145,19 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
   } catch (error) {
     return next(new Error('UserId not found'))
   }
-
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureUser, async function (req, res, next) {
   const operator = req.body.vote == 'like' ? '$addToSet' : '$pullAll'
   const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
 
-  const {
-    id: sessionId,
-    user: {
-      _id: userId
-    },
-    computerId
-  } =  req.session;
-  const userIds =  await fetchUserIdsBySingularities({sessionId, userId, computerId})
+  const { id: sessionId, userId, computerId } = req.session
+  const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
   const update = {
     [operator]: {
-      'questions.$.voters': req.body.vote == 'like' ? req.session.user._id : userIds
-    }
+      'questions.$.voters': req.body.vote == 'like' ? req.session.userId : userIds,
+    },
   }
 
   const event = await Event.findOneAndUpdate(
@@ -195,7 +184,6 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
   } catch (error) {
     return next(new Error('UserId not found'))
   }
-
 })
 
 module.exports = router

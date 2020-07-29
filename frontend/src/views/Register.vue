@@ -67,6 +67,7 @@ export default {
 
         try {
           await this.registerUser(values)
+          this.$router.push('/login')
         } catch (e) {
           this.backendError = e.response.data
         }

@@ -83,7 +83,7 @@ const store = new Vuex.Store({
     async registerComputerId({ commit }, computerId) {
       commit(mutations.SET_COMPUTER_ID, computerId)
 
-      await axios.post('/api/register', { computerId })
+      await axios.post('/api/singularity', { computerId })
     },
     async registerUser(store, user) {
       return axios.post('/api/account/register', { user })

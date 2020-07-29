@@ -55,6 +55,7 @@ export default {
         if (err) return
         try {
           await this.login(values)
+          this.$router.push('/dashboard')
         } catch (e) {
           this.backendError = e.response.data
         }
