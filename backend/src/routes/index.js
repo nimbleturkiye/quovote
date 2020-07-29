@@ -1,11 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const Event = require('../models/event');
-const User = require('../models/user');
-const Singularity = require('../models/singularity');
-const socketServer = require('../socket-connection');
-const ObjectId = require('mongoose').Types.ObjectId;
-
+const express = require('express')
+const router = express.Router()
+const Event = require('../models/event')
+const Singularity = require('../models/singularity')
+const socketServer = require('../socket-connection')
+const User = require('../models/user')
+const ObjectId = require('mongoose').Types.ObjectId
 async function ensureSingularity(singularity) {
   try {
     await Singularity.create(singularity)
@@ -23,14 +22,12 @@ async function ensureUser(req, res, next) {
   next()
 }
 
-async function fetchUserIdsBySingularities({sessionId, userId, computerId}) {
+async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
   return Singularity.find({
-      $or: [
-        { sessionId },
-        { userId },
-        { computerId }
-      ]
-    }).select('-_id userId').distinct('userId')
+    $or: [{ sessionId }, { userId }, { computerId }],
+  })
+    .select('-_id userId')
+    .distinct('userId')
 }
 
 router.post('/register', async (req, res, next) => {
@@ -44,8 +41,8 @@ router.post('/register', async (req, res, next) => {
 })
 
 router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
+  res.send('respond with a resource')
+})
 
 router.get('/events', ensureUser, async (req, res, next) => {
   let query = { code: new RegExp(`^${req.query.code}$`, 'i') }
@@ -61,8 +58,8 @@ router.get('/events', ensureUser, async (req, res, next) => {
   res.send(event._id)
 })
 
-router.post('/events', async function(req, res, next) {
-  const event = new Event({title: 'test event'})
+router.post('/events', async function (req, res, next) {
+  const event = new Event({ title: 'test event' })
   await event.save()
 
   res.send(event)
@@ -88,12 +85,12 @@ router.get('/events/:eventId', async (req, res, next) => {
   }
 })
 
-router.post('/events/:eventId/questions', ensureUser, async function(req, res, next) {
+router.post('/events/:eventId/questions', ensureUser, async function (req, res, next) {
   if (!req.body.text) return next(new Error('Question cannot be left blank'))
 
   const event = await Event.findOne({ _id: req.params.eventId })
   if (!event) return next(new Error('Event not found'))
-  let userIds;
+  let userIds
   try {
     const {
       id: sessionId,
@@ -117,12 +114,12 @@ router.post('/events/:eventId/questions', ensureUser, async function(req, res, n
     socketServer().to(req.params.eventId).emit('questions updated', questions)
 
     res.send(event)
-  } catch(e) {
+  } catch (e) {
     next(e)
   }
 })
 
-router.delete('/events/:eventId/questions/:questionId', async function(req, res, next) {
+router.delete('/events/:eventId/questions/:questionId', async function (req, res, next) {
   let event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
@@ -155,7 +152,7 @@ router.delete('/events/:eventId/questions/:questionId', async function(req, res,
 
 })
 
-router.patch('/events/:eventId/questions/:questionId', ensureUser, async function(req, res, next) {
+router.patch('/events/:eventId/questions/:questionId', ensureUser, async function (req, res, next) {
   const operator = req.body.vote == 'like' ? '$addToSet' : '$pullAll'
   const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
 
@@ -174,11 +171,15 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
     }
   }
 
-  const event = await Event.findOneAndUpdate({
-    _id: req.params.eventId
-  }, update, { new: true }).elemMatch('questions', {
+  const event = await Event.findOneAndUpdate(
+    {
+      _id: req.params.eventId,
+    },
+    update,
+    { new: true }
+  ).elemMatch('questions', {
     _id: req.params.questionId,
-    voters: { [inOperator]: userIds }
+    voters: { [inOperator]: userIds },
   })
 
   if (!event) return next(new Error('Event or question not found'))
@@ -197,4 +198,4 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
 
 })
 
-module.exports = router;
+module.exports = router

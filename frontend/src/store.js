@@ -22,24 +22,24 @@ const store = new Vuex.Store({
     computerId: 0
   },
   mutations: {
-    [mutations.SET_PROPERTY] (state, obj) {
+    [mutations.SET_PROPERTY](state, obj) {
       for (var key in obj) {
         state[key] = obj[key]
       }
     },
-    [mutations.UPDATE_QUESTIONS] (state, obj) {
+    [mutations.UPDATE_QUESTIONS](state, obj) {
       state.event.questions = obj
     },
-    [mutations.SET_COMPUTER_ID] (state, computerId) {
+    [mutations.SET_COMPUTER_ID](state, computerId) {
       state.computerId = computerId
     }
   },
   actions: {
-    async fetchEventIdByCode (ctx, code) {
+    async fetchEventIdByCode(ctx, code) {
       const res = await axios.get(`/api/events?code=${code}`)
       return res.data
     },
-    async submitQuestion ({ commit, dispatch, state }, { question, name }) {
+    async submitQuestion({ commit, dispatch, state }, { question, name }) {
       commit(mutations.SET_PROPERTY, { loading: true })
 
       try {
@@ -50,12 +50,12 @@ const store = new Vuex.Store({
         commit(mutations.SET_PROPERTY, { loading: false })
       }
     },
-    async fetchEvent ({ commit, state }) {
+    async fetchEvent({ commit, state }) {
       const req = await axios.get(`/api/events/${state.eventId}`)
 
       commit(mutations.SET_PROPERTY, { event: req.data })
     },
-    async vote ({ commit, state }, { questionId, vote }) {
+    async vote({ commit, state }, { questionId, vote }) {
       commit(mutations.SET_PROPERTY, { loading: true })
 
       try {
@@ -66,21 +66,21 @@ const store = new Vuex.Store({
         commit(mutations.SET_PROPERTY, { loading: false })
       }
     },
-    async setProperty ({ commit }, obj) {
+    async setProperty({ commit }, obj) {
       commit(mutations.SET_PROPERTY, obj)
     },
-    async joinEvent ({ commit, dispatch, state }) {
+    async joinEvent({ commit, dispatch, state }) {
       console.log('join event')
       socket.emit('join-room', state.eventId)
       dispatch('fetchEvent')
     },
-    async withdrawQuestion ({ state }, questionId) {
+    async withdrawQuestion({ state }, questionId) {
       await axios.delete(`/api/events/${state.eventId}/questions/${questionId}`)
     },
-    updateQuestions ({ commit }, questions) {
+    updateQuestions({ commit }, questions) {
       commit(mutations.UPDATE_QUESTIONS, questions)
     },
-    async registerComputerId ({ commit }, computerId) {
+    async registerComputerId({ commit }, computerId) {
       commit(mutations.SET_COMPUTER_ID, computerId)
 
       await axios.post('/api/register', { computerId })

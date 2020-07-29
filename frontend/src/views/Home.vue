@@ -5,7 +5,7 @@ import moment from 'moment'
 
 export default {
   name: 'home',
-  data () {
+  data() {
     return {
       question: '',
       name: undefined,
@@ -15,13 +15,13 @@ export default {
       questions: []
     }
   },
-  created () {
+  created() {
     this.setProperty({ eventId: this.$route.params.eventId })
     this.joinEvent(this.$route.params.eventId)
   },
   methods: {
     ...mapActions(['submitQuestion', 'setProperty', 'joinEvent', 'vote', 'withdrawQuestion']),
-    async sendQuestion () {
+    async sendQuestion() {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
 
@@ -30,7 +30,7 @@ export default {
         notification.error({ message: e.message })
       }
     },
-    updateSorting (e) {
+    updateSorting(e) {
       if (this.sortBy == e.target.value) {
         this.orderBy = -this.orderBy
       }
@@ -39,7 +39,7 @@ export default {
 
       this.sortQuestions({ intentional: true })
     },
-    sortQuestions ({ intentional = false } = {}) {
+    sortQuestions({ intentional = false } = {}) {
       if (this.sortBy == 'random' && !intentional) {
         this.previousQuestionsSortedIds.reverse().forEach(cq => {
           const i = this.questions.findIndex(q => q._id == cq)
@@ -59,23 +59,23 @@ export default {
   },
   computed: {
     ...mapState(['event', 'loading']),
-    popularSortOrderIndicator () {
+    popularSortOrderIndicator() {
       if (this.sortBy != 'popular') return ''
       if (this.orderBy == -1) return ' ▼'
       return ' ▲'
     },
-    recentSortOrderIndicator () {
+    recentSortOrderIndicator() {
       if (this.sortBy != 'recent') return ''
       if (this.orderBy == -1) return ' ▼'
       return ' ▲'
     },
-    randomSortOrderIndicator () {
+    randomSortOrderIndicator() {
       if (this.sortBy != 'random') return ''
       return '◆'
     }
   },
   watch: {
-    'event.questions' (questions) {
+    'event.questions'(questions) {
       this.previousQuestionsSortedIds = this.questions.map(q => q._id)
 
       this.questions = questions.slice()
@@ -135,96 +135,95 @@ export default {
 </template>
 
 <style lang="scss">
-  .questions {
-    .ant-card {
-      .ant-card-body {
-        padding: 0px 24px;
+.questions {
+  .ant-card {
+    .ant-card-body {
+      padding: 0px 24px;
 
-        hr {
-          height: 1px;
-          border: 0;
-          border-bottom: 1px solid #e8e8e8;
-        }
+      hr {
+        height: 1px;
+        border: 0;
+        border-bottom: 1px solid #e8e8e8;
       }
     }
   }
+}
 </style>
 
 <style lang="scss" scoped>
-  .questions {
-    .questions-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+.questions {
+  .questions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-      @media (max-width: 680px) {
-        display: block;
-      }
+    @media (max-width: 680px) {
+      display: block;
     }
-
-    .ant-card {
-      margin: 0;
-      padding-bottom: 16px;
-    }
-
-    .questions-container {
-      margin-top: 24px;
-    }
-  }
-
-  .no-questions {
-    margin-top: 1em;
-  }
-
-  .questions h2 {
-    margin-bottom: 0;
-  }
-
-  .question-count {
-    margin-left: 8px;
-  }
-
-  .sort-container {
-    margin-top: 1em;
-  }
-
-  @media (min-width: 681px) {
-    .sort-container {
-      margin-top: 0;
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-end;
-    }
-  }
-
-  .question-id {
-    position: absolute;
-    right: 0em;
-    top: 0em;
-    padding: 18px;
-    font-size: 12px;
-    line-height: 18px;
-    color: #ccc;
-  }
-
-  .questions-tag {
-    margin-right: 0;
-  }
-
-  .ant-comment {
-    background: white
   }
 
   .ant-card {
-    margin: 24px 0;
+    margin: 0;
+    padding-bottom: 16px;
   }
 
-  form > * {
-    margin: 8px 0 !important;
+  .questions-container {
+    margin-top: 24px;
   }
+}
 
-  textarea {
-    padding: 8px;
+.no-questions {
+  margin-top: 1em;
+}
+
+.questions h2 {
+  margin-bottom: 0;
+}
+
+.question-count {
+  margin-left: 8px;
+}
+
+.sort-container {
+  margin-top: 1em;
+}
+
+@media (min-width: 681px) {
+  .sort-container {
+    margin-top: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
   }
+}
 
+.question-id {
+  position: absolute;
+  right: 0em;
+  top: 0em;
+  padding: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #ccc;
+}
+
+.questions-tag {
+  margin-right: 0;
+}
+
+.ant-comment {
+  background: white;
+}
+
+.ant-card {
+  margin: 24px 0;
+}
+
+form > * {
+  margin: 8px 0 !important;
+}
+
+textarea {
+  padding: 8px;
+}
 </style>

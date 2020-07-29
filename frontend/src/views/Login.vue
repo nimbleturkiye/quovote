@@ -3,81 +3,86 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'login',
-  data () {
+  data() {
     return {
       loading: false,
       formItemLayout: {
         labelCol: {
           xs: { span: 24 },
-          sm: { span: 6 },
+          sm: { span: 6 }
         },
         wrapperCol: {
           xs: { span: 24 },
-          sm: { span: 18 },
-        },
+          sm: { span: 18 }
+        }
       },
       tailFormItemLayout: {
         wrapperCol: {
           xs: {
             span: 24,
-            offset: 0,
+            offset: 0
           },
           sm: {
             span: 16,
-            offset: 6,
-          },
-        },
+            offset: 6
+          }
+        }
       },
       validationRules: {
-        email: [ 'email', { rules: [
-          { type: 'email', message: 'The input is not valid e-mail.' },
-          { required: true, message: 'Please input your e-mail.' }
-        ]}],
-        password: [ 'password', { rules: [
-          { required: true, message: 'Password is required.'},
-          { validator: this.validateToNextPassword }
-        ]}]
+        email: [
+          'email',
+          {
+            rules: [
+              { type: 'email', message: 'The input is not valid e-mail.' },
+              { required: true, message: 'Please input your e-mail.' }
+            ]
+          }
+        ],
+        password: [
+          'password',
+          { rules: [{ required: true, message: 'Password is required.' }, { validator: this.validateToNextPassword }] }
+        ]
       },
       backendError: null
     }
   },
   methods: {
     ...mapActions(['login']),
-    submitLogin (e) {
-      e.preventDefault();
+    submitLogin(e) {
+      e.preventDefault()
       this.backendError = null
       this.form.validateFieldsAndScroll(async (err, values) => {
         if (err) return
         try {
           await this.login(values)
-        } catch(e) {
+        } catch (e) {
           this.backendError = e.response.data
         }
       })
     },
     validateToNextPassword(rule, value, callback) {
-      const form = this.form;
+      const form = this.form
       if (value && this.confirmPasswordDirty) {
-        form.validateFields(['confirmPassword'], { force: true });
+        form.validateFields(['confirmPassword'], { force: true })
       }
-      callback();
+      callback()
     },
     handleConfirmBlur(e) {
-      const value = e.target.value;
-      this.confirmPasswordDirty = this.confirmPasswordDirty || !!value;
+      const value = e.target.value
+      this.confirmPasswordDirty = this.confirmPasswordDirty || !!value
     },
     onValuesChange() {
       this.backendError = null
     }
   },
   beforeCreate() {
-    const component = this;
+    const component = this
     this.form = this.$form.createForm(this, {
       name: 'login',
       onValuesChange() {
         component.backendError = null
       }
-    });
+    })
   }
 }
 </script>
@@ -98,6 +103,4 @@ export default {
         a-button(type="primary" @click="submitLogin" :loading="loading" icon="message") Log in
 </template>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
