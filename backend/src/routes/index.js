@@ -8,16 +8,24 @@ const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
 
 async function ensureUser(req, res, next) {
+  if (req.body.computerId) req.session.computerId = req.body.computerId
+
   if (!req.session.userId) {
     if (req.user) req.session.userId = req.user._id
     else {
       const user = await User.findOneAndUpdate(
         { sessionId: req.session.id },
-        { sessionId: req.session.id, computerId: req.session.computerId, email: Math.random() },
+        {
+          sessionId: req.session.id,
+          computerId: req.session.computerId,
+          email: Math.random(),
+        },
         { upsert: true, new: true }
       )
 
       req.session.userId = user._id
+
+      await req.session.save()
     }
   }
 
@@ -38,18 +46,7 @@ async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
     .distinct('userId')
 }
 
-router.post('/singularity', async (req, res, next) => {
-  req.session.computerId = req.body.computerId
-
-  let userId = req.user && req.user._id
-
-  await ensureSingularity({
-    userId,
-    sessionId: req.session.id,
-    computerId: req.session.computerId,
-  })
-
-  await req.session.save()
+router.post('/singularity', ensureUser, async (req, res, next) => {
   res.sendStatus(200)
 })
 
