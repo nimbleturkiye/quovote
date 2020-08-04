@@ -1,39 +1,42 @@
 const mongoose = require('mongoose')
 
-const Question = new mongoose.Schema({
-  text: {
-    type: String,
-    required: true,
+const Question = new mongoose.Schema(
+  {
+    text: {
+      type: String,
+      required: true,
+    },
+    voters: {
+      type: ['ObjectId'],
+      default: [],
+    },
+    user: {
+      type: 'ObjectId',
+      ref: 'User',
+    },
+    author: {
+      type: String,
+      default: 'Anonymous',
+    },
+    is_highlighted: Boolean,
   },
-  voters: {
-    type: ['ObjectId'],
-    default: []
-  },
-  user: {
-     type: 'ObjectId',
-     ref: 'User'
-  },
-  author: {
-    type: String,
-    default: 'Anonymous'
-  },
-  is_highlighted: Boolean
-}, {
-  timestamps: true,
-  toObject: {
-    virtuals: true
-  },
-  toJSON: {
-    virtuals: true,
-    transform(doc,  ret, options) {
-      delete ret.voters
-      delete ret.user
-      return ret
-    }
+  {
+    timestamps: true,
+    toObject: {
+      virtuals: true,
+    },
+    toJSON: {
+      virtuals: true,
+      transform(doc, ret, options) {
+        delete ret.voters
+        delete ret.user
+        return ret
+      },
+    },
   }
-})
+)
 
-Question.virtual('votes').get(function() {
+Question.virtual('votes').get(function () {
   return this.voters.length
 })
 

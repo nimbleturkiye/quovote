@@ -4,14 +4,46 @@ import router from './router'
 import store from './store'
 import 'ant-design-vue/dist/antd.css'
 
-import { Button, Input, Icon, Layout, Row, Col, Comment, Tooltip, Avatar, Card, Tag, Radio, Menu, Form, Alert } from 'ant-design-vue'
-const components = [ Button, Input, Icon, Layout, Row, Col, Comment, Tooltip, Avatar, Card, Tag, Radio, Menu, Form, Alert ]
+import {
+  Button,
+  Input,
+  Icon,
+  Layout,
+  Row,
+  Col,
+  Comment,
+  Tooltip,
+  Avatar,
+  Card,
+  Tag,
+  Radio,
+  Menu,
+  Form,
+  Alert
+} from 'ant-design-vue'
+const components = [
+  Button,
+  Input,
+  Icon,
+  Layout,
+  Row,
+  Col,
+  Comment,
+  Tooltip,
+  Avatar,
+  Card,
+  Tag,
+  Radio,
+  Menu,
+  Form,
+  Alert
+]
 
 components.forEach(c => Vue.use(c))
 
 Vue.config.productionTip = false
 
-async function main () {
+async function main() {
   new Vue({
     router,
     store: await store(),
