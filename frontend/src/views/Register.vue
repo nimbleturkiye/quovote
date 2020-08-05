@@ -141,9 +141,18 @@ export default {
       a-form-item(label="Confirm password" v-bind="formItemLayout")
         a-input(type="password" placeholder="Your password again" v-decorator="validationRules.passwordConfirmation" @blur="handleConfirmBlur")
       a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
-        a-alert(:message="backendError.message" type="error")
+        a-alert(class="backend-errors" :message="backendError.message" type="error")
       a-form-item(v-bind="tailFormItemLayout")
         a-button(type="primary" @click="register" :loading="loading" icon="message") Register
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.ant-form-explain {
+  white-space: pre-line;
+}
+</style>
+<style lang="scss" scoped>
+.backend-errors {
+  white-space: pre-line;
+}
+</style>

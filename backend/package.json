@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "async-validator": "^3.4.0",
     "connect-mongo": "^3.2.0",
     "cookie-parser": "~1.4.3",
     "cookie-session": "^1.4.0",
