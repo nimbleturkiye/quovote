@@ -30,19 +30,37 @@ export default {
         }
       },
       validationRules: {
-        name: ['name', { rules: [{ required: true, message: 'Your name is required.' }] }],
+        name: [
+          'name',
+          {
+            rules: [{ required: true, message: 'Your name is required.' }]
+          }
+        ],
         email: [
           'email',
           {
             rules: [
-              { type: 'email', message: 'The input is not valid e-mail.' },
-              { required: true, message: 'Please input your e-mail.' }
+              { type: 'email', message: 'E-mail is not valid.' },
+              { required: true, message: 'E-mail is required.' }
             ]
           }
         ],
         password: [
           'password',
-          { rules: [{ required: true, message: 'Password is required.' }, { validator: this.validateToNextPassword }] }
+          {
+            rules: [
+              { required: true, message: 'Password is required.' },
+              { min: 8, message: 'Password should have a minimum length of 8 characters.\n' },
+              {
+                pattern: /[a-zA-Z]/,
+                message: 'Password should include at least one letter.\n'
+              },
+              { pattern: /\d/, message: 'Password should include at least one digit.\n' },
+              { pattern: /[\W_]/, message: 'Password should include at least one symbol.\n' },
+              { pattern: /^\S+$/, message: 'Password should not include spaces.\n' },
+              { validator: this.validateToNextPassword }
+            ]
+          }
         ],
         passwordConfirmation: [
           'passwordConfirmation',
