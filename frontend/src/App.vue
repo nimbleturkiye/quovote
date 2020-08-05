@@ -1,16 +1,26 @@
+<script>
+export default {
+  name: 'App',
+  computed: {
+    selectedKeys() {
+      return [this.$route.name]
+    }
+  }
+}
+</script>
 <template lang="pug">
   #app
     a-layout#components-layout-demo-top.layout(theme='light')
       a-layout-header
         .logo
-        a-menu(theme='light', mode='horizontal', :style="{ lineHeight: '64px' }")
-          a-menu-item(key='1')
+        a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
+          a-menu-item(key='login')
             router-link(to="/login")
               | Log in
-          a-menu-item(key='2')
+          a-menu-item(key='register')
             router-link(to="/register")
               | Sign up
-          a-menu-item(key='3')
+          a-menu-item(key='about')
             | About
       a-layout-content
         router-view
