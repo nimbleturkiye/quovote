@@ -128,10 +128,9 @@ export default {
 
 <template lang="pug">
 .register
-  h1 Register
   a-card
     a-form(:form="form" @submit="register")
-      h2 Create an account
+      h1 Create an account
       a-form-item(label="Name" v-bind="formItemLayout")
         a-input(placeholder="Your name" v-decorator="validationRules.name")
       a-form-item(label="Email address" v-bind="formItemLayout")

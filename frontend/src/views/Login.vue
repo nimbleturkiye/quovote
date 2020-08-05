@@ -90,10 +90,9 @@ export default {
 
 <template lang="pug">
 .login
-  h1 Login
   a-card
     a-form(:form="form" @submit="submitLogin")
-      h2 Log in
+      h1 Log in to your account
       a-form-item(v-if="$route.query.registerSuccess")
         a-alert(type="success" message="You are now registered!" description="Use your credentials to log in below.")
       a-form-item(label="Email address" v-bind="formItemLayout")
