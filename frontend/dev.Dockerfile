@@ -7,6 +7,9 @@ RUN npm install
 
 ADD babel.config.js .
 ADD vue.config.js .
+ADD .browserslistrc .
+ADD .eslintrc.js .
+ADD .prettierrc .
 
 VOLUME [ "/app/src" ]
 VOLUME [ "/app/public" ]
