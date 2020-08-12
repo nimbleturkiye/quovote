@@ -9,7 +9,8 @@ Vue.use(Vuex)
 const mutations = {
   SET_PROPERTY: 'setProperty',
   UPDATE_QUESTIONS: 'updateQuestions',
-  SET_COMPUTER_ID: 'setComputerId'
+  SET_COMPUTER_ID: 'setComputerId',
+  SET_USER: 'setUser'
 }
 
 const socket = io()
@@ -19,7 +20,8 @@ const store = new Vuex.Store({
     loading: false,
     eventId: null,
     event: {},
-    computerId: 0
+    computerId: 0,
+    user: undefined
   },
   mutations: {
     [mutations.SET_PROPERTY](state, obj) {
@@ -32,6 +34,9 @@ const store = new Vuex.Store({
     },
     [mutations.SET_COMPUTER_ID](state, computerId) {
       state.computerId = computerId
+    },
+    [mutations.SET_USER](state, user) {
+      state.user = user
     }
   },
   actions: {
@@ -88,8 +93,13 @@ const store = new Vuex.Store({
     async registerUser(store, user) {
       return axios.post('/api/account/register', { user })
     },
-    async login(store, user) {
-      return axios.post('/api/account/login', user)
+    async login({ commit }, credentials) {
+      try {
+        const user = await axios.post('/api/account/login', credentials)
+        commit(mutations.SET_USER, user)
+      } catch (e) {
+        throw e
+      }
     }
   }
 })
