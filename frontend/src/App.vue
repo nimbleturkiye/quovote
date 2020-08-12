@@ -26,10 +26,10 @@ export default {
         a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
           a-menu-item(key='about')
             | About
-          a-menu-item(key='login' v-if="user === null")
+          a-menu-item(key='login' v-if="!user")
             router-link(to="/login")
               | Log in
-          a-menu-item(key='register' v-if="user === null")
+          a-menu-item(key='register' v-if="!user")
             router-link(to="/register")
               | Sign up
           a-menu-item(key='logout' v-if="user" @click="doLogout")

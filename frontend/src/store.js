@@ -21,7 +21,7 @@ const store = new Vuex.Store({
     eventId: null,
     event: {},
     computerId: 0,
-    user: undefined
+    user: null
   },
   mutations: {
     [mutations.SET_PROPERTY](state, obj) {
@@ -107,7 +107,7 @@ const store = new Vuex.Store({
     },
     async fetchSession({ commit }) {
       const user = await axios.get('/api/account/session')
-      commit(mutations.SET_USER, user.data || null)
+      commit(mutations.SET_USER, user.data)
     }
   }
 })
