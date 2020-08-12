@@ -1,5 +1,5 @@
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'App',
@@ -8,6 +8,9 @@ export default {
     selectedKeys() {
       return [this.$route.name]
     }
+  },
+  methods: {
+    ...mapActions(['logout'])
   }
 }
 </script>
@@ -25,6 +28,8 @@ export default {
               | Sign up
           a-menu-item(key='about')
             | About
+          a-menu-item(key='logout' v-if="user" @click="logout")
+            | Log out
       a-layout-content
         router-view
 

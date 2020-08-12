@@ -76,4 +76,9 @@ router.post('/session', passport.authenticate('local'), async (req, res, next) =
   res.send(req.user)
 })
 
+router.delete('/session', async (req, res, next) => {
+  await req.logOut()
+  res.sendStatus(200)
+})
+
 module.exports = router

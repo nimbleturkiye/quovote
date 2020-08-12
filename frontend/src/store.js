@@ -100,6 +100,10 @@ const store = new Vuex.Store({
       } catch (e) {
         throw e
       }
+    },
+    async logout({ commit }) {
+      await axios.delete('/api/account/session')
+      commit(mutations.SET_USER, null)
     }
   }
 })
