@@ -118,5 +118,6 @@ socket.on('questions updated', questions => {
 
 export default async function init() {
   await store.dispatch('registerComputerId', await biri())
+  await store.dispatch('fetchSession')
   return store
 }

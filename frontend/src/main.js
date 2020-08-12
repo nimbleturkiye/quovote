@@ -44,9 +44,11 @@ components.forEach(c => Vue.use(c))
 Vue.config.productionTip = false
 
 async function main() {
+  let storeInstance = await store()
+
   new Vue({
-    router,
-    store: await store(),
+    router: router(storeInstance),
+    store: storeInstance,
     render: h => h(App)
   }).$mount('#app')
 }

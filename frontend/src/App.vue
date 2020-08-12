@@ -10,10 +10,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['logout', 'fetchSession'])
-  },
-  created() {
-    this.fetchSession()
+    ...mapActions(['logout'])
   }
 }
 </script>
