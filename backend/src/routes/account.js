@@ -72,7 +72,7 @@ router.post('/register', async (req, res, next) => {
   }
 })
 
-router.post('/login', passport.authenticate('local'), async (req, res, next) => {
+router.post('/session', passport.authenticate('local'), async (req, res, next) => {
   console.log('is user logged in ', req.session)
   res.send(req.user)
 })
