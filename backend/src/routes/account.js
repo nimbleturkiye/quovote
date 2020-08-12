@@ -72,9 +72,19 @@ router.post('/register', async (req, res, next) => {
   }
 })
 
-router.post('/session', passport.authenticate('local'), async (req, res, next) => {
-  res.send(req.user)
-})
+const regenerateSessionMiddleware = (req, res, next) => {
+  if (!req.user) req.session.regenerate(next)
+  else next()
+}
+
+router.post(
+  '/session',
+  regenerateSessionMiddleware,
+  passport.authenticate('local'),
+  async (req, res, next) => {
+    res.send(req.user)
+  }
+)
 
 router.delete('/session', async (req, res, next) => {
   await req.logout()
