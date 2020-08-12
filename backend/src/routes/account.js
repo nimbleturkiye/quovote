@@ -77,8 +77,13 @@ const regenerateSessionMiddleware = (req, res, next) => {
   else next()
 }
 
+const preventLoginForLoggedInUsers = (req, res, next) => {
+  next(req.user && new Error('User is already logged in'))
+}
+
 router.post(
   '/session',
+  preventLoginForLoggedInUsers,
   regenerateSessionMiddleware,
   passport.authenticate('local'),
   async (req, res, next) => {
