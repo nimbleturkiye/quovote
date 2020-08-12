@@ -95,6 +95,8 @@ export default {
       h1 Log in to your account
       a-form-item(v-if="$route.query.registerSuccess")
         a-alert(type="success" message="You are now registered!" description="Use your credentials to log in below.")
+      a-form-item(v-if="$route.query.logoutSuccess")
+        a-alert(type="success" message="You have successfully logged out." description="Use your credentials to log in below.")
       a-form-item(label="Email address" v-bind="formItemLayout")
         a-input(placeholder="Your email" v-decorator='validationRules.email')
       a-form-item(label="Password" v-bind="formItemLayout")

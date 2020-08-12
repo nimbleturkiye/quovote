@@ -10,7 +10,11 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['logout'])
+    ...mapActions(['logout']),
+    async doLogout() {
+      await this.logout()
+      this.$router.push('/login?logoutSuccess=1')
+    }
   }
 }
 </script>
@@ -28,7 +32,7 @@ export default {
           a-menu-item(key='register' v-if="user === null")
             router-link(to="/register")
               | Sign up
-          a-menu-item(key='logout' v-if="user" @click="logout")
+          a-menu-item(key='logout' v-if="user" @click="doLogout")
             | Log out
       a-layout-content
         router-view
