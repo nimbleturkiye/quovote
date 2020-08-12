@@ -21,12 +21,20 @@ export default function init(store) {
       {
         path: '/register',
         name: 'register',
-        component: Register
+        component: Register,
+        beforeEnter(to, from, next) {
+          if (store.state.user) return next('/dashboard')
+          return next()
+        }
       },
       {
         path: '/login',
         name: 'login',
-        component: Login
+        component: Login,
+        beforeEnter(to, from, next) {
+          if (store.state.user) return next('/dashboard')
+          return next()
+        }
       },
       {
         path: '/dashboard',
