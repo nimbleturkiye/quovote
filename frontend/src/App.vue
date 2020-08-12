@@ -10,7 +10,10 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['logout'])
+    ...mapActions(['logout', 'fetchSession'])
+  },
+  created() {
+    this.fetchSession()
   }
 }
 </script>
@@ -20,14 +23,14 @@ export default {
       a-layout-header
         .logo
         a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
-          a-menu-item(key='login' v-if="!user")
-            router-link(to="/login")
-              | Log in
-          a-menu-item(key='register' v-if="!user")
-            router-link(to="/register")
-              | Sign up
           a-menu-item(key='about')
             | About
+          a-menu-item(key='login' v-if="user === null")
+            router-link(to="/login")
+              | Log in
+          a-menu-item(key='register' v-if="user === null")
+            router-link(to="/register")
+              | Sign up
           a-menu-item(key='logout' v-if="user" @click="logout")
             | Log out
       a-layout-content

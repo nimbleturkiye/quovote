@@ -81,4 +81,8 @@ router.delete('/session', async (req, res, next) => {
   res.sendStatus(200)
 })
 
+router.get('/session', (req, res) => {
+  res.send(req.user || null)
+})
+
 module.exports = router
