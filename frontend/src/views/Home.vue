@@ -89,6 +89,7 @@ export default {
 .home
   .content
     h1 {{ event.title }}
+    h3 {{ event.description }}
     a-card
       form(@submit.prevent="sendQuestion")
         h2 Ask the speaker

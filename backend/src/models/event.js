@@ -10,6 +10,7 @@ const Event = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    description: String,
     participants: [
       {
         type: 'ObjectId',
