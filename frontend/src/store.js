@@ -108,6 +108,10 @@ const store = new Vuex.Store({
     async fetchSession({ commit }) {
       const user = await axios.get('/api/account/session')
       commit(mutations.SET_USER, user.data)
+    },
+    async createEvent({ dispatch }, event) {
+      await axios.post('/api/events', event)
+      await dispatch('fetchSession')
     }
   }
 })
