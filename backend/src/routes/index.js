@@ -68,11 +68,24 @@ router.get('/events', ensureUser, async (req, res, next) => {
   res.send(event._id)
 })
 
-router.post('/events', async function (req, res, next) {
-  const event = new Event({ title: 'test event' })
-  await event.save()
+router.post('/events', ensureUser, async function (req, res, next) {
+  const eventRequest = {
+    title: req.body.title,
+    code: req.body.code,
+    description: req.body.description,
+  }
 
-  res.send(event)
+  const event = new Event(eventRequest)
+  try {
+    await event.save()
+
+    req.user.events.push(event)
+    await req.user.save()
+
+    res.send(event)
+  } catch (e) {
+    next(e)
+  }
 })
 
 router.get('/events/:eventId', ensureUser, async (req, res, next) => {
