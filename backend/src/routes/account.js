@@ -85,9 +85,16 @@ router.post(
   '/session',
   preventLoginForLoggedInUsers,
   regenerateSessionMiddleware,
-  passport.authenticate('local'),
-  async (req, res, next) => {
+  passport.authenticate('local', { failWithError: true }),
+  async (req, res) => {
     res.send(req.user)
+  },
+  (err, req, res, next) => {
+    if (err.status != 401) return next(err)
+
+    next(
+      new Error('The username and password you provided did not match our records. Please double-check and try again.')
+    )
   }
 )
 
