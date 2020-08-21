@@ -1,5 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex'
+import { debounce } from 'debounce'
 
 export default {
   name: 'Dashboard',
