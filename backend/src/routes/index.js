@@ -7,6 +7,7 @@ const User = require('../models/user')
 const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
 const slugify = require('slugify')
+const createEventCode = require('../lib/createEventCode')
 
 async function ensureUser(req, res, next) {
   if (req.body.computerId) req.session.computerId = req.body.computerId
@@ -87,6 +88,21 @@ router.post('/events', ensureUser, async function (req, res, next) {
   } catch (e) {
     next(e)
   }
+})
+
+router.post('/events/createcode', async (req, res, next) => {
+  if (!req.user) next(new Error('403 Forbidden'))
+
+  let title = req.body.title
+  if (!title) return
+
+  let code = slugify(title, '')
+    .substring(0, 8)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/, '')
+
+  code = await createEventCode(code)
+  res.send(code)
 })
 
 router.get('/events/:eventId', ensureUser, async (req, res, next) => {
