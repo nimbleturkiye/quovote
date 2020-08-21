@@ -59,7 +59,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['createEvent']),
+    ...mapActions(['createEvent', 'createEventCode']),
     submitCreateEventForm(e) {
       e.preventDefault()
       this.backendError = null
@@ -74,7 +74,13 @@ export default {
           this.backendError = e.response.data
         }
       })
-    }
+    },
+    debounceToCreateEventCode: debounce(async function(e) {
+      if (!e.target.value) return
+
+      let res = await this.createEventCode(e.target.value)
+      this.createEventForm.setFieldsValue({ code: res })
+    }, 500)
   }
 }
 </script>
@@ -92,7 +98,7 @@ export default {
         a-form(:form="createEventForm" @submit="submitCreateEventForm")
           h2 Create new event
           a-form-item(label="Event name" v-bind="formItemLayout")
-            a-input(placeholder="The name of your event" v-decorator="validationRules.title")
+            a-input(placeholder="The name of your event" v-decorator="validationRules.title" @input="debounceToCreateEventCode")
           a-form-item(label="Event description" v-bind="formItemLayout")
             a-input(placeholder="A short description of your event" v-decorator="validationRules.description")
           a-form-item(label="Event code (optional)" v-bind="formItemLayout")

@@ -112,6 +112,10 @@ const store = new Vuex.Store({
     async createEvent({ dispatch }, event) {
       await axios.post('/api/events', event)
       await dispatch('fetchSession')
+    },
+    async createEventCode(store, title) {
+      const res = await axios.post('/api/events/createcode', { title })
+      return res.data
     }
   }
 })
