@@ -84,9 +84,13 @@ export default {
       h1 Dashboard
       a-card
         h2 Your events
-        div(v-for="event in user.events")
-          router-link(:to="`/${event.code}`") {{ event.title }}
+        a-card(v-for="event in user.events")
+          h3
+            router-link(:to="`/events/${event._id}`") {{ event.title }}
           p {{ event.description }}
+          p
+            a-icon(type="message")
+            span &nbsp{{ event.questions.length }}
       a-card
         a-form(:form="createEventForm" @submit="submitCreateEventForm")
           h2 Create new event
@@ -103,4 +107,16 @@ export default {
             a-button(type="primary" @click="submitCreateEventForm" :loading="loading") Create Event
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ant-card {
+  margin: 24px 0;
+}
+
+.ant-card:last-child {
+  margin-bottom: 0;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+</style>
