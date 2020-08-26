@@ -96,7 +96,7 @@ const store = new Vuex.Store({
     async login({ commit }, credentials) {
       try {
         const user = await axios.post('/api/account/session', credentials)
-        commit(mutations.SET_USER, user)
+        commit(mutations.SET_USER, user.data)
       } catch (e) {
         throw e
       }
