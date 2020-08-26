@@ -142,7 +142,7 @@ export default {
       a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
         a-alert(class="backend-errors" :message="backendError.message" type="error")
       a-form-item(v-bind="tailFormItemLayout")
-        a-button(type="primary" @click="register" :loading="loading" icon="message") Register
+        a-button(type="primary" html-type="submit" :loading="loading" icon="message") Register
         div Already have an account? <router-link to="/login">Log in</router-link>
 </template>
 

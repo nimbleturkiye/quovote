@@ -111,7 +111,7 @@ export default {
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
             a-alert(:message="backendError.message" type="error")
           a-form-item(v-bind="tailFormItemLayout")
-            a-button(type="primary" @click="submitCreateEventForm" :loading="loading") Create Event
+            a-button(type="primary" html-type="submit" :loading="loading") Create Event
 </template>
 
 <style lang="scss" scoped>
