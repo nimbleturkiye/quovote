@@ -46,7 +46,10 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user'])
+    ...mapState(['user']),
+    sortedEvents() {
+      return this.user.events.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
   },
   beforeCreate() {
     const component = this
@@ -84,7 +87,7 @@ export default {
       h1 Dashboard
       a-card
         h2 Your events
-        a-card(v-for="event in user.events")
+        a-card(v-for="event in sortedEvents")
           h3
             router-link(:to="`/events/${event._id}`") {{ event.title }}
           p {{ event.description }}

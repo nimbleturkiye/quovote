@@ -19,6 +19,7 @@ const Event = new mongoose.Schema(
     ],
   },
   {
+    timestamps: true,
     toObject: {
       virtuals: true,
     },
