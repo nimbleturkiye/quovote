@@ -48,7 +48,11 @@ export default {
   computed: {
     ...mapState(['user']),
     sortedEvents() {
-      return this.user.events.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      return (
+        this.user &&
+        this.user.events &&
+        this.user.events.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      )
     }
   },
   beforeCreate() {
