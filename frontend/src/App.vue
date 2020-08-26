@@ -24,8 +24,9 @@ export default {
       a-layout-header
         .logo
         a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
-          a-menu-item(key='about')
-            | About
+          a-menu-item(key="dashboard" v-if="user")
+            router-link(to="/dashboard")
+              | Dashboard
           a-menu-item(key='login' v-if="!user")
             router-link(to="/login")
               | Log in
