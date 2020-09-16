@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
-const mongoHost = process.env.MONGO_HOST || 'mongodb'
+const connectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://mongodb:27017/quovote'
 
-mongoose.connect(`mongodb://${mongoHost}:27017/quovote`, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true })
 
 module.exports = { mongoose }

@@ -5,11 +5,11 @@ services:
     ports:
       - 37017:27017
 
-  backend:
-    image: backend
+  quovote-backend:
+    image: quovote-backend
     build:
       context: backend
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     environment:
       - VIRTUAL_HOST=vue-node-starter.localhost/api,vue-node-starter.localhost/api/*,vue-node-starter.localhost/socket.io/*
       - VIRTUAL_HOST_WEIGHT=1
@@ -18,14 +18,16 @@ services:
     volumes:
       - ./backend/src:/app/src
 
-  frontend:
+  quovote-frontend:
+    image: quovote-frontend
     build:
       context: frontend
-      dockerfile: dev.Dockerfile
+      dockerfile: Dockerfile
     environment:
       - HOST=0.0.0.0
       - VIRTUAL_HOST=vue-node-starter.localhost
       - VIRTUAL_HOST_WEIGHT=0
+      - PORT=8080
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
@@ -35,8 +37,8 @@ services:
   load-balancer:
     image: dockercloud/haproxy:1.6.7
     links:
-      - backend
-      - frontend
+      - quovote-backend
+      - quovote-frontend
     networks:
       default:
         aliases:

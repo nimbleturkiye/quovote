@@ -10,6 +10,7 @@ ADD vue.config.js .
 ADD .browserslistrc .
 ADD .eslintrc.js .
 ADD .prettierrc .
+ADD .env .
 
 VOLUME [ "/app/src" ]
 VOLUME [ "/app/public" ]

@@ -6,6 +6,9 @@ import io from 'socket.io-client'
 
 Vue.use(Vuex)
 
+axios.defaults.baseURL = process.env.VUE_APP_BASE_PATH
+axios.defaults.withCredentials = true
+
 const mutations = {
   SET_PROPERTY: 'setProperty',
   UPDATE_QUESTIONS: 'updateQuestions',
@@ -13,7 +16,7 @@ const mutations = {
   SET_USER: 'setUser'
 }
 
-const socket = io()
+const socket = io(process.env.VUE_APP_SOCKET_PATH)
 
 const store = new Vuex.Store({
   state: {
@@ -41,14 +44,14 @@ const store = new Vuex.Store({
   },
   actions: {
     async fetchEventIdByCode(ctx, code) {
-      const res = await axios.get(`/api/events?code=${code}`)
+      const res = await axios.get(`/events?code=${code}`)
       return res.data
     },
     async submitQuestion({ commit, dispatch, state }, { question, name }) {
       commit(mutations.SET_PROPERTY, { loading: true })
 
       try {
-        await axios.post(`/api/events/${state.eventId}/questions`, { text: question, user: name })
+        await axios.post(`/events/${state.eventId}/questions`, { text: question, user: name })
       } catch (e) {
         throw e
       } finally {
@@ -56,7 +59,7 @@ const store = new Vuex.Store({
       }
     },
     async fetchEvent({ commit, state }) {
-      const req = await axios.get(`/api/events/${state.eventId}`)
+      const req = await axios.get(`/events/${state.eventId}`)
 
       commit(mutations.SET_PROPERTY, { event: req.data })
     },
@@ -64,7 +67,7 @@ const store = new Vuex.Store({
       commit(mutations.SET_PROPERTY, { loading: true })
 
       try {
-        await axios.patch(`/api/events/${state.eventId}/questions/${questionId}`, { vote })
+        await axios.patch(`/events/${state.eventId}/questions/${questionId}`, { vote })
       } catch (e) {
         throw e
       } finally {
@@ -80,7 +83,7 @@ const store = new Vuex.Store({
       dispatch('fetchEvent')
     },
     async withdrawQuestion({ state }, questionId) {
-      await axios.delete(`/api/events/${state.eventId}/questions/${questionId}`)
+      await axios.delete(`/events/${state.eventId}/questions/${questionId}`)
     },
     updateQuestions({ commit }, questions) {
       commit(mutations.UPDATE_QUESTIONS, questions)
@@ -88,29 +91,29 @@ const store = new Vuex.Store({
     async registerComputerId({ commit }, computerId) {
       commit(mutations.SET_COMPUTER_ID, computerId)
 
-      await axios.post('/api/singularity', { computerId })
+      await axios.post('/singularity', { computerId })
     },
     async registerUser(store, user) {
-      return axios.post('/api/account/register', { user })
+      return axios.post('/account/register', { user })
     },
     async login({ commit }, credentials) {
       try {
-        const user = await axios.post('/api/account/session', credentials)
+        const user = await axios.post('/account/session', credentials)
         commit(mutations.SET_USER, user.data)
       } catch (e) {
         throw e
       }
     },
     async logout({ commit }) {
-      await axios.delete('/api/account/session')
+      await axios.delete('/account/session')
       commit(mutations.SET_USER, null)
     },
     async fetchSession({ commit }) {
-      const user = await axios.get('/api/account/session')
+      const user = await axios.get('/account/session')
       commit(mutations.SET_USER, user.data)
     },
     async createEvent({ dispatch }, event) {
-      await axios.post('/api/events', event)
+      await axios.post('/events', event)
       await dispatch('fetchSession')
     }
   }

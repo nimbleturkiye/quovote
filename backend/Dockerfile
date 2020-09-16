@@ -12,5 +12,6 @@ WORKDIR /src
 COPY --from=BUILDER /src/node_modules ./node_modules
 COPY package.json ./
 COPY src ./src
+COPY bin ./bin
 
 CMD ["npm", "start"]

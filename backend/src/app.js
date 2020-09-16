@@ -5,19 +5,33 @@ var logger = require('morgan')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const passport = require('passport')
-const User = require('./models/user')
+const cors = require('cors')
 
+const User = require('./models/user')
 const { mongoose } = require('./bootstrap')
 
 var indexRouter = require('./routes/index')
 var accountRouter = require('./routes/account')
 
 var app = express()
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+)
+
+app.set('trust proxy', 1)
 
 app.use(
   session({
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
     secret: 'thisissupposedtobeasecret',
+    cookie: {
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      sameSite: 'none',
+      secure: true,
+    },
   })
 )
 
