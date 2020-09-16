@@ -22,7 +22,8 @@ export default {
   #app
     a-layout#components-layout-demo-top.layout(theme='light')
       a-layout-header
-        .logo
+        div.logo
+          router-link(to="/") QuoVote.
         a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
           a-menu-item(key="dashboard" v-if="user")
             router-link(to="/dashboard")
@@ -61,6 +62,18 @@ h1 {
   color: #2c3e50;
   font-weight: 500;
   background-color: #f6f6f6;
+}
+
+.logo {
+  float: left;
+  z-index: 1;
+  font-weight: bold;
+  a {
+    height: 100%;
+    padding-right: 2em;
+    width: 100%;
+    display: block;
+  }
 }
 
 .ant-layout {
