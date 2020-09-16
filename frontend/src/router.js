@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import EventDetail from './views/EventDetail.vue'
 import Register from './views/Register.vue'
 import Login from './views/Login.vue'
 import Dashboard from './views/Dashboard.vue'
@@ -53,7 +54,7 @@ export default function init(store) {
       {
         path: '/events/:eventId',
         name: 'eventDetail',
-        component: Home
+        component: EventDetail
       },
       {
         path: '/about',
