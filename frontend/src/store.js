@@ -119,8 +119,8 @@ const store = new Vuex.Store({
   }
 })
 
-socket.on('questions updated', questions => {
-  store.dispatch('updateQuestions', questions)
+socket.on('questions updated', () => {
+  store.dispatch('fetchEvent')
 })
 
 export default async function init() {
