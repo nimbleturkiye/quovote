@@ -107,23 +107,17 @@ router.post('/events/:eventId/questions', ensureUser, async function (req, res, 
 
   const event = await Event.findOne({ _id: req.params.eventId })
   if (!event) return next(new Error('Event not found'))
-  let userIds
-  try {
-    const { id: sessionId, userId, computerId } = req.session
-    userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
-    event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
-  } catch (error) {
-    return next(new Error('UserId not found'))
-  }
 
   try {
+    const { userId } = req.session
+
+    event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
+
     await event.save()
 
-    const { questions } = Event.decorateForUser(event, userIds)
+    socketServer().to(req.params.eventId).emit('questions updated')
 
-    socketServer().to(req.params.eventId).emit('questions updated', questions)
-
-    res.send(event)
+    res.send(true)
   } catch (e) {
     next(e)
   }
