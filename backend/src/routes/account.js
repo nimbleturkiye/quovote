@@ -73,8 +73,14 @@ router.post('/register', async (req, res, next) => {
 })
 
 const regenerateSessionMiddleware = (req, res, next) => {
-  if (!req.user) req.session.regenerate(next)
-  else next()
+  if (req.user) return next()
+
+  const computerId = req.session.computerId
+
+  req.session.regenerate(() => {
+    req.session.computerId = computerId
+    req.session.save(next)
+  })
 }
 
 const preventLoginForLoggedInUsers = (req, res, next) => {
