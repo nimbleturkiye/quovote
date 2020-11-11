@@ -48,12 +48,7 @@ router.post('/register', async (req, res, next) => {
   }
 
   try {
-    let createdUser
-
-    if (req.session.userId) {
-      createdUser = await User.findById(req.session.userId)
-      createdUser.email = req.body.user.email
-    } else createdUser = new User(req.body.user)
+    let createdUser = new User(req.body.user)
 
     const user = await User.register(createdUser, req.body.user.password)
 
