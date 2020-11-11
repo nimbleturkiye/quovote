@@ -10,7 +10,7 @@
   "dependencies": {
     "ant-design-vue": "^1.6.4",
     "axios": "^0.19.2",
-    "biri": "^0.3.0",
+    "biri": "^0.4.0",
     "core-js": "^3.6.5",
     "moment": "^2.27.0",
     "register-service-worker": "^1.7.1",
