@@ -2,18 +2,21 @@ const mongoose = require('mongoose')
 const passportLocalMongoose = require('passport-local-mongoose')
 const autopopulate = require('mongoose-autopopulate')
 
-const User = new mongoose.Schema({
-  name: String,
-  sessionId: String,
-  computerId: String,
-  events: [
-    {
-      type: 'ObjectId',
-      ref: 'Event',
-      autopopulate: true,
-    },
-  ],
-})
+const User = new mongoose.Schema(
+  {
+    name: String,
+    sessionId: String,
+    computerId: String,
+    events: [
+      {
+        type: 'ObjectId',
+        ref: 'Event',
+        autopopulate: true,
+      },
+    ],
+  },
+  { timestamps: true }
+)
 
 User.plugin(passportLocalMongoose, {
   usernameField: 'email',
