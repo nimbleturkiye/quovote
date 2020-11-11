@@ -149,6 +149,9 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
   const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
 
   const { id: sessionId, userId, computerId } = req.session
+
+  if (req.body.vote == 'like' && !req.user && computerId.startsWith('nobiri-')) return res.sendStatus(401)
+
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
   const update = {
