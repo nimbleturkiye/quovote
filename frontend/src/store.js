@@ -124,7 +124,15 @@ socket.on('questions updated', () => {
 })
 
 export default async function init() {
-  await store.dispatch('registerComputerId', await biri())
+  let computerId
+
+  try {
+    computerId = await biri()
+  } catch (e) {
+    console.log('Cannot activate biri.')
+  }
+
+  await store.dispatch('registerComputerId', computerId)
   await store.dispatch('fetchSession')
   return store
 }
