@@ -29,8 +29,8 @@ app.use(
     secret: 'thisissupposedtobeasecret',
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000,
-      sameSite: 'none',
-      secure: true,
+      sameSite: process.env.NODE_ENV == 'production' && 'none',
+      secure: process.env.NODE_ENV == 'production',
     },
   })
 )
