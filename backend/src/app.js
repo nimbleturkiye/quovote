@@ -25,7 +25,7 @@ app.set('trust proxy', 1)
 
 app.use(
   session({
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    store: new MongoStore({ mongooseConnection: mongoose.connection, stringify: false }),
     secret: 'thisissupposedtobeasecret',
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000,
