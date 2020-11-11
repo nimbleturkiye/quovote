@@ -13,17 +13,7 @@ async function ensureUser(req, res, next) {
   if (!req.session.userId) {
     if (req.user) req.session.userId = req.user._id
     else {
-      const user = await User.findOneAndUpdate(
-        { sessionId: req.session.id },
-        {
-          sessionId: req.session.id,
-          computerId: req.session.computerId,
-          email: Math.random(),
-        },
-        { upsert: true, new: true }
-      )
-
-      req.session.userId = user._id
+      req.session.userId = ObjectId()
 
       await req.session.save()
     }
