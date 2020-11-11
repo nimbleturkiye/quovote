@@ -55,10 +55,19 @@ export default {
         else if (this.sortBy == 'random') return Math.random() * 2 - 1
         return (new Date(a.createdAt) - new Date(b.createdAt)) * this.orderBy
       })
+    },
+    getQuestionTooltipTitle(question) {
+      if (this.isUnknownAnonymous && !question.voted) return 'You need to be logged in order to vote for this question.'
+      return question.voted ? 'Dislike' : 'Like'
+    },
+    handleVote(question) {
+      if (this.isUnknownAnonymous && !question.voted) return
+
+      this.vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })
     }
   },
   computed: {
-    ...mapState(['event', 'loading']),
+    ...mapState(['event', 'loading', 'computerId', 'user']),
     popularSortOrderIndicator() {
       if (this.sortBy != 'popular') return ''
       if (this.orderBy == -1) return ' ▼'
@@ -72,6 +81,9 @@ export default {
     randomSortOrderIndicator() {
       if (this.sortBy != 'random') return ''
       return '◆'
+    },
+    isUnknownAnonymous() {
+      return !this.user && !this.computerId
     }
   },
   watch: {
@@ -117,7 +129,7 @@ export default {
           a-card(v-for="question in questions" :key="question._id" :bordered="false")
             a-comment
               template(slot="actions")
-                a-tooltip(:title="question.voted ? 'Dislike' : 'Like'" @click="vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })")
+                a-tooltip(:title="getQuestionTooltipTitle(question)" @click="handleVote(question)")
                   span(key="comment-basic-like")
                     a-icon(type="like" :theme="question.voted ? 'filled' : 'outlined'")
                   span(style="padding-left: 4px") {{ question.votes }}
