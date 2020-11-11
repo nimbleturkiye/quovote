@@ -105,9 +105,14 @@ router.post(
 )
 
 router.delete('/session', async (req, res, next) => {
+  const computerId = req.session && req.session.computerId
+
   await req.logout()
+
   req.session.regenerate(err => {
     if (err) return next(err)
+
+    req.session.computerId = computerId
 
     res.sendStatus(200)
   })
