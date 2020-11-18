@@ -84,6 +84,7 @@ h1 {
 
 .ant-layout-header {
   background: white;
+  padding: 0 calc(calc(100% - 760px) / 2)
 }
 
 .ant-layout-content {
