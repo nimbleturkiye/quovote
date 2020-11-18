@@ -16,11 +16,11 @@ export default {
     }
   },
   created() {
-    this.setProperty({ eventId: this.$route.params.eventId })
+    this.setEventId({ eventId: this.$route.params.eventId })
     this.joinEvent(this.$route.params.eventId)
   },
   methods: {
-    ...mapActions(['submitQuestion', 'setProperty', 'joinEvent', 'vote', 'withdrawQuestion']),
+    ...mapActions(['submitQuestion', 'setEventId', 'joinEvent', 'vote', 'withdrawQuestion']),
     async sendQuestion() {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
