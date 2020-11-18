@@ -22,20 +22,23 @@ export default {
   #app
     a-layout#components-layout-demo-top.layout(theme='light')
       a-layout-header
-        div.logo
-          router-link(to="/") QuoVote.
-        a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
-          a-menu-item(key="dashboard" v-if="user")
-            router-link(to="/dashboard")
-              | Dashboard
-          a-menu-item(key='login' v-if="!user")
-            router-link(to="/login")
-              | Log in
-          a-menu-item(key='register' v-if="!user")
-            router-link(to="/register")
-              | Sign up
-          a-menu-item(key='logout' v-if="user" @click="doLogout")
-            | Log out
+        a-row(type="flex" justify="space-between")
+          a-col
+            div.logo
+              router-link(to="/") QuoVote.
+          a-col
+            a-menu(theme='light', :selectedKeys="selectedKeys" mode='horizontal', :style="{ lineHeight: '64px' }")
+              a-menu-item(key="dashboard" v-if="user")
+                router-link(to="/dashboard")
+                  | Dashboard
+              a-menu-item(key='login' v-if="!user")
+                router-link(to="/login")
+                  | Log in
+              a-menu-item(key='register' v-if="!user")
+                router-link(to="/register")
+                  | Sign up
+              a-menu-item(key='logout' v-if="user" @click="doLogout")
+                | Log out
       a-layout-content
         router-view
 
@@ -65,7 +68,6 @@ h1 {
 }
 
 .logo {
-  float: left;
   z-index: 1;
   font-weight: bold;
   a {
