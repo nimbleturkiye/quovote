@@ -46,7 +46,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('account', ['user']),
     sortedEvents() {
       return (
         this.user &&
@@ -65,7 +65,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['createEvent']),
+    ...mapActions('event', ['createEvent']),
     submitCreateEventForm(e) {
       e.preventDefault()
       this.backendError = null

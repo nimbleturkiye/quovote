@@ -5,7 +5,7 @@ export default {
   name: 'home',
   beforeCreate() {
     this.form = this.$form.createForm(this, {
-      name: 'event-code',
+      name: 'event-code'
     })
   },
   methods: {
@@ -17,7 +17,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user'])
+    ...mapState('account', ['user'])
   }
 }
 </script>
@@ -50,17 +50,20 @@ export default {
 <style lang="scss" scoped>
 h1 {
   font-size: 4em;
-  color: var(--antd-wave-shadow-color)
+  color: var(--antd-wave-shadow-color);
 }
-h2 { font-size: 2em }
-p { font-size: 1.4em }
+h2 {
+  font-size: 2em;
+}
+p {
+  font-size: 1.4em;
+}
 
 .buttons button {
-  margin-right: 1em
+  margin-right: 1em;
 }
 
 .ant-card {
-  margin-bottom: 2em
+  margin-bottom: 2em;
 }
-
 </style>

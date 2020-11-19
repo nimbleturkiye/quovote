@@ -76,7 +76,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['registerUser']),
+    ...mapActions('account', ['registerUser']),
     register(e) {
       e.preventDefault()
       this.backendError = null

@@ -47,7 +47,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['login']),
+    ...mapActions('account', ['login']),
     submitLogin(e) {
       e.preventDefault()
       this.backendError = null
