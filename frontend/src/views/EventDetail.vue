@@ -1,6 +1,6 @@
 <script>
 import { mapState, mapActions } from 'vuex'
-import { notification } from 'ant-design-vue'
+import { notification, message } from 'ant-design-vue'
 import moment from 'moment'
 
 export default {
@@ -24,6 +24,8 @@ export default {
     async sendQuestion() {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
+
+        message.success('Question added 🎉')
 
         this.question = ''
       } catch (e) {
