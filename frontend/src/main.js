@@ -19,8 +19,10 @@ import {
   Radio,
   Menu,
   Form,
-  Alert
+  Alert,
+  Empty
 } from 'ant-design-vue'
+
 const components = [
   Button,
   Input,
@@ -36,7 +38,8 @@ const components = [
   Radio,
   Menu,
   Form,
-  Alert
+  Alert,
+  Empty
 ]
 
 components.forEach(c => Vue.use(c))
