@@ -1,5 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex'
+import { notification } from 'ant-design-vue'
 
 export default {
   name: 'Dashboard',
@@ -75,12 +76,16 @@ export default {
         try {
           await this.createEvent(values)
 
+          notification.success({
+            message: 'Event created successfully',
+          })
+
           this.createEventForm.resetFields()
         } catch (e) {
           this.backendError = e.response.data
         }
       })
-    }
+    },
   }
 }
 </script>
