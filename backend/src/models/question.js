@@ -5,6 +5,8 @@ const Question = new mongoose.Schema(
     text: {
       type: String,
       required: true,
+      minlength: 5,
+      maxlength: 280
     },
     voters: {
       type: ['ObjectId'],
@@ -17,6 +19,7 @@ const Question = new mongoose.Schema(
     author: {
       type: String,
       default: 'Anonymous',
+      maxlength: 40
     },
     is_highlighted: Boolean,
   },

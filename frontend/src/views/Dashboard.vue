@@ -113,11 +113,11 @@ export default {
         a-form(:form="createEventForm" @submit="submitCreateEventForm")
           h2 Create new event
           a-form-item(label="Event name" v-bind="formItemLayout")
-            a-input(placeholder="The name of your event" v-decorator="validationRules.title" ref="eventName")
+            a-input(placeholder="The name of your event" v-decorator="validationRules.title" ref="eventName" :maxLength="80")
           a-form-item(label="Event description" v-bind="formItemLayout")
-            a-input(placeholder="A short description of your event" v-decorator="validationRules.description")
+            a-input(placeholder="A short description of your event" v-decorator="validationRules.description" :maxLength="280")
           a-form-item(label="Event code (optional)" v-bind="formItemLayout")
-            a-input(placeholder="A short code (slug) for your event" v-decorator="validationRules.code")
+            a-input(placeholder="A short code (slug) for your event" v-decorator="validationRules.code" :maxLength="20")
             p {{createEventForm.getFieldValue('code') ? `Your event's URL will be: https://quovote.co/${createEventForm.getFieldValue('code')}` : ''}}
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
             a-alert(:message="backendError.message" type="error")

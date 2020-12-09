@@ -4,13 +4,22 @@ const shortid = require('shortid')
 
 const Event = new mongoose.Schema(
   {
-    title: String,
+    title: {
+      type: String,
+      required: true,
+      minlength: 3,
+      maxlength: 80
+    },
     questions: [Question],
     code: {
       type: String,
       unique: true,
+      maxlength: 20
     },
-    description: String,
+    description: {
+      type: String,
+      maxlength: 280
+    },
     participants: [
       {
         type: 'ObjectId',

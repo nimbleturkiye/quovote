@@ -112,9 +112,10 @@ export default {
         a-textarea(
           placeholder="Type your question"
           :autoSize="{ minRows: 2, maxRows: 6 }"
+          :maxLength="280"
           v-model="question"
         )
-        a-input(placeholder="Your name (optional)" v-model="name")
+        a-input(placeholder="Your name (optional)" v-model="name" :maxLength="40")
         a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
     a-card
       .questions
