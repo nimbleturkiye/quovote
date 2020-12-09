@@ -4,13 +4,13 @@ import { mapState, mapActions } from 'vuex'
 export default {
   name: 'App',
   computed: {
-    ...mapState(['user']),
+    ...mapState('account', ['user']),
     selectedKeys() {
       return [this.$route.name]
     }
   },
   methods: {
-    ...mapActions(['logout']),
+    ...mapActions('account', ['logout']),
     async doLogout() {
       await this.logout()
       this.$router.push('/login?logoutSuccess=1')
@@ -84,7 +84,7 @@ h1 {
 
 .ant-layout-header {
   background: white;
-  padding: 0 calc(calc(100% - 760px) / 2)
+  padding: 0 calc(calc(100% - 760px) / 2);
 }
 
 .ant-layout-content {

@@ -1,5 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex'
+import { notification } from 'ant-design-vue'
 
 export default {
   name: 'Dashboard',
@@ -46,7 +47,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState('account', ['user']),
     sortedEvents() {
       return (
         this.user &&
@@ -65,7 +66,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['createEvent']),
+    ...mapActions('event', ['createEvent']),
     submitCreateEventForm(e) {
       e.preventDefault()
       this.backendError = null
@@ -75,11 +76,18 @@ export default {
         try {
           await this.createEvent(values)
 
+          notification.success({
+            message: 'Event created successfully',
+          })
+
           this.createEventForm.resetFields()
         } catch (e) {
           this.backendError = e.response.data
         }
       })
+    },
+    focusOnCreateEventForm() {
+      this.$nextTick(() => this.$refs.eventName.focus())
     }
   }
 }
@@ -91,6 +99,9 @@ export default {
       h1 Dashboard
       a-card
         h2 Your events
+        a-empty(v-if="user && !user.events.length")
+          span(slot="description") You haven't created any events. <br> Click the button below to create your first event 🎉
+          a-button(type="primary" @click="focusOnCreateEventForm") Create event
         a-card(v-for="event in sortedEvents")
           h3
             router-link(:to="`/events/${event._id}`") {{ event.title }}
@@ -102,7 +113,7 @@ export default {
         a-form(:form="createEventForm" @submit="submitCreateEventForm")
           h2 Create new event
           a-form-item(label="Event name" v-bind="formItemLayout")
-            a-input(placeholder="The name of your event" v-decorator="validationRules.title")
+            a-input(placeholder="The name of your event" v-decorator="validationRules.title" ref="eventName")
           a-form-item(label="Event description" v-bind="formItemLayout")
             a-input(placeholder="A short description of your event" v-decorator="validationRules.description")
           a-form-item(label="Event code (optional)" v-bind="formItemLayout")

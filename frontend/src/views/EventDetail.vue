@@ -1,6 +1,6 @@
 <script>
 import { mapState, mapActions } from 'vuex'
-import { notification } from 'ant-design-vue'
+import { notification, message } from 'ant-design-vue'
 import moment from 'moment'
 
 export default {
@@ -16,14 +16,16 @@ export default {
     }
   },
   created() {
-    this.setProperty({ eventId: this.$route.params.eventId })
+    this.setEventId(this.$route.params.eventId)
     this.joinEvent(this.$route.params.eventId)
   },
   methods: {
-    ...mapActions(['submitQuestion', 'setProperty', 'joinEvent', 'vote', 'withdrawQuestion']),
+    ...mapActions('event', ['submitQuestion', 'setEventId', 'joinEvent', 'vote', 'withdrawQuestion']),
     async sendQuestion() {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
+
+        message.success('Question added 🎉')
 
         this.question = ''
       } catch (e) {
@@ -67,7 +69,9 @@ export default {
     }
   },
   computed: {
-    ...mapState(['event', 'loading', 'computerId', 'user']),
+    ...mapState(['loading']),
+    ...mapState('event', ['event']),
+    ...mapState('account', ['computerId', 'user']),
     popularSortOrderIndicator() {
       if (this.sortBy != 'popular') return ''
       if (this.orderBy == -1) return ' ▼'

@@ -9,7 +9,7 @@ export default {
       error: false
     }
   },
-  async created () {
+  async created() {
     const eventId = await this.fetchEventIdByCode(this.$route.params.eventCode)
 
     if (eventId) {
@@ -20,7 +20,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchEventIdByCode'])
+    ...mapActions('event', ['fetchEventIdByCode'])
   },
   computed: {
     code() {
