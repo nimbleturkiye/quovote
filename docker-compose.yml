@@ -10,9 +10,12 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
-    environment:
-      - VIRTUAL_HOST=vue-node-starter.localhost/api,vue-node-starter.localhost/api/*,vue-node-starter.localhost/socket.io/*
-      - VIRTUAL_HOST_WEIGHT=1
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.backend.rule=(Host(`${DOMAIN:-stack.localhost}`) && (PathPrefix(`/api`) || PathPrefix(`/socket`)))'
+      - 'traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api'
+      - 'traefik.http.routers.backend.middlewares=backend-stripprefix@docker'
+      - 'traefik.http.routers.backend.entrypoints=web'
     expose:
       - 3000
     volumes:
@@ -25,9 +28,11 @@ services:
       dockerfile: Dockerfile
     environment:
       - HOST=0.0.0.0
-      - VIRTUAL_HOST=vue-node-starter.localhost
-      - VIRTUAL_HOST_WEIGHT=0
       - PORT=8080
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.frontend.rule=Host(`${DOMAIN:-stack.localhost}`)'
+      - 'traefik.http.routers.frontend.entrypoints=web'
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
@@ -35,17 +40,15 @@ services:
       - 8080
 
   load-balancer:
-    image: dockercloud/haproxy:1.6.7
-    links:
-      - quovote-backend
-      - quovote-frontend
-    networks:
-      default:
-        aliases:
-          - vue-node-starter.localhost
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: traefik:v2.2
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
     ports:
-      - 80:80
-      - 443:443
-    restart: on-failure
+      - '80:80'
+      - '8080:8080'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+
