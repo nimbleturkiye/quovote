@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Question = require('./question')
-const shortid = require('shortid')
+const { customAlphabet } =  require('nanoid')
+const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 6)
 
 const Event = new mongoose.Schema(
   {
@@ -43,7 +44,7 @@ Event.pre('save', async function (next) {
   let code
 
   do {
-    code = shortid.generate()
+    code = nanoid()
   } while (await this.constructor.findOne({ code }))
 
   this.code = code
