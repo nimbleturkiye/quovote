@@ -84,7 +84,7 @@ const event = {
     async [actions.JOIN_EVENT]({ commit, dispatch, state }) {
       console.log('join event')
       socket.emit('join-room', state.eventId)
-      dispatch(actions.FETCH_EVENT)
+      await dispatch(actions.FETCH_EVENT)
     },
     async [actions.WITHDRAW_QUESTION]({ state }, questionId) {
       await axios.delete(`/events/${state.eventId}/questions/${questionId}`)

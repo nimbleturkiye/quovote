@@ -23,7 +23,7 @@ export default {
 </script>
 <template lang="pug">
 .home
-  h1 QuoVote.
+  h1 QuoVote
 
   a-card
     h2 Join an existing event

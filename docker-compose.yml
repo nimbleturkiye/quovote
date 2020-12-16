@@ -9,7 +9,7 @@ services:
     image: quovote-backend
     build:
       context: backend
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     environment:
       - VIRTUAL_HOST=vue-node-starter.localhost/api,vue-node-starter.localhost/api/*,vue-node-starter.localhost/socket.io/*
       - VIRTUAL_HOST_WEIGHT=1
@@ -22,7 +22,7 @@ services:
     image: quovote-frontend
     build:
       context: frontend
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     environment:
       - HOST=0.0.0.0
       - VIRTUAL_HOST=vue-node-starter.localhost
