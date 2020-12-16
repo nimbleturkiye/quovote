@@ -35,7 +35,8 @@ export default {
             rules: [
               { type: 'email', message: 'The input is not valid e-mail.' },
               { required: true, message: 'Please input your e-mail.' }
-            ]
+            ],
+            normalize: value => value.toLowerCase()
           }
         ],
         password: [
