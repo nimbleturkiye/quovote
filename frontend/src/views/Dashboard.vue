@@ -101,7 +101,7 @@ export default {
         h2 Your events
         a-empty(v-if="user && !user.events.length")
           span(slot="description") You haven't created any events. <br> Click the button below to create your first event 🎉
-          a-button(type="primary" @click="focusOnCreateEventForm") Create event
+          a-button(type="primary" @click="focusOnCreateEventForm" icon="plus") Create Event
         a-card(v-for="event in sortedEvents")
           h3
             router-link(:to="`/events/${event._id}`") {{ event.title }}
@@ -122,7 +122,7 @@ export default {
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
             a-alert(:message="backendError.message" type="error")
           a-form-item(v-bind="tailFormItemLayout")
-            a-button(type="primary" html-type="submit" :loading="loading") Create Event
+            a-button(type="primary" html-type="submit" :loading="loading" icon="plus") Create Event
 </template>
 
 <style lang="scss" scoped>
