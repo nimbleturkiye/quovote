@@ -6,6 +6,7 @@ const socketServer = require('../socket-connection')
 const User = require('../models/user')
 const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
+const { v4: uuid } = require('uuid');
 
 async function ensureUser(req, res, next) {
   if (req.body.computerId) req.session.computerId = req.body.computerId
