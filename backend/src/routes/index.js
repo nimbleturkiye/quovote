@@ -48,6 +48,15 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource')
 })
 
+async function ensureEvent(req, res, next) {
+  if ('eventId' in req.params && !ObjectId.isValid(req.params.eventId))
+    return next(new Error('Event not found'))
+
+  next()
+}
+
+router.use(ensureEvent)
+
 router.get('/events', ensureUser, async (req, res, next) => {
   let query = { code: new RegExp(`^${req.query.code}$`, 'i') }
 
@@ -82,7 +91,7 @@ router.post('/events', ensureUser, async function (req, res, next) {
   }
 })
 
-router.get('/events/:eventId', ensureUser, async (req, res, next) => {
+router.get('/events/:eventId', ensureUser, ensureEvent, async (req, res, next) => {
   let event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
@@ -96,11 +105,17 @@ router.get('/events/:eventId', ensureUser, async (req, res, next) => {
   }
 })
 
-router.post('/events/:eventId/questions', ensureUser, async function (req, res, next) {
+router.post('/events/:eventId/questions', ensureUser, ensureEvent, async function (req, res, next) {
   if (!req.body.text) return next(new Error('Question cannot be left blank'))
 
-  const event = await Event.findOne({ _id: req.params.eventId })
-  if (!event) return next(new Error('Event not found'))
+  let event
+
+  try {
+    event = await Event.findOne({ _id: req.params.eventId })
+    if (!event) return next(new Error('Event not found'))
+  } catch (e) {
+    return next(new Error('Event not found'))
+  }
 
   try {
     const { userId } = req.session
@@ -117,7 +132,7 @@ router.post('/events/:eventId/questions', ensureUser, async function (req, res, 
   }
 })
 
-router.delete('/events/:eventId/questions/:questionId', async function (req, res, next) {
+router.delete('/events/:eventId/questions/:questionId', ensureEvent, async function (req, res, next) {
   let event = await Event.findOne({ _id: req.params.eventId })
 
   if (!event) return next(new Error('Event not found'))
@@ -145,7 +160,7 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
   }
 })
 
-router.patch('/events/:eventId/questions/:questionId', ensureUser, async function (req, res, next) {
+router.patch('/events/:eventId/questions/:questionId', ensureUser, ensureEvent, async function (req, res, next) {
   const operator = req.body.vote == 'like' ? '$addToSet' : '$pullAll'
   const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
 
