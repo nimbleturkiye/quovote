@@ -33,7 +33,7 @@ export default {
 
         this.question = ''
       } catch (e) {
-        notification.error({ message: e.message })
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
       }
     },
     updateSorting(e) {
