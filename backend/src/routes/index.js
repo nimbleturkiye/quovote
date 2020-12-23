@@ -7,6 +7,7 @@ const User = require('../models/user')
 const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
 const { v4: uuid } = require('uuid')
+const { celebrate, Joi, Segments } = require('celebrate')
 
 async function ensureUser(req, res, next) {
   if (req.body.computerId) req.session.computerId = req.body.computerId
@@ -49,13 +50,18 @@ router.get('/', function (req, res, next) {
 })
 
 async function ensureEvent(req, res, next) {
-  if ('eventId' in req.params && !ObjectId.isValid(req.params.eventId))
-    return next(new Error('Event not found'))
+  if ('eventId' in req.params && !ObjectId.isValid(req.params.eventId)) return next(new Error('Event not found'))
 
   next()
 }
 
 router.use(ensureEvent)
+
+function ensureLogin(req, res, next) {
+  if (req.user) return next()
+
+  next(new Error('Unauthorized'))
+}
 
 router.get('/events', ensureUser, async (req, res, next) => {
   let query = { code: new RegExp(`^${req.query.code}$`, 'i') }
@@ -71,7 +77,34 @@ router.get('/events', ensureUser, async (req, res, next) => {
   res.send(event._id)
 })
 
-router.post('/events', ensureUser, async function (req, res, next) {
+const eventsValidator = celebrate(
+  {
+    [Segments.BODY]: Joi.object().keys({
+      title: Joi.string()
+        .required()
+        .min(3)
+        .max(80)
+        .trim()
+        .replace(/(\s)\1*/g, '$1')
+        .label('Title'),
+      code: Joi.string()
+        .trim()
+        .min(3)
+        .max(8)
+        .replace(/(\s+)/g, '$1')
+        .label('Code')
+        .pattern(/^[a-z0-9]+$/),
+      description: Joi.string().trim().max(280).replace(/(\s+)/g, '$1').label('Description'),
+    }),
+  },
+  {
+    messages: {
+      'string.pattern.base': 'Event code can only include lowercase letters and numbers.',
+    },
+  }
+)
+
+router.post('/events', ensureUser, ensureLogin, eventsValidator, async function (req, res, next) {
   const eventRequest = {
     title: req.body.title,
     code: req.body.code,
@@ -105,9 +138,20 @@ router.get('/events/:eventId', ensureUser, ensureEvent, async (req, res, next) =
   }
 })
 
-router.post('/events/:eventId/questions', ensureUser, ensureEvent, async function (req, res, next) {
-  if (!req.body.text) return next(new Error('Question cannot be left blank'))
+const questionsValidator = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    text: Joi.string()
+      .required()
+      .min(5)
+      .max(280)
+      .trim()
+      .replace(/(\s)\1*/g, '$1')
+      .label('Question'),
+    user: Joi.string().trim().replace(/(\s+)/g, '$1'),
+  }),
+})
 
+router.post('/events/:eventId/questions', ensureUser, ensureEvent, questionsValidator, async function (req, res, next) {
   let event
 
   try {

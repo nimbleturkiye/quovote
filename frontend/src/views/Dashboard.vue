@@ -11,27 +11,27 @@ export default {
       formItemLayout: {
         labelCol: {
           xs: { span: 24 },
-          sm: { span: 6 }
+          sm: { span: 6 },
         },
         wrapperCol: {
           xs: { span: 24 },
-          sm: { span: 18 }
-        }
+          sm: { span: 18 },
+        },
       },
       tailFormItemLayout: {
         wrapperCol: {
           xs: {
             span: 24,
-            offset: 0
+            offset: 0,
           },
           sm: {
             span: 16,
-            offset: 6
-          }
-        }
+            offset: 6,
+          },
+        },
       },
       validationRules: {
-        title: ['title', { rules: [{ required: true }] }],
+        title: ['title', { rules: [{ required: true, min: 3, max: 80 }] }],
         description: ['description'],
         code: [
           'code',
@@ -39,11 +39,11 @@ export default {
             rules: [
               { required: false },
               { pattern: /^[a-z0-9]+$/, message: 'Event code can only include lowercase letters and numbers.\n' },
-              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' }
-            ]
-          }
-        ]
-      }
+              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' },
+            ],
+          },
+        ],
+      },
     }
   },
   computed: {
@@ -54,7 +54,7 @@ export default {
         this.user.events &&
         this.user.events.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       )
-    }
+    },
   },
   beforeCreate() {
     const component = this
@@ -62,7 +62,7 @@ export default {
       name: 'createEventForm',
       onValuesChange() {
         component.backendError = null
-      }
+      },
     })
   },
   methods: {
@@ -82,14 +82,18 @@ export default {
 
           this.createEventForm.resetFields()
         } catch (e) {
-          this.backendError = e.response.data
+          this.backendError = {
+            message: e.response?.data?.validation
+              ? e.response.data.validation.body.message
+              : e.response?.data?.message ?? e.message ?? 'An unknown error occured',
+          }
         }
       })
     },
     focusOnCreateEventForm() {
       this.$nextTick(() => this.$refs.eventName.focus())
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -118,7 +122,7 @@ export default {
             a-input(placeholder="A short description of your event" v-decorator="validationRules.description" :maxLength="280")
           a-form-item(label="Event code (optional)" v-bind="formItemLayout")
             a-input(placeholder="A short code (slug) for your event" v-decorator="validationRules.code" :maxLength="20")
-            p {{createEventForm.getFieldValue('code') ? `Your event's URL will be: https://quovote.co/${createEventForm.getFieldValue('code')}` : ''}}
+            p {{createEventForm.getFieldValue('code') ? `Your event's URL will be: https://quo.vote/${createEventForm.getFieldValue('code')}` : ''}}
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
             a-alert(:message="backendError.message" type="error")
           a-form-item(v-bind="tailFormItemLayout")

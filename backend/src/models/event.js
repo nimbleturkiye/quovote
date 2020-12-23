@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Question = require('./question')
-const { customAlphabet } =  require('nanoid')
+const { customAlphabet } = require('nanoid')
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 6)
 
 const Event = new mongoose.Schema(
@@ -9,17 +9,18 @@ const Event = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 3,
-      maxlength: 80
+      maxlength: 80,
     },
     questions: [Question],
     code: {
       type: String,
       unique: true,
-      maxlength: 20
+      minlength: 3,
+      maxlength: 8,
     },
     description: {
       type: String,
-      maxlength: 280
+      maxlength: 280,
     },
     participants: [
       {

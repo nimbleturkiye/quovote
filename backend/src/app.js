@@ -6,6 +6,9 @@ const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const passport = require('passport')
 const cors = require('cors')
+const helmet = require('helmet')
+const mongoSanitize = require('express-mongo-sanitize');
+const { errors } = require('celebrate');
 
 const User = require('./models/user')
 const { mongoose } = require('./bootstrap')
@@ -14,6 +17,9 @@ var indexRouter = require('./routes/index')
 var accountRouter = require('./routes/account')
 
 var app = express()
+
+app.use(helmet())
+
 app.use(
   cors({
     origin: true,
@@ -51,6 +57,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
+app.use(mongoSanitize())
+
 app.use('/', indexRouter)
 app.use('/account', accountRouter)
 
@@ -58,6 +66,8 @@ app.use('/account', accountRouter)
 app.use(function (req, res, next) {
   next(createError(404))
 })
+
+app.use(errors());
 
 // error handler
 app.use(function (err, req, res, next) {
