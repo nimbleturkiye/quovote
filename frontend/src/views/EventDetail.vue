@@ -15,9 +15,13 @@ export default {
       questions: []
     }
   },
-  created() {
+  async created() {
     this.setEventId(this.$route.params.eventId)
-    this.joinEvent(this.$route.params.eventId)
+    try {
+      await this.joinEvent(this.$route.params.eventId)
+    } catch(e) {
+      notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+    }
   },
   methods: {
     ...mapActions('event', ['submitQuestion', 'setEventId', 'joinEvent', 'vote', 'withdrawQuestion']),
