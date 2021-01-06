@@ -108,6 +108,7 @@ router.post('/events', ensureUser, ensureLogin, eventsValidator, async function 
     title: req.body.title,
     code: req.body.code,
     description: req.body.description,
+    owner: req.user._id
   }
 
   const event = new Event(eventRequest)
