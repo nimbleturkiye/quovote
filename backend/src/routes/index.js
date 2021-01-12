@@ -3,7 +3,6 @@ const router = express.Router()
 const Event = require('../models/event')
 const Singularity = require('../models/singularity')
 const socketServer = require('../socket-connection')
-const User = require('../models/user')
 const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
 const { v4: uuid } = require('uuid')
@@ -49,13 +48,20 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource')
 })
 
-async function ensureEvent(req, res, next) {
-  if ('eventId' in req.params && !ObjectId.isValid(req.params.eventId)) return next(new Error('Event not found'))
+router.use(async function ensureEvent(req, res, next) {
+  if (!('eventId' in req.params)) return next()
+
+  if (!ObjectId.isValid(req.params.eventId)) return next(new Error('Event not found'))
+  req.event = await Event.findById(req.params.eventId)
+
+  if (!req.event) return next(new Error('Event not found'))
+
+  const { id: sessionId, userId, computerId } = req.session
+  const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
+  req.event = Event.decorateForUser(req.event, userIds)
 
   next()
-}
-
-router.use(ensureEvent)
+})
 
 function ensureLogin(req, res, next) {
   if (req.user) return next()
@@ -124,18 +130,8 @@ router.post('/events', ensureUser, ensureLogin, eventsValidator, async function 
   }
 })
 
-router.get('/events/:eventId', ensureUser, ensureEvent, async (req, res, next) => {
-  let event = await Event.findOne({ _id: req.params.eventId })
-
-  if (!event) return next(new Error('Event not found'))
-  try {
-    const { id: sessionId, userId, computerId } = req.session
-    const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
-    event = Event.decorateForUser(event, userIds)
-    res.send(event)
-  } catch (error) {
-    return next(new Error('UserId not found'))
-  }
+router.get('/events/:eventId', ensureUser, async (req, res, next) => {
+  res.send(req.event)
 })
 
 const questionsValidator = celebrate({
@@ -151,60 +147,37 @@ const questionsValidator = celebrate({
   }),
 })
 
-router.post('/events/:eventId/questions', ensureUser, ensureEvent, questionsValidator, async function (req, res, next) {
-  let event
+router.post('/events/:eventId/questions', ensureUser, questionsValidator, async function (req, res, next) {
+  const { userId } = req.session
 
-  try {
-    event = await Event.findOne({ _id: req.params.eventId })
-    if (!event) return next(new Error('Event not found'))
-  } catch (e) {
-    return next(new Error('Event not found'))
-  }
+  req.event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
 
-  try {
-    const { userId } = req.session
+  await req.event.save()
 
-    event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
+  socketServer().to(req.params.eventId).emit('questions updated')
 
-    await event.save()
-
-    socketServer().to(req.params.eventId).emit('questions updated')
-
-    res.send(true)
-  } catch (e) {
-    next(e)
-  }
+  res.send(true)
 })
 
-router.delete('/events/:eventId/questions/:questionId', ensureEvent, async function (req, res, next) {
-  let event = await Event.findOne({ _id: req.params.eventId })
+router.delete('/events/:eventId/questions/:questionId', async function (req, res, next) {
+  const { id: sessionId, userId, computerId } = req.session
+  const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
-  if (!event) return next(new Error('Event not found'))
+  const question = req.event.questions.find(
+    q => userIds.some(i => i.equals(q.user)) && q._id.equals(req.params.questionId)
+  )
 
-  try {
-    const { id: sessionId, userId, computerId } = req.session
-    const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
+  if (!question) return res.sendStatus(404)
 
-    const question = event.questions.find(
-      q => userIds.some(i => i.equals(q.user)) && q._id.equals(req.params.questionId)
-    )
+  question.remove()
+  await req.event.save()
 
-    if (!question) return res.sendStatus(404)
+  socketServer().to(req.params.eventId).emit('questions updated')
 
-    question.remove()
-    await event.save()
-
-    const { questions } = Event.decorateForUser(event, userIds)
-
-    socketServer().to(req.params.eventId).emit('questions updated', questions)
-
-    res.sendStatus(200)
-  } catch (error) {
-    return next(new Error('UserId not found'))
-  }
+  res.sendStatus(200)
 })
 
-router.patch('/events/:eventId/questions/:questionId', ensureUser, ensureEvent, async function (req, res, next) {
+router.patch('/events/:eventId/questions/:questionId', ensureUser, async function (req, res, next) {
   const operator = req.body.vote == 'like' ? '$addToSet' : '$pullAll'
   const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
 
@@ -235,9 +208,9 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, ensureEvent, 
 
   await event.save()
 
-    socketServer().to(req.params.eventId).emit('questions updated')
+  socketServer().to(req.params.eventId).emit('questions updated')
 
-    res.sendStatus(200)
+  res.sendStatus(200)
 })
 
 module.exports = router
