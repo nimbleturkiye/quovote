@@ -235,15 +235,9 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, ensureEvent, 
 
   await event.save()
 
-  try {
-    const { questions } = Event.decorateForUser(event, userIds)
-
-    socketServer().to(req.params.eventId).emit('questions updated', questions)
+    socketServer().to(req.params.eventId).emit('questions updated')
 
     res.sendStatus(200)
-  } catch (error) {
-    return next(new Error('UserId not found'))
-  }
 })
 
 module.exports = router
