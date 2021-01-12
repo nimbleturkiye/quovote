@@ -16,11 +16,5 @@ module.exports = {
     'no-debugger': 'off',
     'no-unused-vars': 'off',
     'no-useless-catch': 'off'
-  },
-
-  'extends': [
-    'plugin:vue/essential',
-    'eslint:recommended',
-    '@vue/prettier'
-  ]
+  }
 }
