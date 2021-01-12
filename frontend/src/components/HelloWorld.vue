@@ -9,7 +9,7 @@ export default {
   methods: {
     ...mapActions(['request'])
   },
-  async created () {
+  async created() {
     console.log(await this.request())
   }
 }

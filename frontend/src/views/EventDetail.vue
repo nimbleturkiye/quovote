@@ -19,8 +19,12 @@ export default {
     this.setEventId(this.$route.params.eventId)
     try {
       await this.joinEvent(this.$route.params.eventId)
-    } catch(e) {
-      notification.error({ message: e.response?.data?.validation ? e.response.data.validation.body.message : e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+    } catch (e) {
+      notification.error({
+        message: e.response?.data?.validation
+          ? e.response.data.validation.body.message
+          : e.response?.data?.message ?? e.message ?? 'An unknown error occured'
+      })
     }
   },
   methods: {
@@ -33,7 +37,11 @@ export default {
 
         this.question = ''
       } catch (e) {
-        notification.error({ message: e.response?.data?.validation ? e.response.data.validation.body.message : e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+        notification.error({
+          message: e.response?.data?.validation
+            ? e.response.data.validation.body.message
+            : e.response?.data?.message ?? e.message ?? 'An unknown error occured'
+        })
       }
     },
     updateSorting(e) {

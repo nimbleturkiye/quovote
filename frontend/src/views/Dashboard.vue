@@ -11,24 +11,24 @@ export default {
       formItemLayout: {
         labelCol: {
           xs: { span: 24 },
-          sm: { span: 6 },
+          sm: { span: 6 }
         },
         wrapperCol: {
           xs: { span: 24 },
-          sm: { span: 18 },
-        },
+          sm: { span: 18 }
+        }
       },
       tailFormItemLayout: {
         wrapperCol: {
           xs: {
             span: 24,
-            offset: 0,
+            offset: 0
           },
           sm: {
             span: 16,
-            offset: 6,
-          },
-        },
+            offset: 6
+          }
+        }
       },
       validationRules: {
         title: ['title', { rules: [{ required: true, min: 3, max: 80 }] }],
@@ -39,11 +39,11 @@ export default {
             rules: [
               { required: false },
               { pattern: /^[a-z0-9]+$/, message: 'Event code can only include lowercase letters and numbers.\n' },
-              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' },
-            ],
-          },
-        ],
-      },
+              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' }
+            ]
+          }
+        ]
+      }
     }
   },
   computed: {
@@ -54,7 +54,7 @@ export default {
         this.user.events &&
         this.user.events.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       )
-    },
+    }
   },
   beforeCreate() {
     const component = this
@@ -62,7 +62,7 @@ export default {
       name: 'createEventForm',
       onValuesChange() {
         component.backendError = null
-      },
+      }
     })
   },
   methods: {
@@ -77,7 +77,7 @@ export default {
           await this.createEvent(values)
 
           notification.success({
-            message: 'Event created successfully',
+            message: 'Event created successfully'
           })
 
           this.createEventForm.resetFields()
@@ -85,15 +85,15 @@ export default {
           this.backendError = {
             message: e.response?.data?.validation
               ? e.response.data.validation.body.message
-              : e.response?.data?.message ?? e.message ?? 'An unknown error occured',
+              : e.response?.data?.message ?? e.message ?? 'An unknown error occured'
           }
         }
       })
     },
     focusOnCreateEventForm() {
       this.$nextTick(() => this.$refs.eventName.focus())
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -106,7 +106,7 @@ export default {
         a-empty(v-if="user && !user.events.length")
           span(slot="description") You haven't created any events. <br> Click the button below to create your first event 🎉
           a-button(type="primary" @click="focusOnCreateEventForm" icon="plus") Create Event
-        a-card(v-for="event in sortedEvents")
+        a-card(v-for="event in sortedEvents" :key="event.id")
           h3
             router-link(:to="`/events/${event._id}`") {{ event.title }}
           p {{ event.description }}
