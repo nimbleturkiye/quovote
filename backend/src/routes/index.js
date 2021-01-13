@@ -111,17 +111,12 @@ router.post('/events', ensureUser, ensureLogin, eventsValidator, async function 
     owner: req.user._id
   }
 
-  const event = new Event(eventRequest)
-  try {
-    await event.save()
+  const event = await Event.create(eventRequest)
 
-    req.user.events.push(event)
-    await req.user.save()
+  req.user.events.push(event)
+  await req.user.save()
 
-    res.send(event)
-  } catch (e) {
-    next(e)
-  }
+  res.send(event)
 })
 
 router.get('/events/:eventId', ensureUser, async (req, res, next) => {
