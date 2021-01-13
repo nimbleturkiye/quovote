@@ -16,6 +16,7 @@ const actions = {
   VOTE: 'vote',
   JOIN_EVENT: 'joinEvent',
   WITHDRAW_QUESTION: 'withdrawQuestion',
+  PATCH_QUESTION: 'patchQuestion',
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
   SET_EVENT_ID: 'setEventId',
@@ -70,16 +71,8 @@ const event = {
 
       commit(mutations.SET_EVENT, req.data)
     },
-    async [actions.VOTE]({ commit, state }, { questionId, vote }) {
-      commit(mutations.SET_LOADING, true)
-
-      try {
-        await axios.patch(`/events/${state.eventId}/questions/${questionId}`, { vote })
-      } catch (e) {
-        throw e
-      } finally {
-        commit(mutations.SET_LOADING, false)
-      }
+    async [actions.VOTE]({ dispatch }, { questionId, action }) {
+      await dispatch(actions.PATCH_QUESTION, { questionId, action })
     },
     async [actions.JOIN_EVENT]({ commit, dispatch, state }) {
       console.log('join event')
@@ -88,6 +81,17 @@ const event = {
     },
     async [actions.WITHDRAW_QUESTION]({ state }, questionId) {
       await axios.delete(`/events/${state.eventId}/questions/${questionId}`)
+    },
+    async [actions.PATCH_QUESTION]({ state, commit }, { questionId, action }) {
+      commit(mutations.SET_LOADING, true)
+
+      try {
+        await axios.patch(`/events/${state.eventId}/questions/${questionId}`, { action })
+      } catch (e) {
+        throw e
+      } finally {
+        commit(mutations.SET_LOADING, false)
+      }
     },
     [actions.UPDATE_QUESTIONS]({ commit }, questions) {
       commit(mutations.UPDATE_QUESTIONS, questions)

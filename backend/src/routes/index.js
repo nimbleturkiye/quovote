@@ -170,19 +170,36 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureUser, async function (req, res, next) {
-  const operator = req.body.vote == 'like' ? '$addToSet' : '$pullAll'
-  const inOperator = req.body.vote == 'like' ? '$nin' : '$in'
-
   const { id: sessionId, userId, computerId } = req.session
+  const { questionId } = req.params
+  const { action } = req.body
 
-  if (req.body.vote == 'like' && !req.user && computerId.startsWith('nobiri-')) return res.sendStatus(401)
+  if (action == 'like' && !req.user && computerId.startsWith('nobiri-')) return res.sendStatus(401)
 
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
-  const update = {
-    [operator]: {
-      'questions.$.voters': req.body.vote == 'like' ? req.session.userId : userIds,
-    },
+  let arrayFilters = [{ 'question._id': questionId }]
+
+  let update
+
+  switch (action) {
+    case 'like':
+      arrayFilters = [{ 'question._id': questionId, 'question.voters': { $nin: userIds } }]
+      update = {
+        $addToSet: {
+          'questions.$[question].voters': userId,
+        },
+      }
+      break
+
+    case 'dislike':
+      arrayFilters = [{ 'question._id': questionId, 'question.voters': { $in: userIds } }]
+      update = {
+        $pullAll: {
+          'questions.$[question].voters': userIds,
+        },
+      }
+      break
   }
 
   const event = await Event.findOneAndUpdate(
@@ -190,11 +207,11 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
       _id: req.params.eventId,
     },
     update,
-    { new: true }
-  ).elemMatch('questions', {
-    _id: req.params.questionId,
-    voters: { [inOperator]: userIds },
-  })
+    {
+      new: true,
+      arrayFilters,
+    }
+  )
 
   if (!event) return next(new Error('Event or question not found'))
 

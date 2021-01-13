@@ -77,7 +77,7 @@ export default {
     handleVote(question) {
       if (this.isUnknownAnonymous && !question.voted) return
 
-      this.vote({ questionId: question._id, vote: question.voted ? 'dislike' : 'like' })
+      this.vote({ questionId: question._id, action: question.voted ? 'dislike' : 'like' })
     }
   },
   computed: {
