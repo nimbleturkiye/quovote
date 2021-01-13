@@ -40,27 +40,24 @@ async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
     .distinct('userId')
 }
 
+router.param('eventId', async function ensureEvent(req, res, next) {
+  if (!ObjectId.isValid(req.params.eventId)) return next(new Error('Event not found'))
+
+  const event = await Event.findById(req.params.eventId)
+
+  if (!event) return next(new Error('Event not found'))
+
+  req.event = event
+
+  next()
+})
+
 router.post('/singularity', ensureUser, async (req, res, next) => {
   res.sendStatus(200)
 })
 
 router.get('/', function (req, res, next) {
   res.send('respond with a resource')
-})
-
-router.use(async function ensureEvent(req, res, next) {
-  if (!('eventId' in req.params)) return next()
-
-  if (!ObjectId.isValid(req.params.eventId)) return next(new Error('Event not found'))
-  req.event = await Event.findById(req.params.eventId)
-
-  if (!req.event) return next(new Error('Event not found'))
-
-  const { id: sessionId, userId, computerId } = req.session
-  const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
-  req.event = Event.decorateForUser(req.event, userIds)
-
-  next()
 })
 
 function ensureLogin(req, res, next) {
@@ -131,7 +128,10 @@ router.post('/events', ensureUser, ensureLogin, eventsValidator, async function 
 })
 
 router.get('/events/:eventId', ensureUser, async (req, res, next) => {
-  res.send(req.event)
+  const { id: sessionId, userId, computerId } = req.session
+  const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
+
+  res.send(Event.decorateForUser(req.event, userIds))
 })
 
 const questionsValidator = celebrate({
