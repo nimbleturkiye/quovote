@@ -56,10 +56,6 @@ router.post('/singularity', ensureUser, async (req, res, next) => {
   res.sendStatus(200)
 })
 
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource')
-})
-
 function ensureLogin(req, res, next) {
   if (req.user) return next()
 
