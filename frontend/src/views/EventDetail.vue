@@ -28,7 +28,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('event', ['submitQuestion', 'setEventId', 'joinEvent', 'vote', 'withdrawQuestion']),
+    ...mapActions('event', ['submitQuestion', 'setEventId', 'joinEvent', 'vote', 'withdrawQuestion', 'pinQuestion']),
     async sendQuestion() {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
@@ -65,7 +65,9 @@ export default {
       }
 
       this.questions.sort((a, b) => {
-        if (this.sortBy == 'popular') return (a.votes - b.votes) * this.orderBy
+        if (a.isPinned && !b.isPinned) return -1
+        else if (!a.isPinned && b.isPinned) return 1
+        else if (this.sortBy == 'popular') return (a.votes - b.votes) * this.orderBy
         else if (this.sortBy == 'random') return Math.random() * 2 - 1
         return (new Date(a.createdAt) - new Date(b.createdAt)) * this.orderBy
       })
@@ -78,6 +80,14 @@ export default {
       if (this.isUnknownAnonymous && !question.voted) return
 
       this.vote({ questionId: question._id, action: question.voted ? 'dislike' : 'like' })
+    },
+    handlePin(question) {
+      if (this.isUnknownAnonymous) return
+
+      this.pinQuestion({
+        questionId: question._id,
+        action: question.isPinned ? 'unpin' : 'pin'
+      })
     }
   },
   computed: {
@@ -160,7 +170,10 @@ export default {
               p(slot="content") {{ question.text }}
               a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
                 span(:id="'question-' + question._id.slice(-4)") {{ moment(question.createdAt).fromNow() }}
-            div.question-id {{ '#' + question._id.slice(-4) }}
+            div.pin
+              div.question-id {{ '#' + question._id.slice(-4) }}
+              a-button(:disabled="event.owner != user._id" type="link" @click="handlePin(question)")
+                a-icon(type="pushpin" :theme="question.isPinned ? 'filled' : 'outlined'")
             hr
 </template>
 
@@ -228,13 +241,19 @@ export default {
 }
 
 .question-id {
+  font-size: 12px;
+  line-height: 12px;
+  color: #ccc;
+  padding-top: 4px;
+}
+
+.pin {
   position: absolute;
   right: 0em;
   top: 0em;
-  padding: 18px;
-  font-size: 12px;
-  line-height: 18px;
-  color: #ccc;
+  padding: 1em;
+  display: flex;
+  align-items: center;
 }
 
 .questions-tag {

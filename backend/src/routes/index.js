@@ -200,6 +200,15 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
         },
       }
       break
+
+    case 'pin':
+    case 'unpin':
+      update = {
+        $set: {
+          'questions.$[question].isPinned': action == 'pin',
+        },
+      }
+      break
   }
 
   const event = await Event.findOneAndUpdate(

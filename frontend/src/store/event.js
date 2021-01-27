@@ -16,6 +16,7 @@ const actions = {
   VOTE: 'vote',
   JOIN_EVENT: 'joinEvent',
   WITHDRAW_QUESTION: 'withdrawQuestion',
+  PIN_QUESTION: 'pinQuestion',
   PATCH_QUESTION: 'patchQuestion',
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
@@ -81,6 +82,9 @@ const event = {
     },
     async [actions.WITHDRAW_QUESTION]({ state }, questionId) {
       await axios.delete(`/events/${state.eventId}/questions/${questionId}`)
+    },
+    async [actions.PIN_QUESTION]({ dispatch }, { questionId, action }) {
+      await dispatch(actions.PATCH_QUESTION, { questionId, action })
     },
     async [actions.PATCH_QUESTION]({ state, commit }, { questionId, action }) {
       commit(mutations.SET_LOADING, true)

@@ -21,7 +21,10 @@ const Question = new mongoose.Schema(
       default: 'Anonymous',
       maxlength: 40
     },
-    is_highlighted: Boolean,
+    isPinned: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
