@@ -22,6 +22,10 @@ const Event = new mongoose.Schema(
       type: String,
       maxlength: 280,
     },
+    owner: {
+      type: 'ObjectId',
+      ref: 'User'
+    },
     participants: [
       {
         type: 'ObjectId',
