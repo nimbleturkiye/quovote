@@ -43,7 +43,7 @@ export default {
               { type: 'email', message: 'E-mail is not valid.' },
               { required: true, message: 'E-mail is required.' }
             ],
-            normalize: value => value.toLowerCase()
+            normalize: value => value?.toLowerCase()
           }
         ],
         password: [
