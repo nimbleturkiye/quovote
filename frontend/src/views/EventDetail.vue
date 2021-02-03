@@ -88,7 +88,22 @@ export default {
         questionId: question._id,
         action: question.isPinned ? 'unpin' : 'pin'
       })
-    }
+    },
+    generateAvatarText(name) {
+      let avatarName = name
+        .split(' ')
+        .map(w => w[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+
+      return avatarName
+    },
+    generateAvatarBgColor() {
+      let randomNumber = Math.floor(Math.random() * 5)
+
+      return `avatar-bg-${randomNumber}`
+    },
   },
   computed: {
     ...mapState(['loading']),
@@ -163,10 +178,9 @@ export default {
                 span
                   a-button(type="secondary" v-if="question.ownQuestion" @click="withdrawQuestion(question._id)") Withdraw
               a(slot="author") {{ question.author }}
-              a-avatar(
-                src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-                alt="Default avatar"
-                slot="avatar")
+              a-avatar(v-once slot="avatar" :class="generateAvatarBgColor()")
+                a-icon(v-if="question.author == 'Anonymous'" type="user")
+                span(v-else) {{ generateAvatarText(question.author) }}
               p(slot="content") {{ question.text }}
               a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
                 span(:id="'question-' + question._id.slice(-4)") {{ moment(question.createdAt).fromNow() }}
@@ -274,5 +288,25 @@ form > * {
 
 textarea {
   padding: 8px;
+}
+
+.avatar-bg-0 {
+  background-color: #00bfa5;
+}
+
+.avatar-bg-1 {
+  background-color: #304ffe;
+}
+
+.avatar-bg-2 {
+  background-color: #aa00ff;
+}
+
+.avatar-bg-3 {
+  background-color: #ff6d00;
+}
+
+.avatar-bg-4 {
+  background-color: #00c853;
 }
 </style>
