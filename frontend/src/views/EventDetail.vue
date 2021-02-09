@@ -110,7 +110,7 @@ export default {
       let randomNumber = Math.floor(Math.random() * 5)
 
       return `avatar-bg-${randomNumber}`
-    },
+    }
   },
   computed: {
     ...mapState(['loading']),
@@ -151,50 +151,50 @@ export default {
     h1 {{ event.title }}
     h3 {{ event.description }}
     a-card
-      form(@submit.prevent="sendQuestion")
+      form(@submit.prevent='sendQuestion')
         h2 Ask the speaker
         a-textarea(
-          placeholder="Type your question"
-          :autoSize="{ minRows: 2, maxRows: 6 }"
-          :maxLength="280"
-          v-model="question"
+          placeholder='Type your question',
+          :autoSize='{ minRows: 2, maxRows: 6 }',
+          :maxLength='280',
+          v-model='question'
         )
-        a-input(placeholder="Your name (optional)" v-model="name" :maxLength="40")
-        a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
+        a-input(placeholder='Your name (optional)', v-model='name', :maxLength='40')
+        a-button(type='primary', @click='sendQuestion', :loading='loading', icon='message') Send
     a-card
       .questions
-        div.questions-header
+        .questions-header
           h2 Questions
             a-avatar.question-count {{ questions.length }}
           .sort-container
-            div(v-if="questions.length")
+            div(v-if='questions.length')
               span Sort questions by &nbsp;
-              a-radio-group(size="small" defaultValue="popular" buttonStyle="solid" :value="sortBy")
-                a-radio-button(value="popular" @click="updateSorting") Popular {{ popularSortOrderIndicator }}
-                a-radio-button(value="recent" @click="updateSorting") Recent {{ recentSortOrderIndicator }}
-                a-radio-button(value="random" @click="updateSorting") Random {{ randomSortOrderIndicator }}
-        div.questions-container
-          p.no-questions(v-if="!questions.length") This event has no questions, be the first one and ask the first question!
-          a-card(v-for="question in questions" :key="question._id" :bordered="false")
+              a-radio-group(size='small', defaultValue='popular', buttonStyle='solid', :value='sortBy')
+                a-radio-button(value='popular', @click='updateSorting') Popular {{ popularSortOrderIndicator }}
+                a-radio-button(value='recent', @click='updateSorting') Recent {{ recentSortOrderIndicator }}
+                a-radio-button(value='random', @click='updateSorting') Random {{ randomSortOrderIndicator }}
+        .questions-container
+          p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
+          a-card(v-for='question in questions', :key='question._id', :bordered='false')
             a-comment
-              template(slot="actions")
-                a-tooltip(:title="getQuestionTooltipTitle(question)" @click="handleVote(question)")
-                  span(key="comment-basic-like")
-                    a-icon(type="like" :theme="question.voted ? 'filled' : 'outlined'")
-                  span(style="padding-left: 4px") {{ question.votes }}
+              template(slot='actions')
+                a-tooltip(:title='getQuestionTooltipTitle(question)', @click='handleVote(question)')
+                  span(key='comment-basic-like')
+                    a-icon(type='like', :theme='question.voted ? "filled" : "outlined"')
+                  span(style='padding-left: 4px') {{ question.votes }}
                 span
-                  a-button(type="secondary" v-if="question.ownQuestion" @click="withdrawQuestion(question._id)") Withdraw
-              a(slot="author") {{ question.author }}
-              a-avatar(v-once slot="avatar" :class="generateAvatarBgColor()")
-                a-icon(v-if="question.author == 'Anonymous'" type="user")
+                  a-button(type='secondary', v-if='question.ownQuestion', @click='withdrawQuestion(question._id)') Withdraw
+              a(slot='author') {{ question.author }}
+              a-avatar(v-once, slot='avatar', :class='generateAvatarBgColor()')
+                a-icon(v-if='question.author == "Anonymous"', type='user')
                 span(v-else) {{ generateAvatarText(question.author) }}
-              p(slot="content") {{ question.text }}
-              a-tooltip(slot="datetime" :title="moment(question.createdAt).format('YYYY-MM-DD HH:mm:ss')")
-                span(:id="'question-' + question._id.slice(-4)") {{ moment(question.createdAt).fromNow() }}
-            div.pin
-              div.question-id {{ '#' + question._id.slice(-4) }}
-              a-button(:disabled="event.owner != user._id" type="link" @click="handlePin(question)")
-                a-icon(type="pushpin" :theme="question.isPinned ? 'filled' : 'outlined'")
+              p(slot='content') {{ question.text }}
+              a-tooltip(slot='datetime', :title='moment(question.createdAt).format("YYYY-MM-DD HH:mm:ss")')
+                span(:id='"question-" + question._id.slice(-4)') {{ moment(question.createdAt).fromNow() }}
+            .pin
+              .question-id {{ "#" + question._id.slice(-4) }}
+              a-button(:disabled='event.owner != user._id', type='link', @click='handlePin(question)')
+                a-icon(type='pushpin', :theme='question.isPinned ? "filled" : "outlined"')
             hr
 </template>
 
