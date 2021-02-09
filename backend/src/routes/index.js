@@ -7,6 +7,7 @@ const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
 const { v4: uuid } = require('uuid')
 const { celebrate, Joi, Segments } = require('celebrate')
+const sanitize = require('express-mongo-sanitize').sanitize;
 
 async function ensureUser(req, res, next) {
   if (req.body.computerId) req.session.computerId = req.body.computerId
@@ -52,6 +53,7 @@ router.param('eventId', async function ensureEvent(req, res, next) {
   next()
 })
 
+
 router.post('/singularity', ensureUser, async (req, res, next) => {
   res.sendStatus(200)
 })
@@ -63,10 +65,12 @@ function ensureLogin(req, res, next) {
 }
 
 router.get('/events', ensureUser, async (req, res, next) => {
-  let query = { code: new RegExp(`^${req.query.code}$`, 'i') }
+  const code = sanitize(req.query.code)
 
-  if (ObjectId.isValid(req.query.code)) {
-    query = { _id: req.query.code }
+  let query = { code: new RegExp(`^${code}$`, 'i') }
+
+  if (ObjectId.isValid(code)) {
+    query = { _id: code }
   }
 
   const event = await Event.findOne(query)
@@ -140,18 +144,19 @@ const questionsValidator = celebrate({
 })
 
 router.post('/events/:eventId/questions', ensureUser, questionsValidator, async function (req, res, next) {
-  const { userId } = req.session
-
-  req.event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
-
-  await req.event.save()
+  await Event.findByIdAndUpdate(req.params.eventId,
+    {
+      $push: {
+        questions: { text: req.body.text, author: req.body.user, user: req.session.userId }
+      }
+    })
 
   socketServer().to(req.params.eventId).emit('questions updated')
 
   res.send(true)
 })
 
-router.delete('/events/:eventId/questions/:questionId', async function (req, res, next) {
+router.delete('/events/:eventId/questions/:questionId', async function (req, res) {
   const { id: sessionId, userId, computerId } = req.session
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
@@ -161,8 +166,11 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
 
   if (!question) return res.sendStatus(404)
 
-  question.remove()
-  await req.event.save()
+  await Event.findByIdAndUpdate(req.params.eventId, {
+    $pull: {
+      questions: { _id: question._id }
+    }
+  })
 
   socketServer().to(req.params.eventId).emit('questions updated')
 
@@ -223,8 +231,6 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
   )
 
   if (!event) return next(new Error('Event or question not found'))
-
-  await event.save()
 
   socketServer().to(req.params.eventId).emit('questions updated')
 
