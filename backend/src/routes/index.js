@@ -224,8 +224,6 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
 
   if (!event) return next(new Error('Event or question not found'))
 
-  await event.save()
-
   socketServer().to(req.params.eventId).emit('questions updated')
 
   res.sendStatus(200)
