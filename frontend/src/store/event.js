@@ -1,5 +1,7 @@
 import axios from 'axios'
 import io from 'socket.io-client'
+import throttle from 'lodash.throttle'
+
 const socket = io(process.env.VUE_APP_SOCKET_PATH)
 
 const mutations = {
@@ -47,9 +49,9 @@ const event = {
   },
   actions: {
     async [actions.INIT]({ dispatch }) {
-      socket.on('questions updated', () => {
-        dispatch(actions.FETCH_EVENT)
-      })
+      const fetchEvent = throttle(() => dispatch(actions.FETCH_EVENT), 30000)
+
+      socket.on('questions updated', fetchEvent)
     },
     async [actions.FETCH_EVENT_ID_BY_CODE](ctx, code) {
       const res = await axios.get(`/events?code=${code}`)
