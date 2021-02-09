@@ -24,6 +24,7 @@ app.use(
   cors({
     origin: process.env.NODE_ENV == 'production' ? 'https://quo.vote' : true,
     credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE']
   })
 )
 
