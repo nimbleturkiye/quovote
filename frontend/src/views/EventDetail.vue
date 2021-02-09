@@ -80,6 +80,8 @@ export default {
       if (this.isUnknownAnonymous && !question.voted) return
 
       this.vote({ questionId: question._id, action: question.voted ? 'unlike' : 'like' })
+
+      question.voted = !question.voted
     },
     handlePin(question) {
       if (this.isUnknownAnonymous) return
@@ -88,6 +90,8 @@ export default {
         questionId: question._id,
         action: question.isPinned ? 'unpin' : 'pin'
       })
+
+      question.isPinned = !question.isPinned
     },
     generateAvatarText(name) {
       let avatarName = name
