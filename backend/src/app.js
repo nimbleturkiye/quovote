@@ -7,7 +7,7 @@ const MongoStore = require('connect-mongo')(session)
 const passport = require('passport')
 const cors = require('cors')
 const helmet = require('helmet')
-const mongoSanitize = require('express-mongo-sanitize');
+const sanitize = require('express-mongo-sanitize').sanitize;
 const { errors } = require('celebrate');
 
 const User = require('./models/user')
@@ -58,7 +58,13 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-app.use(mongoSanitize())
+app.all('*', (req, res, next) => {
+  req.body = sanitize(req.body)
+  req.headers = sanitize(req.headers)
+  req.params = sanitize(req.params)
+
+  next()
+})
 
 app.use('/', indexRouter)
 app.use('/account', accountRouter)
@@ -75,6 +81,8 @@ app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}
+
+  console.log(err)
 
   res.status(err.status || 500)
   res.send(req.app.get('env') === 'development' ? { stack: err.stack, message: err.message } : { message: err.message })
