@@ -74,12 +74,12 @@ export default {
     },
     getQuestionTooltipTitle(question) {
       if (this.isUnknownAnonymous && !question.voted) return 'You need to be logged in order to vote for this question.'
-      return question.voted ? 'Dislike' : 'Like'
+      return question.voted ? 'Unlike' : 'Like'
     },
     handleVote(question) {
       if (this.isUnknownAnonymous && !question.voted) return
 
-      this.vote({ questionId: question._id, action: question.voted ? 'dislike' : 'like' })
+      this.vote({ questionId: question._id, action: question.voted ? 'unlike' : 'like' })
     },
     handlePin(question) {
       if (this.isUnknownAnonymous) return
