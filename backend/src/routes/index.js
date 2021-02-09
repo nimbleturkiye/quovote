@@ -200,7 +200,7 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
       }
       break
 
-    case 'dislike':
+    case 'unlike':
       arrayFilters = [{ 'question._id': questionId, 'question.voters': { $in: userIds } }]
       update = {
         $pullAll: {
