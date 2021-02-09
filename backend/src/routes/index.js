@@ -140,18 +140,19 @@ const questionsValidator = celebrate({
 })
 
 router.post('/events/:eventId/questions', ensureUser, questionsValidator, async function (req, res, next) {
-  const { userId } = req.session
-
-  req.event.questions.unshift({ text: req.body.text, author: req.body.user, user: userId })
-
-  await req.event.save()
+  await Event.findByIdAndUpdate(req.params.eventId,
+    {
+      $push: {
+        questions: { text: req.body.text, author: req.body.user, user: req.session.userId }
+      }
+    })
 
   socketServer().to(req.params.eventId).emit('questions updated')
 
   res.send(true)
 })
 
-router.delete('/events/:eventId/questions/:questionId', async function (req, res, next) {
+router.delete('/events/:eventId/questions/:questionId', async function (req, res) {
   const { id: sessionId, userId, computerId } = req.session
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
@@ -161,8 +162,11 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
 
   if (!question) return res.sendStatus(404)
 
-  question.remove()
-  await req.event.save()
+  await Event.findByIdAndUpdate(req.params.eventId, {
+    $pull: {
+      questions: { _id: question._id }
+    }
+  })
 
   socketServer().to(req.params.eventId).emit('questions updated')
 
