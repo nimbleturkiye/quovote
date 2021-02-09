@@ -82,6 +82,8 @@ export default {
       this.vote({ questionId: question._id, action: question.voted ? 'unlike' : 'like' })
 
       question.voted = !question.voted
+      question.votes += question.voted ? 1 : -1
+      this.sortQuestions()
     },
     handlePin(question) {
       if (this.isUnknownAnonymous) return
@@ -92,6 +94,7 @@ export default {
       })
 
       question.isPinned = !question.isPinned
+      this.sortQuestions()
     },
     generateAvatarText(name) {
       let avatarName = name
