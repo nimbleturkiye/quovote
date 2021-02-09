@@ -22,7 +22,7 @@ app.use(helmet())
 
 app.use(
   cors({
-    origin: true,
+    origin: process.env.NODE_ENV == 'production' ? 'https://quo.vote' : true,
     credentials: true,
   })
 )
