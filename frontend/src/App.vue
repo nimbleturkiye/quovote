@@ -19,7 +19,7 @@ export default {
 }
 </script>
 <template lang="pug">
-  #app
+  #app(:class="$route.name")
     a-layout#components-layout-demo-top.layout(theme='light')
       a-layout-header
         a-row(type="flex" justify="space-between")
