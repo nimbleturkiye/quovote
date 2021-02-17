@@ -86,7 +86,7 @@ export default {
       this.sortQuestions()
     },
     handlePin(question) {
-      if (this.isUnknownAnonymous) return
+      if (this.user._id != this.event.owner) return
 
       this.pinQuestion({
         questionId: question._id,
@@ -193,7 +193,7 @@ export default {
                 span(:id='"question-" + question._id.slice(-4)') {{ moment(question.createdAt).fromNow() }}
             .pin
               .question-id {{ "#" + question._id.slice(-4) }}
-              a-button(:disabled='event.owner != user._id', type='link', @click='handlePin(question)')
+              a-button(v-if='user._id == event.owner || question.isPinned', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
                 a-icon(type='pushpin', :theme='question.isPinned ? "filled" : "outlined"')
             hr
 </template>
