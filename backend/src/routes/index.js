@@ -97,7 +97,7 @@ const eventsValidator = celebrate(
         .replace(/(\s+)/g, '$1')
         .label('Code')
         .pattern(/^[a-z0-9]+$/),
-      description: Joi.string().trim().max(280).replace(/(\s+)/g, '$1').label('Description'),
+      description: Joi.string().allow('').trim().max(280).replace(/(\s+)/g, '$1').label('Description'),
     }),
   },
   {
