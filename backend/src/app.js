@@ -8,6 +8,7 @@ const passport = require('passport')
 const cors = require('cors')
 const helmet = require('helmet')
 const sanitize = require('express-mongo-sanitize').sanitize;
+const compression = require('compression');
 const { errors } = require('celebrate');
 
 const User = require('./models/user')
@@ -19,6 +20,7 @@ var accountRouter = require('./routes/account')
 var app = express()
 
 app.use(helmet())
+app.use(compression())
 
 app.use(
   cors({
