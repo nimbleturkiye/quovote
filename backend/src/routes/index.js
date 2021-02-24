@@ -212,7 +212,7 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
 
     case 'pin':
     case 'unpin':
-      arrayFilters = [{ 'question._id': questionId , 'owner': userId }]
+      arrayFilters = [{ 'question._id': questionId, 'question.user': userId }]
 
       update = {
         $set: {
