@@ -11,6 +11,8 @@ const sanitize = require('express-mongo-sanitize').sanitize;
 const compression = require('compression');
 const { errors } = require('celebrate');
 
+const rateLimiter = require('./lib/rate-limiter');
+
 const User = require('./models/user')
 const { mongoose } = require('./bootstrap')
 
@@ -58,6 +60,8 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+
+app.use(rateLimiter({ keys: ['ip', 'session.id'] }))
 
 app.all('*', (req, res, next) => {
   req.body = sanitize(req.body)

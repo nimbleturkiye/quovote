@@ -19,6 +19,7 @@
     "express-session": "^1.17.1",
     "helmet": "^4.2.0",
     "http-errors": "~1.6.2",
+    "lodash": "^4.17.21",
     "mongoose": "^5.9.2",
     "mongoose-autopopulate": "^0.12.2",
     "morgan": "~1.9.0",
@@ -27,6 +28,7 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^6.0.1",
     "pug": "^2.0.3",
+    "rate-limiter-flexible": "^2.2.1",
     "socket.io": "^2.3.0",
     "uuid": "^7.0.2"
   }

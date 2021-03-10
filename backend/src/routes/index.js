@@ -8,6 +8,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 const { v4: uuid } = require('uuid')
 const { celebrate, Joi, Segments } = require('celebrate')
 const sanitize = require('express-mongo-sanitize').sanitize;
+const rateLimiter = require('../lib/rate-limiter')
 
 async function ensureUser(req, res, next) {
   if (req.body.computerId) req.session.computerId = req.body.computerId
@@ -53,10 +54,10 @@ router.param('eventId', async function ensureEvent(req, res, next) {
   next()
 })
 
-
-router.post('/singularity', ensureUser, async (req, res, next) => {
-  res.sendStatus(200)
-})
+router.post('/singularity', rateLimiter(),
+  ensureUser, async (req, res, next) => {
+    res.sendStatus(200)
+  })
 
 function ensureLogin(req, res, next) {
   if (req.user) return next()
@@ -64,7 +65,7 @@ function ensureLogin(req, res, next) {
   next(new Error('Unauthorized'))
 }
 
-router.get('/events', ensureUser, async (req, res, next) => {
+router.get('/events', ensureUser, rateLimiter({ keys: 'user._id' }), async (req, res, next) => {
   const code = sanitize(req.query.code)
   if (!code) return next({ status: 400 })
 
@@ -108,7 +109,7 @@ const eventsValidator = celebrate(
   }
 )
 
-router.post('/events', ensureUser, ensureLogin, eventsValidator, async function (req, res, next) {
+router.post('/events', ensureUser, ensureLogin, eventsValidator, rateLimiter({ keys: 'user._id' }), async function (req, res, next) {
   const eventRequest = {
     title: req.body.title,
     code: req.body.code,
@@ -124,7 +125,7 @@ router.post('/events', ensureUser, ensureLogin, eventsValidator, async function 
   res.send(event)
 })
 
-router.get('/events/:eventId', ensureUser, async (req, res, next) => {
+router.get('/events/:eventId', ensureUser, rateLimiter({ keys: 'session.id' }), async (req, res, next) => {
   const { id: sessionId, userId, computerId } = req.session
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
@@ -144,7 +145,7 @@ const questionsValidator = celebrate({
   }),
 })
 
-router.post('/events/:eventId/questions', ensureUser, questionsValidator, async function (req, res, next) {
+router.post('/events/:eventId/questions', ensureUser, questionsValidator, rateLimiter({ id: 'post-questions', points: 1, duration: 1 * 60, keys: 'session.id' }), async function (req, res, next) {
   await Event.findByIdAndUpdate(req.params.eventId,
     {
       $push: {
@@ -157,7 +158,7 @@ router.post('/events/:eventId/questions', ensureUser, questionsValidator, async 
   res.send(true)
 })
 
-router.delete('/events/:eventId/questions/:questionId', async function (req, res) {
+router.delete('/events/:eventId/questions/:questionId', ensureUser, rateLimiter({ points: 1, duration: 1 * 60, keys: 'session.id' }), async function (req, res) {
   const { id: sessionId, userId, computerId } = req.session
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
@@ -178,7 +179,7 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
   res.sendStatus(200)
 })
 
-router.patch('/events/:eventId/questions/:questionId', ensureUser, async function (req, res, next) {
+router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter({ keys: 'user._id' }), async function (req, res, next) {
   const { id: sessionId, userId, computerId } = req.session
   const { questionId } = req.params
   const { action } = req.body
