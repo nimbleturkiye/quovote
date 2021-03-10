@@ -108,7 +108,7 @@ const event = {
     async [actions.CREATE_EVENT]({ dispatch }, event) {
       await axios.post('/events', event)
 
-      await dispatch('account/fetchSession', {}, { root: true })
+      await dispatch('account/fetchUser', {}, { root: true })
     },
     [actions.SET_EVENT_ID]({ commit }, id) {
       commit(mutations.SET_EVENT_ID, id)

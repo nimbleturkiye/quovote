@@ -11,7 +11,7 @@ const actions = {
   REGISTER_USER: 'registerUser',
   LOGIN: 'login',
   LOGOUT: 'logout',
-  FETCH_SESSION: 'fetchSession',
+  FETCH_USER: 'fetchUser',
   INIT: 'init'
 }
 
@@ -40,7 +40,7 @@ const account = {
       }
 
       await dispatch(actions.REGISTER_COMPUTER_ID, computerId)
-      await dispatch(actions.FETCH_SESSION)
+      await dispatch(actions.FETCH_USER)
     },
     async [actions.REGISTER_COMPUTER_ID]({ commit }, computerId) {
       commit(mutations.SET_COMPUTER_ID, computerId)
@@ -60,8 +60,8 @@ const account = {
 
       commit(mutations.SET_USER, null)
     },
-    async [actions.FETCH_SESSION]({ commit }) {
-      const user = await axios.get('/account/session')
+    async [actions.FETCH_USER]({ commit }) {
+      const user = await axios.get('/account')
 
       commit(mutations.SET_USER, user.data)
     }
