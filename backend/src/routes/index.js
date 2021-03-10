@@ -66,6 +66,7 @@ function ensureLogin(req, res, next) {
 
 router.get('/events', ensureUser, async (req, res, next) => {
   const code = sanitize(req.query.code)
+  if (!code) return next({ status: 400 })
 
   let query = { code: new RegExp(`^${code}$`, 'i') }
 
@@ -164,7 +165,7 @@ router.delete('/events/:eventId/questions/:questionId', async function (req, res
     q => userIds.some(i => i.equals(q.user)) && q._id.equals(req.params.questionId)
   )
 
-  if (!question) return res.sendStatus(404)
+  if (!question) return next({ status: 404 })
 
   await Event.findByIdAndUpdate(req.params.eventId, {
     $pull: {
@@ -182,9 +183,9 @@ router.patch('/events/:eventId/questions/:questionId', ensureUser, async functio
   const { questionId } = req.params
   const { action } = req.body
 
-  if (action == 'like' && !req.user && computerId.startsWith('nobiri-')) return res.sendStatus(401)
+  if (action == 'like' && !req.user && computerId.startsWith('nobiri-')) return next({ status: 401 })
 
-  if (!['like', 'unlike', 'pin', 'unpin'].includes(action)) return res.sendStatus(400)
+  if (!['like', 'unlike', 'pin', 'unpin'].includes(action)) return next({ status: 400 })
 
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
