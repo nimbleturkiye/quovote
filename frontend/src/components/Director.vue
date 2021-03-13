@@ -7,7 +7,9 @@ export default {
   data() {
     return {
       triggers: '',
-      speechRecognitionInstance: window.SpeechRecognition && new window.SpeechRecognition()
+      speechRecognitionInstance: window.SpeechRecognition && new window.SpeechRecognition(),
+      isActivated: false,
+      isListening: true, // Give feedback to user for more effective usage
     }
   },
   computed: {
@@ -28,6 +30,7 @@ export default {
 
       try {
         speechRecognitionInstance.start()
+        this.isActivated = true
       } catch (error) {
         if (error.name == 'InvalidStateError') console.warn('Speech recognition API is already started.')
         else console.warn(error)
@@ -53,6 +56,9 @@ export default {
       await this.pinLatestQuestion()
     },
     checkAndTriggerVoiceCommands(e) {
+      this.isListening = false
+      setTimeout(() => this.isListening = true, 1000)
+
       const transcript = Array.from(e.results)
         .map(result => result[0].transcript)
         .join('')
@@ -60,6 +66,8 @@ export default {
         .toLowerCase()
 
       const isTriggered = this.triggers.split('\n').some(trigger => trigger && transcript.includes(trigger))
+
+      console.log({ transcript, isTriggered })
 
       if (isTriggered) this.skipQuestion()
     }
@@ -99,18 +107,36 @@ export default {
     )
     #director-actions
       a-button(@click="skipQuestion" :disabled="skipUnavailable") Skip question
+      a-button(@click="activateVoiceRecognition" :disabled="!speechRecognitionInstance || isActivated") Activate: Voice-Action
+      transition(name="slide-fade")
+        h3.director-listening-state(v-show="isActivated && isListening") Listening...
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 #director-actions {
   margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+
+  & > *:not(:first-child) {
+    margin-left: 1rem;
+  }
 }
 
-.director-action {
-  margin-left: 1rem;
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
 }
 
-.director-action.first {
-  margin: 0;
+.director-listening-state {
+  margin-bottom: 0;
+  color: var(--antd-wave-shadow-color);
 }
 </style>
