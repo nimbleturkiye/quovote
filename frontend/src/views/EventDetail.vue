@@ -125,7 +125,7 @@ export default {
       this.sortBy = 'popular'
       this.sortQuestions()
 
-      this.questions[0].isPinned = true
+      this.handlePin(this.questions[0])
     }
   },
   computed: {
@@ -173,8 +173,8 @@ export default {
         a-tab-pane(tab="Ask the speaker" key="1")
           ask-the-speaker-form
         a-tab-pane(tab="Director" key="2")
-          Director(:handlePin="pinLatestQuestion")
-      ask-the-speaker-form(v-else)
+          Director(:pin-latest-question="pinLatestQuestion")
+      ask-the-speaker-form(v-else :show-header="true")
     a-card
       .questions
         .archive-switch(v-if='event.owner == user._id')

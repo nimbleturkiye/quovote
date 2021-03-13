@@ -12,7 +12,10 @@ export default {
   },
   computed: {
     ...mapState('event', ['event']),
-    ...mapState('account', ['user'])
+    ...mapState('account', ['user']),
+    skipUnavailable() {
+      return !this.event.questions.length || this.event.questions.every(q => q.isArchived)
+    }
   },
   props: ['pinLatestQuestion'],
   methods: {
@@ -34,16 +37,18 @@ export default {
       speechRecognitionInstance.addEventListener('end', speechRecognitionInstance.start)
     },
     async skipQuestion() {
-      const getLastPinnedQuestion = () => this.event.questions?.find(question => question.isPinned)
+      if(this.skipUnavailable) return
 
-      if (!getLastPinnedQuestion()) return
+      const pinnedQuestions = this.event.questions?.filter(question => question.isPinned)
 
-      await this.archiveQuestion({
-        action: 'archive',
-        questionId: getLastPinnedQuestion()._id
-      })
+      if (pinnedQuestions[0]) {
+        await this.archiveQuestion({
+          action: 'archive',
+          questionId: pinnedQuestions[0]._id
+        })
+      }
 
-      if (getLastPinnedQuestion()) return
+      if (pinnedQuestions.length > 1) return
 
       await this.pinLatestQuestion()
     },
@@ -93,8 +98,7 @@ export default {
       v-model="triggers"
     )
     #director-actions
-      a-button.director-action.first(@click="skipQuestion") Done, move on
-      a-button.director-action(@click="activateVoiceRecognition" :disabled="!speechRecognitionInstance") Activate: Voice-Action
+      a-button(@click="skipQuestion" :disabled="skipUnavailable") Skip question
 </template>
 
 <style scoped>
