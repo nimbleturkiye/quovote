@@ -17,7 +17,7 @@ export default {
       sortBy: 'popular',
       orderBy: -1,
       questions: [],
-      areArchivedQuestionsShown: false
+      viewingArchive: false
     }
   },
   async created() {
@@ -51,6 +51,9 @@ export default {
       this.sortQuestions({ intentional: true })
     },
     sortQuestions({ intentional = false } = {}) {
+      const predicate = this.viewingArchive ? q => q.isArchived : q => !q.isArchived
+      this.questions = this.event.questions.filter(predicate)
+
       if (this.sortBy == 'random' && !intentional) {
         this.previousQuestionsSortedIds.reverse().forEach(cq => {
           const i = this.questions.findIndex(q => q._id == cq)
@@ -153,9 +156,7 @@ export default {
       this.questions = questions.slice()
       this.sortQuestions()
     },
-    areArchivedQuestionsShown(val) {
-      this.questions = this.event.questions.filter(q => (val ? q.isArchived : q))
-
+    viewingArchive() {
       this.sortQuestions()
     }
   }
@@ -177,8 +178,8 @@ export default {
     a-card
       .questions
         .archive-switch(v-if='event.owner == user._id')
-          span(style='margin-right: 0.4em') Archived
-          a-switch(size='small' v-model='areArchivedQuestionsShown')
+          span(style='margin-right: 0.4em') View Archive
+          a-switch(size='small' v-model='viewingArchive')
         .questions-header
           h2 Questions
             a-avatar.question-count {{ questions.length }}
@@ -201,7 +202,7 @@ export default {
                 span
                   a-button(type='secondary', v-if='question.ownQuestion', @click='withdrawQuestion(question._id)') Withdraw
                 span
-                  a-button(type='secondary', v-if='event.owner == user._id', @click='handleArchive(question)') Archive
+                  a-button(type='secondary', v-if='event.owner == user._id', @click='handleArchive(question)') {{ viewingArchive ? 'Unarchive' : 'Archive' }}
               a(slot='author') {{ question.author }}
               a-avatar(v-once, slot='avatar', :class='generateAvatarBgColor()')
                 a-icon(v-if='question.author == "Anonymous"', type='user')
@@ -209,7 +210,7 @@ export default {
               p(slot='content') {{ question.text }}
               a-tooltip(slot='datetime', :title='moment(question.createdAt).format("YYYY-MM-DD HH:mm:ss")')
                 span(:id='"question-" + question._id.slice(-4)') {{ moment(question.createdAt).fromNow() }}
-            .pin
+            .pin(v-if="!viewingArchive")
               .question-id {{ "#" + question._id.slice(-4) }}
               a-button(v-if='user._id == event.owner || question.isPinned', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
                 a-icon(type='pushpin', :theme='question.isPinned ? "filled" : "outlined"')

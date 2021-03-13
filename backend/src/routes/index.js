@@ -226,6 +226,15 @@ router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter(
       break
 
     case 'archive':
+      arrayFilters = [{ 'question._id': questionId }]
+
+      update = {
+        $set: {
+          'questions.$[question].isArchived': action == 'archive',
+          'questions.$[question].isPinned': false,
+        },
+      }
+      break
     case 'unarchive':
       arrayFilters = [{ 'question._id': questionId }]
 
