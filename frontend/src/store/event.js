@@ -24,6 +24,7 @@ const actions = {
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
   SET_EVENT_ID: 'setEventId',
+  GET_RANDOM_EVENT_CODE: 'getRandomEventCode',
   INIT: 'init'
 }
 
@@ -120,6 +121,11 @@ const event = {
     },
     [actions.SET_EVENT_ID]({ commit }, id) {
       commit(mutations.SET_EVENT_ID, id)
+    },
+    async [actions.GET_RANDOM_EVENT_CODE]() {
+      const res = await axios.get('/random-event-code')
+
+      return res.data
     }
   }
 }
