@@ -56,7 +56,7 @@ export default {
       )
     }
   },
-  beforeCreate() {
+  async beforeCreate() {
     const component = this
     this.createEventForm = this.$form.createForm(this, {
       name: 'createEventForm',
@@ -64,6 +64,9 @@ export default {
         component.backendError = null
       }
     })
+
+    const code = await this.$store.dispatch('event/getRandomEventCode')
+    this.createEventForm.setFieldsValue({ code })
   },
   methods: {
     ...mapActions('event', ['createEvent']),

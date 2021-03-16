@@ -46,13 +46,7 @@ Event.pre('save', async function (next) {
 
   if (this.code) return next()
 
-  let code
-
-  do {
-    code = nanoid()
-  } while (await this.constructor.findOne({ code }))
-
-  this.code = code
+  this.code = await this.constructor.generateRandomCode()
 
   next()
 })
@@ -69,6 +63,16 @@ Event.static('decorateForUser', function (event, userIds) {
   })
 
   return { ...event.toObject(), questions: updatedQuestions }
+})
+
+Event.static('generateRandomCode', async function () {
+  let code
+
+  do {
+    code = nanoid()
+  } while (await this.exists({ code }))
+
+  return code
 })
 
 module.exports = mongoose.model('Event', Event)
