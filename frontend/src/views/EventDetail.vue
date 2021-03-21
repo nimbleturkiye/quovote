@@ -2,9 +2,13 @@
 import { mapState, mapActions } from 'vuex'
 import { notification, message } from 'ant-design-vue'
 import moment from 'moment'
+import Director from '../components/Director.vue'
 
 export default {
   name: 'event-detail',
+  components: {
+    Director
+  },
   data() {
     return {
       question: '',
@@ -12,7 +16,7 @@ export default {
       moment,
       sortBy: 'popular',
       orderBy: -1,
-      questions: []
+      questions: [],
     }
   },
   async created() {
@@ -28,7 +32,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions('event', ['submitQuestion', 'setEventId', 'joinEvent', 'vote', 'withdrawQuestion', 'pinQuestion']),
+    ...mapActions('event', [
+      'submitQuestion',
+      'setEventId',
+      'joinEvent',
+      'vote',
+      'withdrawQuestion',
+      'pinQuestion',
+      'archiveQuestion'
+    ]),
     async sendQuestion() {
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
@@ -85,6 +97,16 @@ export default {
       question.votes += question.voted ? 1 : -1
       this.sortQuestions()
     },
+    handleArchive(question) {
+      if (this.isUnknownAnonymous) return
+
+      this.archiveQuestion({
+        questionId: question._id,
+        action: question.isArchived ? 'unarchive' : 'archive'
+      })
+
+      this.questions = this.questions.filter(q => q._id != question._id)
+    },
     handlePin(question) {
       if (this.user._id != this.event.owner) return
 
@@ -110,6 +132,12 @@ export default {
       let randomNumber = Math.floor(Math.random() * 5)
 
       return `avatar-bg-${randomNumber}`
+    },
+    pinLatestQuestion() {
+      this.sortBy = 'popular'
+      this.sortQuestions()
+
+      this.questions[0].isPinned = true
     }
   },
   computed: {
@@ -151,7 +179,21 @@ export default {
     h1 {{ event.title }}
     h3 {{ event.description }}
     a-card
-      form(@submit.prevent='sendQuestion')
+      a-tabs(v-if="event.owner == user._id" :default-active-key="event.owner == user._id ? '1' : '2'")
+        a-tab-pane(tab="Ask the speaker" key="1")
+            form(@submit.prevent="sendQuestion")
+              h2 Ask the speaker
+              a-textarea(
+                placeholder="Type your question"
+                :autoSize="{ minRows: 2, maxRows: 6 }"
+                :maxLength="280"
+                v-model="question"
+              )
+              a-input(placeholder="Your name (optional)" v-model="name" :maxLength="40")
+              a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
+        a-tab-pane(tab="Director" key="2")
+            Director(:handlePin="pinLatestQuestion")
+      form(v-else @submit.prevent="sendQuestion")
         h2 Ask the speaker
         a-textarea(
           placeholder='Type your question',
@@ -184,6 +226,8 @@ export default {
                   span(style='padding-left: 4px') {{ question.votes }}
                 span
                   a-button(type='secondary', v-if='question.ownQuestion', @click='withdrawQuestion(question._id)') Withdraw
+                span
+                  a-button(type='secondary', v-if='event.owner == user._id', @click='handleArchive(question)') Archive
               a(slot='author') {{ question.author }}
               a-avatar(v-once, slot='avatar', :class='generateAvatarBgColor()')
                 a-icon(v-if='question.author == "Anonymous"', type='user')
