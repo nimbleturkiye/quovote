@@ -216,31 +216,30 @@ router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter(
 
     case 'pin':
     case 'unpin':
-      arrayFilters = [{ 'question._id': questionId }]
+      arrayFilters = [{ 'question._id': questionId, 'question.state': { $ne: 'archived' } }]
 
       update = {
         $set: {
-          'questions.$[question].isPinned': action == 'pin',
+          'questions.$[question].state': action == 'pin' ? 'pinned' : 'visible',
         },
       }
       break
 
     case 'archive':
-      arrayFilters = [{ 'question._id': questionId }]
+      arrayFilters = [{ 'question._id': questionId, 'question.state': { $ne: 'archived' } }]
 
       update = {
         $set: {
-          'questions.$[question].isArchived': action == 'archive',
-          'questions.$[question].isPinned': false,
+          'questions.$[question].state': 'archived',
         },
       }
       break
     case 'unarchive':
-      arrayFilters = [{ 'question._id': questionId }]
+      arrayFilters = [{ 'question._id': questionId, 'question.state': 'archived' }]
 
       update = {
         $set: {
-          'questions.$[question].isArchived': action == 'archive',
+          'questions.$[question].state': 'visible',
         },
       }
       break

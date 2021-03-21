@@ -16,7 +16,7 @@ export default {
     ...mapState('event', ['event']),
     ...mapState('account', ['user']),
     skipUnavailable() {
-      return !this.event.questions.length || this.event.questions.every(q => q.isArchived)
+      return !this.event.questions.length || this.event.questions.every(q => q.state == 'archived')
     }
   },
   props: ['pinLatestQuestion'],
@@ -42,7 +42,7 @@ export default {
     async skipQuestion() {
       if(this.skipUnavailable) return
 
-      const pinnedQuestions = this.event.questions?.filter(question => question.isPinned)
+      const pinnedQuestions = this.event.questions?.filter(question => question.state == 'pinned')
 
       if (pinnedQuestions[0]) {
         await this.archiveQuestion({

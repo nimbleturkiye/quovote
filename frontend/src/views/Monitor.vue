@@ -5,7 +5,7 @@ export default {
   computed: {
     ...mapState('event', ['event']),
     pinnedQuestion() {
-      return this.event.questions?.find(question => question.isPinned)
+      return this.event.questions?.find(question => question.state == 'pinned')
     }
   },
   methods: {

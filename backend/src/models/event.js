@@ -63,7 +63,7 @@ Event.static('decorateForUser', function (event, userIds) {
   const updatedQuestions = event
     .questions
     .toObject()
-    .filter(q => isEventOwner ? q : !q.isArchived)
+    .filter(q => isEventOwner ? q : q.state != 'archived')
     .map(q => {
       return {
         ...q,

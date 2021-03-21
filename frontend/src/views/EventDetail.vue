@@ -51,7 +51,7 @@ export default {
       this.sortQuestions({ intentional: true })
     },
     sortQuestions({ intentional = false } = {}) {
-      const predicate = this.viewingArchive ? q => q.isArchived : q => !q.isArchived
+      const predicate = this.viewingArchive ? q => q.state == 'archived' : q => q.state != 'archived'
       this.questions = this.event.questions.filter(predicate)
 
       if (this.sortBy == 'random' && !intentional) {
@@ -65,8 +65,8 @@ export default {
       }
 
       this.questions.sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1
-        else if (!a.isPinned && b.isPinned) return 1
+        if (a.state == 'pinned' && b.state != 'pinned') return -1
+        else if (a.state != 'pinned' && b.state == 'pinned') return 1
         else if (this.sortBy == 'popular') return (a.votes - b.votes) * this.orderBy
         else if (this.sortBy == 'random') return Math.random() * 2 - 1
         return (new Date(a.createdAt) - new Date(b.createdAt)) * this.orderBy
@@ -90,7 +90,7 @@ export default {
 
       this.archiveQuestion({
         questionId: question._id,
-        action: question.isArchived ? 'unarchive' : 'archive'
+        action: question.state == 'archived' ? 'unarchive' : 'archive'
       })
 
       this.questions = this.questions.filter(q => q._id != question._id)
@@ -100,10 +100,10 @@ export default {
 
       this.pinQuestion({
         questionId: question._id,
-        action: question.isPinned ? 'unpin' : 'pin'
+        action: question.state == 'pinned' ? 'unpin' : 'pin'
       })
 
-      question.isPinned = !question.isPinned
+      question.state = question.state == 'pinned' ? 'visible' : 'pinned'
       this.sortQuestions()
     },
     generateAvatarText(name) {
@@ -212,8 +212,8 @@ export default {
                 span(:id='"question-" + question._id.slice(-4)') {{ moment(question.createdAt).fromNow() }}
             .pin(v-if="!viewingArchive")
               .question-id {{ "#" + question._id.slice(-4) }}
-              a-button(v-if='user._id == event.owner || question.isPinned', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
-                a-icon(type='pushpin', :theme='question.isPinned ? "filled" : "outlined"')
+              a-button(v-if='user._id == event.owner || question.state == "pinned"', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
+                a-icon(type='pushpin', :theme='question.state == "pinned" ? "filled" : "outlined"')
             hr
 </template>
 
