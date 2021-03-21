@@ -180,13 +180,15 @@ router.delete('/events/:eventId/questions/:questionId', ensureUser, rateLimiter(
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter({ keys: 'user._id' }), async function (req, res, next) {
+  const allowedActions = ['like', 'unlike', 'pin', 'unpin', 'archive', 'unarchive']
+
   const { id: sessionId, userId, computerId } = req.session
   const { questionId } = req.params
   const { action } = req.body
 
   if (action == 'like' && !req.user && computerId.startsWith('nobiri-')) return next({ status: 401 })
 
-  if (!['like', 'unlike', 'pin', 'unpin'].includes(action)) return next({ status: 400 })
+  if (!allowedActions.includes(action)) return next({ status: 400 })
 
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
@@ -219,6 +221,17 @@ router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter(
       update = {
         $set: {
           'questions.$[question].isPinned': action == 'pin',
+        },
+      }
+      break
+
+    case 'archive':
+    case 'unarchive':
+      arrayFilters = [{ 'question._id': questionId }]
+
+      update = {
+        $set: {
+          'questions.$[question].isArchived': action == 'archive',
         },
       }
       break

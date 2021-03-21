@@ -19,6 +19,7 @@ const actions = {
   JOIN_EVENT: 'joinEvent',
   WITHDRAW_QUESTION: 'withdrawQuestion',
   PIN_QUESTION: 'pinQuestion',
+  ARCHIVE_QUESTION: 'archiveQuestion',
   PATCH_QUESTION: 'patchQuestion',
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
@@ -82,6 +83,9 @@ const event = {
       console.log('join event')
       socket.emit('join-room', state.eventId)
       await dispatch(actions.FETCH_EVENT)
+    },
+    async [actions.ARCHIVE_QUESTION]({ dispatch }, { questionId, action }) {
+      await dispatch(actions.PATCH_QUESTION, { questionId, action })
     },
     async [actions.WITHDRAW_QUESTION]({ state, dispatch }, questionId) {
       await axios.delete(`/events/${state.eventId}/questions/${questionId}`)

@@ -3,20 +3,21 @@ import { mapState, mapActions } from 'vuex'
 import { notification, message } from 'ant-design-vue'
 import moment from 'moment'
 import Director from '../components/Director.vue'
+import AskTheSpeakerForm from '../components/AskTheSpeakerForm.vue'
 
 export default {
   name: 'event-detail',
   components: {
-    Director
+    Director,
+    AskTheSpeakerForm
   },
   data() {
     return {
-      question: '',
-      name: undefined,
       moment,
       sortBy: 'popular',
       orderBy: -1,
       questions: [],
+      areArchivedQuestionsShown: false
     }
   },
   async created() {
@@ -33,7 +34,6 @@ export default {
   },
   methods: {
     ...mapActions('event', [
-      'submitQuestion',
       'setEventId',
       'joinEvent',
       'vote',
@@ -41,21 +41,6 @@ export default {
       'pinQuestion',
       'archiveQuestion'
     ]),
-    async sendQuestion() {
-      try {
-        await this.submitQuestion({ question: this.question, name: this.name })
-
-        message.success('Question added 🎉')
-
-        this.question = ''
-      } catch (e) {
-        notification.error({
-          message: e.response?.data?.validation
-            ? e.response.data.validation.body.message
-            : e.response?.data?.message ?? e.message ?? 'An unknown error occured'
-        })
-      }
-    },
     updateSorting(e) {
       if (this.sortBy == e.target.value) {
         this.orderBy = -this.orderBy
@@ -141,7 +126,6 @@ export default {
     }
   },
   computed: {
-    ...mapState(['loading']),
     ...mapState('event', ['event']),
     ...mapState('account', ['computerId', 'user']),
     popularSortOrderIndicator() {
@@ -168,6 +152,11 @@ export default {
 
       this.questions = questions.slice()
       this.sortQuestions()
+    },
+    areArchivedQuestionsShown(val) {
+      this.questions = this.event.questions.filter(q => (val ? q.isArchived : q))
+
+      this.sortQuestions()
     }
   }
 }
@@ -179,37 +168,22 @@ export default {
     h1 {{ event.title }}
     h3 {{ event.description }}
     a-card
-      a-tabs(v-if="event.owner == user._id" :default-active-key="event.owner == user._id ? '1' : '2'")
+      a-tabs(v-if="event.owner == user._id" :default-active-key="event.owner == user._id ? '2' : '1'")
         a-tab-pane(tab="Ask the speaker" key="1")
-            form(@submit.prevent="sendQuestion")
-              h2 Ask the speaker
-              a-textarea(
-                placeholder="Type your question"
-                :autoSize="{ minRows: 2, maxRows: 6 }"
-                :maxLength="280"
-                v-model="question"
-              )
-              a-input(placeholder="Your name (optional)" v-model="name" :maxLength="40")
-              a-button(type="primary" @click="sendQuestion" :loading="loading" icon="message") Send
+          ask-the-speaker-form
         a-tab-pane(tab="Director" key="2")
-            Director(:handlePin="pinLatestQuestion")
-      form(v-else @submit.prevent="sendQuestion")
-        h2 Ask the speaker
-        a-textarea(
-          placeholder='Type your question',
-          :autoSize='{ minRows: 2, maxRows: 6 }',
-          :maxLength='280',
-          v-model='question'
-        )
-        a-input(placeholder='Your name (optional)', v-model='name', :maxLength='40')
-        a-button(type='primary', @click='sendQuestion', :loading='loading', icon='message') Send
+          Director(:handlePin="pinLatestQuestion")
+      ask-the-speaker-form(v-else)
     a-card
       .questions
+        .archive-switch(v-if='event.owner == user._id')
+          span(style='margin-right: 0.4em') Archived
+          a-switch(size='small' v-model='areArchivedQuestionsShown')
         .questions-header
           h2 Questions
             a-avatar.question-count {{ questions.length }}
-          .sort-container
-            div(v-if='questions.length')
+          .sort-container(v-if='questions.length')
+            div
               span Sort questions by &nbsp;
               a-radio-group(size='small', defaultValue='popular', buttonStyle='solid', :value='sortBy')
                 a-radio-button(value='popular', @click='updateSorting') Popular {{ popularSortOrderIndicator }}
@@ -268,6 +242,12 @@ export default {
     @media (max-width: 680px) {
       display: block;
     }
+  }
+
+  .archive-switch {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
   }
 
   .ant-card {
@@ -331,14 +311,6 @@ export default {
 
 .ant-card {
   margin: 24px 0;
-}
-
-form > * {
-  margin: 8px 0 !important;
-}
-
-textarea {
-  padding: 8px;
 }
 
 .avatar-bg-0 {
