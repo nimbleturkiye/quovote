@@ -66,11 +66,11 @@ export default {
       })
     },
     getQuestionTooltipTitle(question) {
-      if (this.isUnknownAnonymous && !question.voted) return 'You need to be logged in order to vote for this question.'
+      if (!this.user) return 'You need to be logged in order to vote for this question.'
       return question.voted ? 'Unlike' : 'Like'
     },
     handleVote(question) {
-      if (this.isUnknownAnonymous && !question.voted) return
+      if (!this.user) return
 
       this.vote({ questionId: question._id, action: question.voted ? 'unlike' : 'like' })
 
@@ -123,7 +123,7 @@ export default {
   },
   computed: {
     ...mapState('event', ['event']),
-    ...mapState('account', ['computerId', 'user']),
+    ...mapState('account', ['user']),
     popularSortOrderIndicator() {
       if (this.sortBy != 'popular') return ''
       if (this.orderBy == -1) return ' ▼'
@@ -137,9 +137,6 @@ export default {
     randomSortOrderIndicator() {
       if (this.sortBy != 'random') return ''
       return '◆'
-    },
-    isUnknownAnonymous() {
-      return !this.user && !this.computerId
     }
   },
   watch: {
