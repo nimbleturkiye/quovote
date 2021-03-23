@@ -15,7 +15,7 @@ export default {
   computed: {
     ...mapState('event', ['event']),
     ...mapState('account', ['user']),
-    skipUnavailable() {
+    noQuestionLeft() {
       return !this.event.questions.length || this.event.questions.every(q => q.state == 'archived')
     }
   },
@@ -40,7 +40,7 @@ export default {
       speechRecognitionInstance.addEventListener('end', speechRecognitionInstance.start)
     },
     async skipQuestion() {
-      if(this.skipUnavailable) return
+      if (this.noQuestionLeft) return
 
       const pinnedQuestions = this.event.questions?.filter(question => question.state == 'pinned')
 
@@ -106,7 +106,7 @@ export default {
       v-model="triggers"
     )
     #director-actions
-      a-button(@click="skipQuestion" :disabled="skipUnavailable") Skip question
+      a-button(type='primary' @click="skipQuestion" :disabled="noQuestionLeft") Skip question
       a-button(@click="activateVoiceRecognition" :disabled="!speechRecognitionInstance || isActivated") Activate: Voice-Action
       transition(name="slide-fade")
         h3.director-listening-state(v-show="isActivated && isListening") Listening...
