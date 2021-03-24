@@ -32,7 +32,7 @@ const event = {
   state: () => ({
     loading: false,
     eventId: null,
-    event: {}
+    event: null
   }),
   mutations: {
     [mutations.SET_LOADING](state, val) {

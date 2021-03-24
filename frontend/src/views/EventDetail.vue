@@ -165,11 +165,11 @@ export default {
 
 <template lang="pug">
 .event-detail
-  .content
+  .content(v-if="event")
     h1 {{ event.title }}
     h3 {{ event.description }}
     a-card
-      a-tabs(v-if="event.owner == user._id" :default-active-key="event.owner == user._id ? '2' : '1'")
+      a-tabs(v-if="event.owner == user._id" default-active-key="2" :animated="false")
         a-tab-pane(tab="Ask the speaker" key="1")
           ask-the-speaker-form
         a-tab-pane(tab="Director" key="2")
