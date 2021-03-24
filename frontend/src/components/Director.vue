@@ -122,6 +122,7 @@ export default {
       a-button(@click="activateVoiceRecognition" :disabled="state != STATES.INACTIVE") Activate: Voice-Action
       transition(name="slide-fade")
         p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
+      a(:href="`${$router.history.current.path}/monitor`" target="_blank").go-to-monitor Go to monitor
 </template>
 
 <style lang="scss" scoped>
@@ -132,6 +133,10 @@ export default {
 
   & > *:not(:first-child) {
     margin-left: 1rem;
+  }
+
+  .go-to-monitor {
+    margin-left: auto;
   }
 }
 
