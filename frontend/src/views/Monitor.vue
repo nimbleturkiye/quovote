@@ -31,10 +31,16 @@ export default {
 </template>
 
 <style lang="scss">
-.monitor {
+#app.monitor {
   header,
   footer {
     display: none;
+  }
+
+  &,
+  .ant-layout-content,
+  .ant-layout {
+    background: transparent;
   }
 
   .ant-layout-content {
