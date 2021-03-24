@@ -258,7 +258,9 @@ router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter(
 
   if (!event) return next(new Error('Event or question not found'))
 
-  socketServer().to(req.params.eventId).emit('questions updated')
+  socketServer()
+    .to(req.params.eventId)
+    .emit(req.user.equals(event.owner) ? 'questions updated by admin' : 'questions updated')
 
   res.sendStatus(200)
 })

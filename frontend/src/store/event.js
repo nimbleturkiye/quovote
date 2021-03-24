@@ -53,6 +53,10 @@ const event = {
       const fetchEvent = throttle(() => dispatch(actions.FETCH_EVENT), 30000)
 
       socket.on('questions updated', fetchEvent)
+      socket.on('questions updated by admin', () => {
+        fetchEvent.cancel()
+        dispatch(actions.FETCH_EVENT)
+      })
     },
     async [actions.FETCH_EVENT_ID_BY_CODE](ctx, code) {
       const res = await axios.get(`/events?code=${code}`)
