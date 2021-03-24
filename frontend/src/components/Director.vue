@@ -2,14 +2,26 @@
 import { mapState, mapActions } from 'vuex'
 
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+const speechRecognitionInstance = window.SpeechRecognition && new window.SpeechRecognition()
+
+const STATES = {
+  UNAVAILABLE: -1,
+  INACTIVE: 0,
+  ACTIVE: 1,
+  PROCESSING: 2 // Give feedback to user for more effective usage
+}
 
 export default {
+  created() {
+    // STATES is constant and doesn't need to be reactive, but we want to access this in template.
+    // Therefore it is assigned in created() hook
+    this.STATES = STATES
+  },
   data() {
     return {
       triggers: '',
-      speechRecognitionInstance: window.SpeechRecognition && new window.SpeechRecognition(),
-      isActivated: false,
-      isListening: true, // Give feedback to user for more effective usage
+      speechRecognitionInstance,
+      state: speechRecognitionInstance ? STATES.INACTIVE : STATES.UNAVAILABLE
     }
   },
   computed: {
@@ -30,7 +42,7 @@ export default {
 
       try {
         speechRecognitionInstance.start()
-        this.isActivated = true
+        this.state = this.STATES.ACTIVE
       } catch (error) {
         if (error.name == 'InvalidStateError') console.warn('Speech recognition API is already started.')
         else console.warn(error)
@@ -56,8 +68,8 @@ export default {
       await this.pinLatestQuestion()
     },
     checkAndTriggerVoiceCommands(e) {
-      this.isListening = false
-      setTimeout(() => this.isListening = true, 1000)
+      this.state = this.STATES.PROCESSING
+      setTimeout(() => (this.state = this.STATES.ACTIVE), 1000)
 
       const transcript = Array.from(e.results)
         .map(result => result[0].transcript)
@@ -107,9 +119,9 @@ export default {
     )
     #director-actions
       a-button(type='primary' @click="skipQuestion" :disabled="noQuestionLeft") Skip question
-      a-button(@click="activateVoiceRecognition" :disabled="!speechRecognitionInstance || isActivated") Activate: Voice-Action
+      a-button(@click="activateVoiceRecognition" :disabled="state != STATES.INACTIVE") Activate: Voice-Action
       transition(name="slide-fade")
-        h3.director-listening-state(v-show="isActivated && isListening") Listening...
+        p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
 </template>
 
 <style lang="scss" scoped>
