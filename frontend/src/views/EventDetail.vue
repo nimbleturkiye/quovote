@@ -177,19 +177,20 @@ export default {
       ask-the-speaker-form(v-else :show-header="true")
     a-card
       .questions
-        .archive-switch(v-if='event.owner == user._id')
-          span(style='margin-right: 0.4em') View Archive
-          a-switch(size='small' v-model='viewingArchive')
         .questions-header
-          h2 Questions
+          h2.questions-title Questions
             a-avatar.question-count {{ questions.length }}
-          .sort-container(v-if='questions.length')
-            div
-              span Sort questions by &nbsp;
-              a-radio-group(size='small', defaultValue='popular', buttonStyle='solid', :value='sortBy')
-                a-radio-button(value='popular', @click='updateSorting') Popular {{ popularSortOrderIndicator }}
-                a-radio-button(value='recent', @click='updateSorting') Recent {{ recentSortOrderIndicator }}
-                a-radio-button(value='random', @click='updateSorting') Random {{ randomSortOrderIndicator }}
+          .questions-sort(v-if='questions.length')
+            span Sort questions by &nbsp;
+            a-radio-group(size='small', defaultValue='popular', buttonStyle='solid', :value='sortBy')
+              a-radio-button(value='popular', @click='updateSorting') Popular {{ popularSortOrderIndicator }}
+              a-radio-button(value='recent', @click='updateSorting') Recent {{ recentSortOrderIndicator }}
+              a-radio-button(value='random', @click='updateSorting') Random {{ randomSortOrderIndicator }}
+          .questions-filter(v-if='event.owner == user._id')
+            span(style='margin-right: 0.4em') Filter
+            a-radio-group(size='small' v-model='viewingArchive')
+              a-radio-button(:value='false') Live
+              a-radio-button(:value='true') Archived
         .questions-container
           p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
           a-card(v-for='question in questions', :key='question._id', :bordered='false')
@@ -236,19 +237,21 @@ export default {
 <style lang="scss" scoped>
 .questions {
   .questions-header {
+    display: block;
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+
+    .questions-title {
+      flex-grow: 1;
+    }
 
     @media (max-width: 680px) {
-      display: block;
+      flex-direction: column;
+      align-items: flex-start;
     }
-  }
-
-  .archive-switch {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1rem;
   }
 
   .ant-card {
@@ -271,19 +274,6 @@ export default {
 
 .question-count {
   margin-left: 8px;
-}
-
-.sort-container {
-  margin-top: 1em;
-}
-
-@media (min-width: 681px) {
-  .sort-container {
-    margin-top: 0;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-  }
 }
 
 .question-id {
