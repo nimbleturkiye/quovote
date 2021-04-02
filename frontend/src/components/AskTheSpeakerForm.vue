@@ -4,6 +4,7 @@ import { message, notification } from 'ant-design-vue'
 
 export default {
   name: 'AskTheSpeakerForm',
+  props: ['showHeader'],
   data() {
     return {
       name: undefined,
@@ -36,7 +37,7 @@ export default {
 
 <template lang="pug">
   form(@submit.prevent="sendQuestion")
-    h2 Ask the speaker
+    h2(v-if="showHeader") Ask the speaker
     a-textarea(
       placeholder='Type your question',
       :autoSize='{ minRows: 2, maxRows: 6 }',
