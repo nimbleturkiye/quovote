@@ -31,8 +31,8 @@ const event = {
   namespaced: true,
   state: () => ({
     loading: false,
-    eventId: null,
-    event: null
+    eventId: undefined,
+    event: undefined
   }),
   mutations: {
     [mutations.SET_LOADING](state, val) {
