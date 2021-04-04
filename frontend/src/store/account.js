@@ -1,7 +1,6 @@
 import axios from 'axios'
 import biri from 'biri'
 
-
 const mutations = {
   SET_COMPUTER_ID: 'setComputerId',
   SET_USER: 'setUser'

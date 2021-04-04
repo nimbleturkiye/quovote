@@ -33,14 +33,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('event', [
-      'setEventId',
-      'joinEvent',
-      'vote',
-      'withdrawQuestion',
-      'pinQuestion',
-      'archiveQuestion'
-    ]),
+    ...mapActions('event', ['setEventId', 'joinEvent', 'vote', 'withdrawQuestion', 'pinQuestion', 'archiveQuestion']),
     updateSorting(e) {
       if (this.sortBy == e.target.value) {
         this.orderBy = -this.orderBy
