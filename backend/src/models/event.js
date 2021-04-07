@@ -58,14 +58,20 @@ Event.pre('save', async function (next) {
 })
 
 Event.static('decorateForUser', function (event, userIds) {
-  const updatedQuestions = event.questions.toObject().map(q => {
-    return {
-      ...q,
-      voted: q.voters.some(v => userIds.some(id => id.equals(v))),
-      ownQuestion: userIds.some(i => i.equals(q.user)),
-      user: undefined,
-      voters: undefined,
-    }
+  const isEventOwner = userIds.some(userId => event.owner.equals(userId))
+
+  const updatedQuestions = event
+    .questions
+    .toObject()
+    .filter(q => isEventOwner ? q : q.state != 'archived')
+    .map(q => {
+      return {
+        ...q,
+        voted: q.voters.some(v => userIds.some(id => id.equals(v))),
+        ownQuestion: userIds.some(i => i.equals(q.user)),
+        user: undefined,
+        voters: undefined,
+      }
   })
 
   return { ...event.toObject(), questions: updatedQuestions }

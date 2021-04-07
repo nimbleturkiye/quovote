@@ -7,6 +7,16 @@ const User = new mongoose.Schema(
     name: String,
     sessionId: String,
     computerId: String,
+    director: {
+      language: {
+        type: String,
+        default: 'en-US',
+      },
+      triggers: {
+        type: Array,
+        default: [],
+      }
+    },
     events: [
       {
         type: 'ObjectId',
