@@ -8,7 +8,10 @@ const passport = require('passport')
 const cors = require('cors')
 const helmet = require('helmet')
 const sanitize = require('express-mongo-sanitize').sanitize;
+const compression = require('compression');
 const { errors } = require('celebrate');
+
+const rateLimiter = require('./lib/rate-limiter');
 
 const User = require('./models/user')
 const { mongoose } = require('./bootstrap')
@@ -19,6 +22,7 @@ var accountRouter = require('./routes/account')
 var app = express()
 
 app.use(helmet())
+app.use(compression())
 
 app.use(
   cors({
@@ -56,6 +60,8 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+
+app.use(rateLimiter({ keys: ['ip', 'session.id'] }))
 
 app.all('*', (req, res, next) => {
   req.body = sanitize(req.body)

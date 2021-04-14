@@ -19,6 +19,7 @@ const actions = {
   JOIN_EVENT: 'joinEvent',
   WITHDRAW_QUESTION: 'withdrawQuestion',
   PIN_QUESTION: 'pinQuestion',
+  ARCHIVE_QUESTION: 'archiveQuestion',
   PATCH_QUESTION: 'patchQuestion',
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
@@ -30,8 +31,8 @@ const event = {
   namespaced: true,
   state: () => ({
     loading: false,
-    eventId: null,
-    event: {}
+    eventId: undefined,
+    event: undefined
   }),
   mutations: {
     [mutations.SET_LOADING](state, val) {
@@ -52,6 +53,10 @@ const event = {
       const fetchEvent = throttle(() => dispatch(actions.FETCH_EVENT), 30000)
 
       socket.on('questions updated', fetchEvent)
+      socket.on('questions updated by admin', () => {
+        fetchEvent.cancel()
+        dispatch(actions.FETCH_EVENT)
+      })
     },
     async [actions.FETCH_EVENT_ID_BY_CODE](ctx, code) {
       const res = await axios.get(`/events?code=${code}`)
@@ -63,6 +68,7 @@ const event = {
 
       try {
         await axios.post(`/events/${state.eventId}/questions`, { text: question, user: name })
+        await dispatch(actions.FETCH_EVENT)
       } catch (e) {
         throw e
       } finally {
@@ -82,13 +88,17 @@ const event = {
       socket.emit('join-room', state.eventId)
       await dispatch(actions.FETCH_EVENT)
     },
-    async [actions.WITHDRAW_QUESTION]({ state }, questionId) {
+    async [actions.ARCHIVE_QUESTION]({ dispatch }, { questionId, action }) {
+      await dispatch(actions.PATCH_QUESTION, { questionId, action })
+    },
+    async [actions.WITHDRAW_QUESTION]({ state, dispatch }, questionId) {
       await axios.delete(`/events/${state.eventId}/questions/${questionId}`)
+      await dispatch(actions.FETCH_EVENT)
     },
     async [actions.PIN_QUESTION]({ dispatch }, { questionId, action }) {
       await dispatch(actions.PATCH_QUESTION, { questionId, action })
     },
-    async [actions.PATCH_QUESTION]({ state, commit }, { questionId, action }) {
+    async [actions.PATCH_QUESTION]({ state, commit, dispatch }, { questionId, action }) {
       commit(mutations.SET_LOADING, true)
 
       try {
@@ -97,6 +107,7 @@ const event = {
         throw e
       } finally {
         commit(mutations.SET_LOADING, false)
+        await dispatch(actions.FETCH_EVENT)
       }
     },
     [actions.UPDATE_QUESTIONS]({ commit }, questions) {
@@ -105,7 +116,7 @@ const event = {
     async [actions.CREATE_EVENT]({ dispatch }, event) {
       await axios.post('/events', event)
 
-      await dispatch('account/fetchSession', {}, { root: true })
+      await dispatch('account/fetchUser', {}, { root: true })
     },
     [actions.SET_EVENT_ID]({ commit }, id) {
       commit(mutations.SET_EVENT_ID, id)
