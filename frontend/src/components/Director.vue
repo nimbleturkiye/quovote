@@ -77,6 +77,11 @@ export default {
         .replace(new RegExp(/ı|I|İ/g), 'i')
         .toLowerCase()
 
+      // easter-egg :)
+      if (this.user.director.language == 'tr-TR' && transcript.includes('ver mehteri')) {
+        this.$refs.mehter.play()
+      }
+
       const isTriggered = this.triggers.split('\n').some(trigger => trigger && transcript.includes(trigger))
 
       console.log({ transcript, isTriggered })
@@ -112,6 +117,7 @@ export default {
 
 <template lang="pug">
   #director
+    audio(ref="mehter" src="/mehter.mp3")
     a-textarea(
       placeholder='Enter trigger phrases (each line represents a trigger)'
       :autoSize='{ minRows: 5 }'
