@@ -3,20 +3,12 @@ const router = express.Router()
 const Event = require('../models/event')
 const Singularity = require('../models/singularity')
 const socketServer = require('../socket-connection')
+const ensureSingularity = require('../lib/ensureSingularity')
 const ObjectId = require('mongoose').Types.ObjectId
+const { v4: uuid } = require('uuid')
 const { celebrate, Joi, Segments } = require('celebrate')
 const sanitize = require('express-mongo-sanitize').sanitize;
 const rateLimiter = require('../lib/rate-limiter')
-const { v4: uuid } = require('uuid')
-const ensureSingularity = require('../lib/ensureSingularity')
-
-async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
-  return Singularity.find({
-    $or: [{ sessionId }, { userId }, { computerId }],
-  })
-    .select('-_id userId')
-    .distinct('userId')
-}
 
 async function ensureUser(req, res, next) {
   if (req.body.computerId) req.session.computerId = req.body.computerId
@@ -40,6 +32,14 @@ async function ensureUser(req, res, next) {
   })
 
   next()
+}
+
+async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
+  return Singularity.find({
+    $or: [{ sessionId }, { userId }, { computerId }],
+  })
+    .select('-_id userId')
+    .distinct('userId')
 }
 
 router.param('eventId', async function ensureEvent(req, res, next) {
@@ -186,15 +186,13 @@ router.delete('/events/:eventId/questions/:questionId', ensureUser, rateLimiter(
 })
 
 router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter({ keys: 'user._id' }), async function (req, res, next) {
-  const allowedActions = ['like', 'unlike', 'pin', 'unpin', 'archive', 'unarchive']
-
   const { id: sessionId, userId, computerId } = req.session
   const { questionId } = req.params
   const { action } = req.body
 
   if (action == 'like' && !req.user && computerId.startsWith('nobiri-')) return next({ status: 401 })
 
-  if (!allowedActions.includes(action)) return next({ status: 400 })
+  if (!['like', 'unlike', 'pin', 'unpin'].includes(action)) return next({ status: 400 })
 
   const userIds = await fetchUserIdsBySingularities({ sessionId, userId, computerId })
 
@@ -222,30 +220,11 @@ router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter(
 
     case 'pin':
     case 'unpin':
-      arrayFilters = [{ 'question._id': questionId, 'question.state': { $ne: 'archived' } }]
+      arrayFilters = [{ 'question._id': questionId }]
 
       update = {
         $set: {
-          'questions.$[question].state': action == 'pin' ? 'pinned' : 'visible',
-        },
-      }
-      break
-
-    case 'archive':
-      arrayFilters = [{ 'question._id': questionId, 'question.state': { $ne: 'archived' } }]
-
-      update = {
-        $set: {
-          'questions.$[question].state': 'archived',
-        },
-      }
-      break
-    case 'unarchive':
-      arrayFilters = [{ 'question._id': questionId, 'question.state': 'archived' }]
-
-      update = {
-        $set: {
-          'questions.$[question].state': 'visible',
+          'questions.$[question].isPinned': action == 'pin',
         },
       }
       break
@@ -264,9 +243,7 @@ router.patch('/events/:eventId/questions/:questionId', ensureLogin, rateLimiter(
 
   if (!event) return next(new Error('Event or question not found'))
 
-  socketServer()
-    .to(req.params.eventId)
-    .emit(req.user.equals(event.owner) ? 'questions updated by admin' : 'questions updated')
+  socketServer().to(req.params.eventId).emit('questions updated')
 
   res.sendStatus(200)
 })

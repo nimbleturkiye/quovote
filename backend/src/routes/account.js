@@ -5,7 +5,9 @@ const Validator = require('async-validator').default
 const rateLimiter = require('../lib/rate-limiter');
 
 const User = require('../models/user')
+
 const ensureSingularity = require('../lib/ensureSingularity')
+
 const router = express.Router()
 
 router.get('/',
@@ -13,18 +15,6 @@ router.get('/',
   async (req, res) => {
     res.send(req.user)
   })
-
-router.patch('/', async (req, res, next) => {
-  if (!req.user) return next({ status: 400 })
-
-  const { director } = req.body
-
-  if (!director) res.sendStatus(400)
-
-  await User.findByIdAndUpdate(req.user._id, { director })
-
-  res.sendStatus(204)
-})
 
 router.post('/register',
   rateLimiter({ points: 5, duration: 30 * 60 }),

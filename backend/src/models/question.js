@@ -21,11 +21,10 @@ const Question = new mongoose.Schema(
       default: 'Anonymous',
       maxlength: 40
     },
-    state: {
-      type: String,
-      enum: ['visible', 'pinned', 'archived'],
-      default: 'visible'
-    }
+    isPinned: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

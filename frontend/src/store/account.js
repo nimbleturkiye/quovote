@@ -12,7 +12,6 @@ const actions = {
   LOGIN: 'login',
   LOGOUT: 'logout',
   FETCH_USER: 'fetchUser',
-  UPDATE_DIRECTOR: 'updateDirector',
   INIT: 'init'
 }
 
@@ -65,9 +64,6 @@ const account = {
       const user = await axios.get('/account')
 
       commit(mutations.SET_USER, user.data)
-    },
-    async [actions.UPDATE_DIRECTOR](store, director) {
-      await axios.patch('/account', { director })
     }
   }
 }

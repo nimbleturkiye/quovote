@@ -19,7 +19,7 @@ export default {
 }
 </script>
 <template lang="pug">
-  #app(:class="$route.name")
+  #app
     a-layout#components-layout-demo-top.layout(theme='light')
       a-layout-header
         a-row(type="flex" justify="space-between")
@@ -56,12 +56,7 @@ h1 {
 }
 </style>
 
-<style lang="scss">
-html,
-body {
-  background-color: transparent !important;
-}
-
+<style lang="scss" scoped>
 #app {
   font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
     'Open Sans', 'Helvetica Neue', sans-serif;
@@ -70,36 +65,36 @@ body {
   color: #2c3e50;
   font-weight: 500;
   background-color: #f6f6f6;
+}
 
-  .logo {
-    z-index: 1;
-    font-weight: bold;
-    a {
-      height: 100%;
-      padding-right: 2em;
-      width: 100%;
-      display: block;
-    }
-  }
-
-  .ant-layout {
-    min-height: 100vh;
-  }
-
-  .ant-layout-header {
-    background: white;
-    padding: 0 calc(calc(100% - 760px) / 2);
-  }
-
-  .ant-layout-content {
-    max-width: 760px;
-    align-self: center;
-    padding: 4em;
-    @media (max-width: 576px) {
-      padding: 1em;
-    }
-
+.logo {
+  z-index: 1;
+  font-weight: bold;
+  a {
+    height: 100%;
+    padding-right: 2em;
     width: 100%;
+    display: block;
   }
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-layout-header {
+  background: white;
+  padding: 0 calc(calc(100% - 760px) / 2);
+}
+
+.ant-layout-content {
+  max-width: 760px;
+  align-self: center;
+  padding: 4em;
+  @media (max-width: 576px) {
+    padding: 1em;
+  }
+
+  width: 100%;
 }
 </style>

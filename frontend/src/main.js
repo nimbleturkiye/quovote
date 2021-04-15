@@ -20,8 +20,7 @@ import {
   Menu,
   Form,
   Alert,
-  Empty,
-  Tabs
+  Empty
 } from 'ant-design-vue'
 
 const components = [
@@ -40,8 +39,7 @@ const components = [
   Menu,
   Form,
   Alert,
-  Empty,
-  Tabs
+  Empty
 ]
 
 components.forEach(c => Vue.use(c))

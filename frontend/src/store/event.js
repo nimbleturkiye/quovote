@@ -19,7 +19,6 @@ const actions = {
   JOIN_EVENT: 'joinEvent',
   WITHDRAW_QUESTION: 'withdrawQuestion',
   PIN_QUESTION: 'pinQuestion',
-  ARCHIVE_QUESTION: 'archiveQuestion',
   PATCH_QUESTION: 'patchQuestion',
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
@@ -32,8 +31,8 @@ const event = {
   namespaced: true,
   state: () => ({
     loading: false,
-    eventId: undefined,
-    event: undefined
+    eventId: null,
+    event: {}
   }),
   mutations: {
     [mutations.SET_LOADING](state, val) {
@@ -54,10 +53,6 @@ const event = {
       const fetchEvent = throttle(() => dispatch(actions.FETCH_EVENT), 30000)
 
       socket.on('questions updated', fetchEvent)
-      socket.on('questions updated by admin', () => {
-        fetchEvent.cancel()
-        dispatch(actions.FETCH_EVENT)
-      })
     },
     async [actions.FETCH_EVENT_ID_BY_CODE](ctx, code) {
       const res = await axios.get(`/events?code=${code}`)
@@ -88,9 +83,6 @@ const event = {
       console.log('join event')
       socket.emit('join-room', state.eventId)
       await dispatch(actions.FETCH_EVENT)
-    },
-    async [actions.ARCHIVE_QUESTION]({ dispatch }, { questionId, action }) {
-      await dispatch(actions.PATCH_QUESTION, { questionId, action })
     },
     async [actions.WITHDRAW_QUESTION]({ state, dispatch }, questionId) {
       await axios.delete(`/events/${state.eventId}/questions/${questionId}`)

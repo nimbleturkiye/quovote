@@ -6,7 +6,6 @@ import Register from './views/Register.vue'
 import Login from './views/Login.vue'
 import Dashboard from './views/Dashboard.vue'
 import EventCodeRedirection from './views/EventCodeRedirection.vue'
-import Monitor from './views/Monitor'
 
 Vue.use(Router)
 
@@ -56,11 +55,6 @@ export default function init(store) {
         path: '/events/:eventId',
         name: 'eventDetail',
         component: EventDetail
-      },
-      {
-        path: '/events/:eventId/monitor',
-        name: 'monitor',
-        component: Monitor
       },
       {
         path: '/about',
