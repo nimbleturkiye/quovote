@@ -25,6 +25,7 @@ const actions = {
   CREATE_EVENT: 'createEvent',
   SET_EVENT_ID: 'setEventId',
   GET_RANDOM_EVENT_CODE: 'getRandomEventCode',
+  GET_EVENT_CODE_AVAILABILITY: 'getEventCodeAvailability',
   INIT: 'init'
 }
 
@@ -124,6 +125,11 @@ const event = {
     },
     async [actions.GET_RANDOM_EVENT_CODE]() {
       const res = await axios.get('/event-codes/random')
+
+      return res.data
+    },
+    async [actions.GET_EVENT_CODE_AVAILABILITY](ctx, code) {
+      const res = await axios.get(`/event-codes/availability?code=${code}`)
 
       return res.data
     }

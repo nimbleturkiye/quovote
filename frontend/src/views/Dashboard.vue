@@ -39,7 +39,13 @@ export default {
             rules: [
               { required: false },
               { pattern: /^[a-z0-9]+$/, message: 'Event code can only include lowercase letters and numbers.\n' },
-              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' }
+              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' },
+              {
+                validator: async (rule, value, callback) =>
+                  value && !(await this.getEventCodeAvailability(value))
+                    ? callback(new Error('This event code is already taken.\n'))
+                    : callback()
+              }
             ]
           }
         ]
@@ -68,7 +74,7 @@ export default {
     this.createEventForm.setFieldsValue({ code })
   },
   methods: {
-    ...mapActions('event', ['createEvent']),
+    ...mapActions('event', ['createEvent', 'getEventCodeAvailability']),
     submitCreateEventForm(e) {
       e.preventDefault()
       this.backendError = null
