@@ -37,7 +37,7 @@ export default {
           'code',
           {
             rules: [
-              { required: false },
+              { required: true },
               { pattern: /^[a-z0-9]+$/, message: 'Event code can only include lowercase letters and numbers.\n' },
               { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' },
               {
@@ -128,7 +128,7 @@ export default {
             a-input(placeholder="The name of your event" v-decorator="validationRules.title" ref="eventName" :maxLength="80")
           a-form-item(label="Event description" v-bind="formItemLayout")
             a-input(placeholder="A short description of your event" v-decorator="validationRules.description" :maxLength="280")
-          a-form-item(label="Event code (optional)" v-bind="formItemLayout")
+          a-form-item(label="Event code" v-bind="formItemLayout")
             a-input(placeholder="A short code (slug) for your event" v-decorator="validationRules.code" :maxLength="20")
             p {{createEventForm.getFieldValue('code') ? `Your event's URL will be: https://quo.vote/${createEventForm.getFieldValue('code')}` : ''}}
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
