@@ -43,7 +43,7 @@ export default {
         router-view
 
       a-layout-footer(style='text-align: center')
-        | QuoVote ©2020 Armagan Amcalar
+        | QuoVote ©2021 Armagan Amcalar
 </template>
 
 <style lang="scss">
