@@ -1,5 +1,6 @@
 <script>
 import { mapState, mapActions } from 'vuex'
+import { notification } from 'ant-design-vue'
 
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const speechRecognitionInstance = window.SpeechRecognition && new window.SpeechRecognition()
@@ -56,16 +57,20 @@ export default {
 
       const pinnedQuestions = this.event.questions?.filter(question => question.state == 'pinned')
 
-      if (pinnedQuestions[0]) {
-        await this.archiveQuestion({
-          action: 'archive',
-          questionId: pinnedQuestions[0]._id
-        })
+      try {
+        if (pinnedQuestions[0]) {
+          await this.archiveQuestion({
+            action: 'archive',
+            questionId: pinnedQuestions[0]._id
+          })
+        }
+
+        if (pinnedQuestions.length > 1) return
+
+        if (!this.noQuestionLeft) await this.pinLatestQuestion()
+      } catch (e) {
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
       }
-
-      if (pinnedQuestions.length > 1) return
-
-      await this.pinLatestQuestion()
     },
     checkAndTriggerVoiceCommands(e) {
       this.state = this.STATES.PROCESSING
