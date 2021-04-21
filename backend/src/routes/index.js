@@ -65,6 +65,19 @@ function ensureLogin(req, res, next) {
   next(new Error('Unauthorized'))
 }
 
+router.get('/event-codes/random', ensureUser, ensureLogin, rateLimiter(), async (req, res, next) => {
+  let code = await Event.generateRandomCode()
+
+  res.send(code)
+})
+
+router.get('/event-codes/availability', ensureUser, ensureLogin, rateLimiter(), async (req, res, next) => {
+  const code = sanitize(req.query.code)
+  if (!code) return next({ status: 400 })
+
+  res.send(!(await Event.exists({ code })))
+})
+
 router.get('/events', ensureUser, rateLimiter({ keys: 'user._id' }), async (req, res, next) => {
   const code = sanitize(req.query.code)
   if (!code) return next({ status: 400 })

@@ -37,9 +37,15 @@ export default {
           'code',
           {
             rules: [
-              { required: false },
+              { required: true },
               { pattern: /^[a-z0-9]+$/, message: 'Event code can only include lowercase letters and numbers.\n' },
-              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' }
+              { min: 3, max: 8, message: 'Event code must be between 3 and 8 characters.\n' },
+              {
+                validator: async (rule, value, callback) =>
+                  value && !(await this.getEventCodeAvailability(value))
+                    ? callback(new Error('This event code is already taken.\n'))
+                    : callback()
+              }
             ]
           }
         ]
@@ -56,7 +62,7 @@ export default {
       )
     }
   },
-  beforeCreate() {
+  async beforeCreate() {
     const component = this
     this.createEventForm = this.$form.createForm(this, {
       name: 'createEventForm',
@@ -64,9 +70,11 @@ export default {
         component.backendError = null
       }
     })
+    const code = await this.$store.dispatch('event/getRandomEventCode')
+    this.createEventForm.setFieldsValue({ code })
   },
   methods: {
-    ...mapActions('event', ['createEvent']),
+    ...mapActions('event', ['createEvent', 'getEventCodeAvailability']),
     submitCreateEventForm(e) {
       e.preventDefault()
       this.backendError = null
@@ -120,7 +128,7 @@ export default {
             a-input(placeholder="The name of your event" v-decorator="validationRules.title" ref="eventName" :maxLength="80")
           a-form-item(label="Event description" v-bind="formItemLayout")
             a-input(placeholder="A short description of your event" v-decorator="validationRules.description" :maxLength="280")
-          a-form-item(label="Event code (optional)" v-bind="formItemLayout")
+          a-form-item(label="Event code" v-bind="formItemLayout")
             a-input(placeholder="A short code (slug) for your event" v-decorator="validationRules.code" :maxLength="20")
             p {{createEventForm.getFieldValue('code') ? `Your event's URL will be: https://quo.vote/${createEventForm.getFieldValue('code')}` : ''}}
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
