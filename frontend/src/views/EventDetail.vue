@@ -183,7 +183,7 @@ export default {
               a-radio-button(:value='true') Archived
         .questions-container
           p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
-          a-card(v-for='question in questions', :key='question._id', :bordered='false')
+          a-card(v-for='question in questions', :key='question._id', :bordered='false' :class='{pinned: question.state == "pinned"}')
             a-comment
               template(slot='actions')
                 a-tooltip(:title='getQuestionTooltipTitle(question)', @click='handleVote(question)')
@@ -251,6 +251,12 @@ export default {
 
   .questions-container {
     margin-top: 24px;
+  }
+
+  .pinned {
+    .ant-comment {
+      background: rgb(24 144 255 / 3%);
+    }
   }
 }
 
