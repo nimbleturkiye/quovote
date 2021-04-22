@@ -137,7 +137,7 @@ export default {
 
       return `avatar-bg-${randomNumber}`
     },
-    pinLatestQuestion() {
+    pinNextSuitableQuestion() {
       this.sortBy = 'popular'
       this.sortQuestions()
 
@@ -186,7 +186,7 @@ export default {
         a-tab-pane(tab="Ask the speaker" key="1")
           ask-the-speaker-form
         a-tab-pane(tab="Director" key="2")
-          Director(:pin-latest-question="pinLatestQuestion")
+          Director(:pin-next-suitable-question="pinNextSuitableQuestion")
       ask-the-speaker-form(v-else :show-header="true")
     a-card
       .questions
