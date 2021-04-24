@@ -70,6 +70,8 @@ router.post('/register',
     try {
       let createdUser = new User(req.body.user)
 
+      await createdUser.sendVerificationEmail()
+
       const user = await User.register(createdUser, req.body.user.password)
 
       req.session.userId = user._id
@@ -87,6 +89,18 @@ router.post('/register',
     }
   })
 
+router.get('/email-verification', rateLimiter({ points: 5, duration: 15 * 60 }), async (req, res, next) => {
+  if (!req.query.token) return next({ status: 400 })
+
+  try {
+    await User.verifyEmailByToken(req.query.token)
+  } catch(e) {
+    return res.redirect(`${process.env.FRONTEND_BASE_PATH}/login?verifyFail=1`)
+  }
+
+  res.redirect(`${process.env.FRONTEND_BASE_PATH}/login?verifySuccess=1`)
+})
+
 const regenerateSessionMiddleware = (req, res, next) => {
   if (req.user) return next()
 
@@ -102,10 +116,21 @@ const preventLoginForLoggedInUsers = (req, res, next) => {
   next(req.user && new Error('User is already logged in'))
 }
 
+const isEmailVerified = async (req, res, next) => {
+  const isVerified = await User.exists({ email: req.body.email, isVerified: true })
+
+  if (!isVerified) {
+    next({ status: 403, message: 'Please make sure you have verified your email.' })
+  }
+
+  next()
+}
+
 router.post(
   '/session',
   rateLimiter({ points: 10, duration: 30 * 60 }),
   preventLoginForLoggedInUsers,
+  isEmailVerified,
   regenerateSessionMiddleware,
   passport.authenticate('local', { failWithError: true }),
   async (req, res) => {
