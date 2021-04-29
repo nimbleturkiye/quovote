@@ -117,17 +117,19 @@ export default {
 
 <template lang="pug">
   #director
-    audio(ref="mehter" src="/mehter.mp3")
     a-textarea(
+      v-if="state != STATES.UNAVAILABLE"
       placeholder='Enter trigger phrases (each line represents a trigger)'
       :autoSize='{ minRows: 5 }'
       v-model="triggers"
     )
     #director-actions
       a-button(type='primary' @click="skipQuestion" :disabled="noQuestionLeft") Skip question
-      a-button(@click="activateVoiceRecognition" :disabled="state != STATES.INACTIVE") Activate: Voice-Action
-      transition(name="slide-fade")
-        p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
+      #voice-interface(v-if="state != STATES.UNAVAILABLE")
+        audio(ref="mehter" src="/mehter.mp3")
+        a-button(@click="activateVoiceRecognition" :disabled="state != STATES.INACTIVE") Activate: Voice-Action
+        transition(name="slide-fade")
+          p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
       a(:href="`${$router.history.current.path}/monitor`" target="_blank").go-to-monitor Go to monitor
 </template>
 
