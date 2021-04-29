@@ -100,6 +100,9 @@ export default {
     },
     focusOnCreateEventForm() {
       this.$nextTick(() => this.$refs.eventName.focus())
+    },
+    hasErrors(fieldsError) {
+      return Object.values(fieldsError).some(e => e)
     }
   }
 }
@@ -134,7 +137,7 @@ export default {
           a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
             a-alert(:message="backendError.message" type="error")
           a-form-item(v-bind="tailFormItemLayout")
-            a-button(type="primary" html-type="submit" :loading="loading" icon="plus") Create Event
+            a-button(type="primary" html-type="submit" :loading="loading" icon="plus" :disabled="!createEventForm.isFieldTouched('title') || hasErrors(createEventForm.getFieldsError())") Create Event
 </template>
 
 <style lang="scss" scoped>
