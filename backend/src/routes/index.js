@@ -154,7 +154,7 @@ const questionsValidator = celebrate({
       .trim()
       .replace(/(\s)\1*/g, '$1')
       .label('Question'),
-    user: Joi.string().trim().replace(/(\s+)/g, '$1'),
+    user: Joi.string().allow('').trim().replace(/(\s+)/g, '$1'),
   }),
 })
 
@@ -162,7 +162,7 @@ router.post('/events/:eventId/questions', ensureUser, questionsValidator, rateLi
   await Event.findByIdAndUpdate(req.params.eventId,
     {
       $push: {
-        questions: { text: req.body.text, author: req.body.user, user: req.session.userId }
+        questions: { text: req.body.text, author: req.body.user || undefined, user: req.session.userId }
       }
     })
 
