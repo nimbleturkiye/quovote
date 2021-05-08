@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer')
 const pug = require('pug')
+const { htmlToText } = require('html-to-text')
 
 const transport = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -12,7 +13,7 @@ const transport = nodemailer.createTransport({
 
 async function send(payload) {
   try {
-    await transport.sendMail(payload)
+    await transport.sendMail({ text: htmlToText(payload.html), ...payload })
   } catch (err) {
     console.log(err)
     throw new Error('There is a problem sending email. Please try again later.')

@@ -18,6 +18,7 @@
     "express-mongo-sanitize": "^2.0.1",
     "express-session": "^1.17.1",
     "helmet": "^4.2.0",
+    "html-to-text": "^7.1.1",
     "http-errors": "~1.6.2",
     "lodash": "^4.17.21",
     "mongoose": "^5.9.2",
