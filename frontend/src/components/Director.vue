@@ -139,12 +139,17 @@ export default {
   display: flex;
   align-items: center;
 
-  & > *:not(:first-child) {
-    margin-left: 1rem;
-  }
-
   .go-to-monitor {
     margin-left: auto;
+  }
+}
+
+#voice-interface {
+  display: flex;
+  align-items: center;
+
+  * {
+    margin-left: 1rem;
   }
 }
 
