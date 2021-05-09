@@ -99,7 +99,11 @@ export default {
     a-form(:form="form" @submit="submitLogin")
       h1 Log in to your account
       a-form-item(v-if="$route.query.registerSuccess")
-        a-alert(type="success" message="You are now registered!" description="Use your credentials to log in below.")
+        a-alert(type="success" message="You are now registered!" description="We have sent you a verification email. If you can't find it, please check your spam box.")
+      a-form-item(v-if="$route.query.verifySuccess")
+        a-alert(type="success" message="Your account is activated!" description="Use your credentials to log in below.")
+      a-form-item(v-if="$route.query.verifyFail")
+        a-alert(type="error" message="Verification failed!" description=" The link is either invalid or expired.")
       a-form-item(v-if="$route.query.logoutSuccess")
         a-alert(type="success" message="You have successfully logged out." description="Use your credentials to log in below.")
       a-form-item(label="Email address" v-bind="formItemLayout")

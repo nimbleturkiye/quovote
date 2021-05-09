@@ -89,6 +89,7 @@ export default {
         if (err) return
         this.loading = true
 
+        this.loading = true
         try {
           await this.registerUser(values)
           this.$router.push('/login?registerSuccess=1')
