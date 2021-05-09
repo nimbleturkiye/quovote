@@ -16,6 +16,7 @@
     "moment": "^2.27.0",
     "register-service-worker": "^1.7.1",
     "socket.io-client": "^2.3.0",
+    "vue-tagsarea": "0.1.1",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuex": "^3.4.0"
