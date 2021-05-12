@@ -1,5 +1,6 @@
 <script>
 import { mapState, mapActions } from 'vuex'
+import VueTagsarea from 'vue-tagsarea'
 
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const speechRecognitionInstance = window.SpeechRecognition && new window.SpeechRecognition()
@@ -12,6 +13,9 @@ const STATES = {
 }
 
 export default {
+  components: {
+    VueTagsarea,
+  },
   created() {
     // STATES is constant and doesn't need to be reactive, but we want to access this in template.
     // Therefore it is assigned in created() hook
@@ -19,7 +23,8 @@ export default {
   },
   data() {
     return {
-      triggers: '',
+      triggers: [],
+      highlightedTrigger: '',
       speechRecognitionInstance,
       state: speechRecognitionInstance ? STATES.INACTIVE : STATES.UNAVAILABLE
     }
@@ -82,15 +87,21 @@ export default {
         this.$refs.mehter.play()
       }
 
-      const isTriggered = this.triggers.split('\n').some(trigger => trigger && transcript.includes(trigger))
+      const triggeredKeyword = this.triggers.find(trigger => trigger && transcript.includes(trigger))
 
-      console.log({ transcript, isTriggered })
+      console.log({ transcript, triggeredKeyword })
 
-      if (isTriggered) this.skipQuestion()
-    }
+      if (triggeredKeyword) {
+        this.skipQuestion()
+
+        this.highlightedTrigger = triggeredKeyword
+
+        setTimeout(() => this.highlightedTrigger = '', 1000)
+      }
+    },
   },
   mounted() {
-    this.triggers = this.user.director.triggers.join('\n')
+    this.triggers = this.user.director.triggers
   },
   beforeDestroy() {
     const { speechRecognitionInstance } = this
@@ -105,7 +116,7 @@ export default {
   watch: {
     triggers(newTriggers, oldTriggers) {
       const director = {
-        triggers: newTriggers.split('\n').filter(t => t),
+        triggers: newTriggers.filter(t => t),
         language: this.user.director.language
       }
 
@@ -117,12 +128,17 @@ export default {
 
 <template lang="pug">
   #director
-    a-textarea(
+    vue-tagsarea(
       v-if="state != STATES.UNAVAILABLE"
-      placeholder='Enter trigger phrases (each line represents a trigger)'
-      :autoSize='{ minRows: 5 }'
       v-model="triggers"
+      placeholder="Enter trigger phrases seperated with a commma"
+      seperator=","
+      showRemoveAll
     )
+      template(v-slot:tag="props")
+        a-tag.custom-tag(:class="{'error': props.exists}" visible closable @close="props.remove" :color="highlightedTrigger == props.content ? '#1890ff' : ''") {{ props.content }}
+      template(v-slot:removeAllButton)
+        a-tag.custom-tag(color="red") Remove all
     #director-actions
       a-button(type='primary' @click="skipQuestion" :disabled="noQuestionLeft") Skip question
       #voice-interface(v-if="state != STATES.UNAVAILABLE")
@@ -132,6 +148,12 @@ export default {
           p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
       a(:href="`${$router.history.current.path}/monitor`" target="_blank").go-to-monitor Go to monitor
 </template>
+
+<style lang="scss">
+.ant-tag.custom-tag.error .anticon-close {
+  color: #f5222d;
+}
+</style>
 
 <style lang="scss" scoped>
 #director-actions {
@@ -146,6 +168,15 @@ export default {
   .go-to-monitor {
     margin-left: auto;
   }
+}
+
+.custom-tag {
+  margin: 0 4px 4px 0;
+}
+
+.ant-tag.custom-tag.error {
+  color: #f5222d;
+  border-color: #ffa39e;
 }
 
 .slide-fade-enter-active {
