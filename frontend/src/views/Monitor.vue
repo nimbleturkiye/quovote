@@ -56,6 +56,7 @@ export default {
   border-radius: 10px;
   width: 950px;
   display: flex;
+  animation: questionIn 0.3s ease-in-out;
 
   .question {
     flex: 10;
@@ -90,6 +91,15 @@ export default {
     i {
       margin-right: 8px;
     }
+  }
+}
+
+@keyframes questionIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 </style>
