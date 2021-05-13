@@ -1,0 +1,34 @@
+name: Lint
+
+on: pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - run: git fetch origin $GITHUB_BASE_REF:$GITHUB_BASE_REF
+
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Set ENV variable
+        env:
+          COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: echo $COMMIT
+
+      - run: npm ci
+        working-directory: frontend
+
+      - run: npm ci
+        working-directory: backend
+
+      - run: git diff --diff-filter=ACM --name-only "$GITHUB_BASE_REF$COMMIT" | grep -E '.*.(js|vue)$' | xargs node .github/workflows/lint.js
+
+      # - run: git diff --diff-filter=ACM --name-only "$GITHUB_BASE_REF$COMMIT" | grep -E '.*.(js|vue)$' | xargs eslint
+      #   working-directory: backend

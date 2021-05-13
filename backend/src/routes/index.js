@@ -8,7 +8,7 @@ const { celebrate, Joi, Segments } = require('celebrate')
 const sanitize = require('express-mongo-sanitize').sanitize;
 const rateLimiter = require('../lib/rate-limiter')
 const { v4: uuid } = require('uuid')
-const ensureSingularity = require('../lib/ensureSingularity')
+const ensureSingularity = require('../lib/ensureSingularity');
 
 async function fetchUserIdsBySingularities({ sessionId, userId, computerId }) {
   return Singularity.find({
