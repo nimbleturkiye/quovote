@@ -30,7 +30,11 @@ router.post('/register',
   rateLimiter({ points: 5, duration: 30 * 60 }),
   async (req, res, next) => {
     const descriptor = {
-      name: [{ required: true, message: 'Your name is required.\n' }],
+      name: [
+        { required: true, message: 'Your name is required.\n' },
+        { min: 2, message: 'Name should have a minimum length of 2 characters.\n' },
+        { max: 64, message: 'Name should have a maximum length of 64 characters.\n' },
+      ],
       password: [
         { required: true, message: 'Password is required.\n' },
         { min: 8, message: 'Password should have a minimum length of 8 characters.\n' },
