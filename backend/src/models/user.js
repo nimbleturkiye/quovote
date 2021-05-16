@@ -4,7 +4,12 @@ const autopopulate = require('mongoose-autopopulate')
 
 const User = new mongoose.Schema(
   {
-    name: String,
+    name: {
+      type: String,
+      required: true,
+      minlength: 2,
+      maxlength: 64,
+    },
     sessionId: String,
     computerId: String,
     director: {

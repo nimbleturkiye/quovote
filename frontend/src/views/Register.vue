@@ -33,8 +33,12 @@ export default {
         name: [
           'name',
           {
-            rules: [{ required: true, message: 'Your name is required.' }]
-          }
+            rules: [
+              { required: true, message: 'Your name is required.' },
+              { min: 2, message: 'Name should have a minimum length of 2 characters.\n' },
+              { max: 64, message: 'Name should have a maximum length of 64 characters.\n' },
+            ],
+          },
         ],
         email: [
           'email',
