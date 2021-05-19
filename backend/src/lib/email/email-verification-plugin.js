@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const nanoid = require('nanoid').customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 40)
-const { sendEmailVerification } = require('../email')
+const { sendEmailVerification } = require('./index')
 
 const EmailToken = mongoose.model(
   'EmailToken',

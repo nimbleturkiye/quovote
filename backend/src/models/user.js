@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const passportLocalMongoose = require('passport-local-mongoose')
 const autopopulate = require('mongoose-autopopulate')
-const emailVerification = require('../lib/emailVerificationPlugin')
+const emailVerification = require('../lib/email/email-verification-plugin')
 
 const User = new mongoose.Schema(
   {
