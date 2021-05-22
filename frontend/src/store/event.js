@@ -101,7 +101,7 @@ const event = {
       await dispatch(actions.PATCH_QUESTION, { questionId, action })
     },
     async [actions.PATCH_QUESTION]({ state, commit, dispatch }, { questionId, action }) {
-      commit(mutations.SET_LOADING, true)
+      commit(mutations.SET_LOADING, false)
 
       try {
         await axios.patch(`/events/${state.eventId}/questions/${questionId}`, { action })
