@@ -15,7 +15,7 @@ const EmailToken = mongoose.model(
       type: mongoose.Types.ObjectId,
       required: true,
     },
-    createdAt: { type: Date, default: Date.now, },
+    createdAt: { type: Date, default: Date.now, expires: '15m'},
   },
   'email-tokens'
 )
@@ -29,6 +29,8 @@ module.exports = function (schema) {
   })
 
   schema.methods.sendVerificationEmail = async function () {
+    await EmailToken.deleteMany({ user: this })
+
     const { token } = await EmailToken.create({ user: this })
 
     await sendEmailVerification(this.email, this.name, token)

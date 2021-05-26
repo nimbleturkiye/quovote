@@ -1,5 +1,6 @@
 <script>
 import { mapActions } from 'vuex'
+import { notification } from 'ant-design-vue'
 
 export default {
   name: 'login',
@@ -48,7 +49,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('account', ['login']),
+    ...mapActions('account', ['login', 'resendVerificationEmail']),
     submitLogin(e) {
       e.preventDefault()
       this.backendError = null
@@ -79,6 +80,24 @@ export default {
     },
     onValuesChange() {
       this.backendError = null
+    },
+    async onResend() {
+      if (this.backendError?.type !== 'verification-required' || !this.backendError?.email) {
+        return notification.error({ message: 'An unknown error occurred' })
+      }
+
+      try {
+        const backendError = { ...this.backendError }
+        this.backendError = null
+        notification.info({ message: 'Request in progress...'})
+
+        await this.resendVerificationEmail(backendError.email)
+        notification.success({ message: 'We just sent you another verification email.'})
+      } catch (e) {
+        notification.error({
+          message: e.response?.data?.message || 'An unknown error occurred'
+        })
+      }
     }
   },
   beforeCreate() {
@@ -111,10 +130,27 @@ export default {
       a-form-item(label="Password" v-bind="formItemLayout")
         a-input(type="password" placeholder="Your password" v-decorator="validationRules.password")
       a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
-        a-alert(:message="backendError.message" type="error")
+        a-alert(type="error")
+          p.error-message(v-if="backendError.type == 'verification-required'" slot="message")
+            | {{ backendError.message }}&nbsp;
+            button.link-button(@click.prevent="onResend") Re-send
+          p.error-message(v-else slot="message") {{ backendError.message }}
       a-form-item(v-bind="tailFormItemLayout")
         a-button(type="primary" html-type="submit" :loading="loading") Log in
         div Don't have an account yet? <router-link to="/register">Register</router-link>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.error-message {
+  margin-bottom: 0;
+}
+.link-button {
+  background: none;
+  padding: 0;
+  border: none;
+  font-weight: 500;
+  color: #1890ff;
+  outline: none;
+  cursor: pointer;
+}
+</style>

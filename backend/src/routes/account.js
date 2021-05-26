@@ -101,6 +101,22 @@ router.get('/email-verification', rateLimiter({ points: 5, duration: 15 * 60 }),
   res.redirect(`${process.env.FRONTEND_BASE_PATH}/login?verifySuccess=1`)
 })
 
+router.post(
+  '/outgoing-verification-emails',
+  rateLimiter({ points: 1, duration: 2 * 60, message: 'You can only attempt to send email once every 2 minutes.' }),
+  async (req, res, next) => {
+    if (!req.body.email) return next({ status: 400 })
+
+    const user = await User.findOne({ email: req.body.email, isVerified: false })
+
+    if (!user) return next({ status: 422 })
+
+    await user.sendVerificationEmail()
+
+    res.sendStatus(200)
+  }
+)
+
 const regenerateSessionMiddleware = (req, res, next) => {
   if (req.user) return next()
 
@@ -120,7 +136,13 @@ const isEmailVerified = async (req, res, next) => {
   const isVerified = await User.exists({ email: req.body.email, isVerified: true })
 
   if (!isVerified) {
-    next({ status: 403, message: 'Please make sure you have verified your email.' })
+    return res
+      .status(403)
+      .send({
+        type: 'verification-required',
+        email: req.body.email,
+        message: 'Please make sure you have verified your email.',
+      })
   }
 
   next()
