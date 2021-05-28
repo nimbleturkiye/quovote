@@ -8,6 +8,8 @@ export default {
     return {
       loading: false,
       backendError: null,
+      pageLimit: 5,
+      currentPage: 1,
       formItemLayout: {
         labelCol: {
           xs: { span: 24 },
@@ -59,6 +61,12 @@ export default {
         this.user &&
         this.user.events &&
         this.user.events.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      )
+    },
+    eventsInCurrentPage() {
+      return (
+        this.sortedEvents &&
+        this.sortedEvents.slice((this.currentPage - 1) * this.pageLimit, this.currentPage * this.pageLimit)
       )
     }
   },
@@ -117,13 +125,14 @@ export default {
         a-empty(v-if="user && !user.events.length")
           span(slot="description") You haven't created any events. <br> Click the button below to create your first event 🎉
           a-button(type="primary" @click="focusOnCreateEventForm" icon="plus") Create Event
-        a-card(v-for="event in sortedEvents" :key="event.id")
+        a-card(v-for="event in eventsInCurrentPage" :key="event.id")
           h3
             router-link(:to="`/events/${event._id}`") {{ event.title }}
           p {{ event.description }}
           p
             a-icon(type="message")
             span &nbsp{{ event.questions.length }}
+        a-pagination(v-if="user && user.events.length" v-model="currentPage" :total="user.events.length" :default-page-size="pageLimit")
       a-card
         a-form(:form="createEventForm" @submit="submitCreateEventForm")
           h2 Create new event
