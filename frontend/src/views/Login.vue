@@ -54,11 +54,15 @@ export default {
       this.backendError = null
       this.form.validateFieldsAndScroll(async (err, values) => {
         if (err) return
+        this.loading = true
+
         try {
           await this.login(values)
           this.$router.push('/dashboard')
         } catch (e) {
           this.backendError = e.response.data
+        } finally {
+          this.loading = false
         }
       })
     },

@@ -87,12 +87,15 @@ export default {
       this.backendError = null
       this.form.validateFieldsAndScroll(async (err, values) => {
         if (err) return
+        this.loading = true
 
         try {
           await this.registerUser(values)
           this.$router.push('/login?registerSuccess=1')
         } catch (e) {
           this.backendError = e.response.data
+        } finally {
+          this.loading = false
         }
       })
     },
