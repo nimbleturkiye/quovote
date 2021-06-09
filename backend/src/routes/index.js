@@ -78,7 +78,9 @@ router.get('/event-codes/availability', ensureUser, ensureLogin, rateLimiter(), 
   res.send(!(await Event.exists({ code })))
 })
 
-router.get('/events', ensureUser, rateLimiter({ keys: 'user._id' }), async (req, res, next) => {
+const eventRateLimiter = (req, res, next) => rateLimiter({ keys: req.user && 'user._id' })(req, res, next)
+
+router.get('/events', ensureUser, eventRateLimiter, async (req, res, next) => {
   const code = sanitize(req.query.code)
   if (!code) return next({ status: 400 })
 
