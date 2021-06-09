@@ -70,9 +70,10 @@ router.post('/register',
     try {
       let createdUser = new User(req.body.user)
 
-      await createdUser.sendVerificationEmail()
-
       const user = await User.register(createdUser, req.body.user.password)
+
+      // Don't await, so the registration won't depend on email sending.
+      createdUser.sendVerificationEmail()
 
       req.session.userId = user._id
       req.session.save()
