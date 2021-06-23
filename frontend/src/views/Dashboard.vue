@@ -1,9 +1,13 @@
 <script>
 import { mapActions, mapState } from 'vuex'
 import { notification } from 'ant-design-vue'
+import ProfileCard from '@/components/ProfileCard'
 
 export default {
   name: 'Dashboard',
+  components: {
+    ProfileCard
+  },
   data() {
     return {
       loading: false,
@@ -120,6 +124,7 @@ export default {
   .dashboard
     .content
       h1 Dashboard
+      profile-card
       a-card
         h2 Your events
         a-empty(v-if="user && !user.events.length")
