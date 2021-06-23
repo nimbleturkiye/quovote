@@ -66,15 +66,11 @@ const event = {
       return res.data
     },
     async [actions.SUBMIT_QUESTION]({ commit, dispatch, state }, { question, name }) {
-      commit(mutations.SET_LOADING, true)
-
       try {
         await axios.post(`/events/${state.eventId}/questions`, { text: question, user: name })
         await dispatch(actions.FETCH_EVENT)
       } catch (e) {
         throw e
-      } finally {
-        commit(mutations.SET_LOADING, false)
       }
     },
     async [actions.FETCH_EVENT]({ commit, state }) {

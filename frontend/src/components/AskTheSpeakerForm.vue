@@ -1,5 +1,5 @@
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapActions } from 'vuex'
 import { message, notification } from 'ant-design-vue'
 
 export default {
@@ -8,12 +8,15 @@ export default {
   data() {
     return {
       name: undefined,
-      question: ''
+      question: '',
+      loading: false
     }
   },
   methods: {
     ...mapActions('event', ['submitQuestion']),
     async sendQuestion() {
+      this.loading = true
+
       try {
         await this.submitQuestion({ question: this.question, name: this.name })
 
@@ -26,11 +29,10 @@ export default {
             ? e.response.data.validation.body.message
             : e.response?.data?.message ?? e.message ?? 'An unknown error occured'
         })
+      } finally {
+        this.loading = false
       }
     }
-  },
-  computed: {
-    ...mapState('event', ['loading'])
   }
 }
 </script>
