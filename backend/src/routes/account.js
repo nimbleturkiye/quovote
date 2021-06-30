@@ -135,5 +135,16 @@ router.delete('/session',
       res.sendStatus(200)
     })
   })
+router.patch('/me', async (req, res, next) => {
+  if (!req.user) return next({ status: 400 })
+
+  const { name, currentPassword, newPassword } = req.body
+
+  if (currentPassword && newPassword) await req.user.changePassword(currentPassword, newPassword)
+
+  if (name) await User.findByIdAndUpdate(req.user._id, { name })
+
+  res.sendStatus(200)
+})
 
 module.exports = router

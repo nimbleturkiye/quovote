@@ -13,6 +13,7 @@ const actions = {
   LOGOUT: 'logout',
   FETCH_USER: 'fetchUser',
   UPDATE_DIRECTOR: 'updateDirector',
+  UPDATE_PROFILE: 'updateProfile',
   INIT: 'init'
 }
 
@@ -68,6 +69,9 @@ const account = {
     },
     async [actions.UPDATE_DIRECTOR](store, director) {
       await axios.patch('/account', { director })
+    },
+    async [actions.UPDATE_PROFILE](store, profile) {
+      await axios.patch('/account/me', profile)
     }
   }
 }
