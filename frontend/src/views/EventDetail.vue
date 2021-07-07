@@ -160,6 +160,12 @@ export default {
     randomSortOrderIndicator() {
       if (this.sortBy != 'random') return ''
       return '◆'
+    },
+    liveQuestionsCount() {
+      return this.event.questions.length - this.archivedQuestionsCount
+    },
+    archivedQuestionsCount() {
+      return this.event.questions.filter(question => question.state == 'archived').length
     }
   },
   watch: {
@@ -202,8 +208,8 @@ export default {
           .questions-filter(v-if='event.owner == user._id')
             span(style='margin-right: 0.4em') Filter
             a-radio-group(size='small' v-model='viewingArchive')
-              a-radio-button(:value='false') Live
-              a-radio-button(:value='true') Archived
+              a-radio-button(:value='false') Live ({{ liveQuestionsCount }})
+              a-radio-button(:value='true') Archived ({{ archivedQuestionsCount }})
         .questions-container
           p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
           a-card(v-for='question in questions', :key='question._id', :bordered='false' :class='{pinned: question.state == "pinned"}')
