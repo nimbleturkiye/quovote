@@ -1,9 +1,10 @@
 <script>
 import { mapState, mapActions } from 'vuex'
 import { notification, message } from 'ant-design-vue'
-import moment from 'moment'
 import Director from '../components/Director.vue'
 import AskTheSpeakerForm from '../components/AskTheSpeakerForm.vue'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
 export default {
   name: 'event-detail',
@@ -13,7 +14,7 @@ export default {
   },
   data() {
     return {
-      moment,
+      dayjs,
       sortBy: 'popular',
       orderBy: -1,
       questions: [],
@@ -21,6 +22,8 @@ export default {
     }
   },
   async created() {
+    dayjs.extend(relativeTime)
+
     this.setEventId(this.$route.params.eventId)
     try {
       await this.joinEvent(this.$route.params.eventId)
@@ -228,8 +231,8 @@ export default {
                 a-icon(v-if='question.author == "Anonymous"', type='user')
                 span(v-else) {{ generateAvatarText(question.author) }}
               p(slot='content') {{ question.text }}
-              a-tooltip(slot='datetime', :title='moment(question.createdAt).format("YYYY-MM-DD HH:mm:ss")')
-                span(:id='"question-" + question._id.slice(-4)') {{ moment(question.createdAt).fromNow() }}
+              a-tooltip(slot='datetime', :title='dayjs(question.createdAt).format("YYYY-MM-DD HH:mm:ss")')
+                span(:id='"question-" + question._id.slice(-4)') {{ dayjs(question.createdAt).fromNow() }}
             .pin(v-if="!viewingArchive")
               .question-id {{ "#" + question._id.slice(-4) }}
               a-button(v-if='user._id == event.owner || question.state == "pinned"', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
