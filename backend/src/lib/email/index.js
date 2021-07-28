@@ -26,7 +26,7 @@ async function sendEmailVerification(email, name, token) {
   const verificationUrl = `${process.env.BACKEND_BASE_PATH}/account/email-verification?token=${token}`
 
   await send({
-    from: '"QuoVote Team" <noreply@quo.vote>',
+    from: '"QuoVote" <hello@quo.vote>',
     to: email,
     subject: 'Verify your QuoVote account',
     html: pug.renderFile(`${__dirname}/templates/verify-email.pug`, {
