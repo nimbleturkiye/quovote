@@ -12,6 +12,18 @@ Create a file named `.env` under the `frontend` folder and type the following in
 VUE_APP_BASE_PATH=/api
 ```
 
+## Email Configuration
+Fill up the environment fields under quovote-backend in `docker-compose.yml` file. Please make sure not to commit those credentials.
+
+**Note:** *Consider using the service mailtrap.io for testing mailing in your local environment.*
+
+```
+EMAIL_HOST=smtp.mailtrap.io
+EMAIL_PORT=****
+EMAIL_USERNAME=*************
+EMAIL_PASSWORD=*************
+```
+
 ### Running QuoVote
 
 ```bash

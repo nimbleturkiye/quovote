@@ -21,7 +21,8 @@ import {
   Form,
   Alert,
   Empty,
-  Tabs
+  Tabs,
+  Pagination
 } from 'ant-design-vue'
 
 const components = [
@@ -41,7 +42,8 @@ const components = [
   Form,
   Alert,
   Empty,
-  Tabs
+  Tabs,
+  Pagination
 ]
 
 components.forEach(c => Vue.use(c))

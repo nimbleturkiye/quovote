@@ -7,12 +7,14 @@ const mutations = {
 }
 
 const actions = {
+  RESEND_VERIFICATION_EMAIL: 'resendVerificationEmail',
   REGISTER_COMPUTER_ID: 'registerComputerId',
   REGISTER_USER: 'registerUser',
   LOGIN: 'login',
   LOGOUT: 'logout',
   FETCH_USER: 'fetchUser',
   UPDATE_DIRECTOR: 'updateDirector',
+  UPDATE_PROFILE: 'updateProfile',
   INIT: 'init'
 }
 
@@ -68,6 +70,12 @@ const account = {
     },
     async [actions.UPDATE_DIRECTOR](store, director) {
       await axios.patch('/account', { director })
+    },
+    async [actions.UPDATE_PROFILE](store, profile) {
+      await axios.patch('/account/me', profile)
+    },
+    async [actions.RESEND_VERIFICATION_EMAIL](store, email) {
+      await axios.post('/account/outgoing-verification-emails', { email })
     }
   }
 }

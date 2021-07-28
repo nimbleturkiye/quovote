@@ -33,8 +33,12 @@ export default {
         name: [
           'name',
           {
-            rules: [{ required: true, message: 'Your name is required.' }]
-          }
+            rules: [
+              { required: true, message: 'Your name is required.' },
+              { min: 2, message: 'Name should have a minimum length of 2 characters.\n' },
+              { max: 64, message: 'Name should have a maximum length of 64 characters.\n' },
+            ],
+          },
         ],
         email: [
           'email',
@@ -83,12 +87,16 @@ export default {
       this.backendError = null
       this.form.validateFieldsAndScroll(async (err, values) => {
         if (err) return
+        this.loading = true
 
+        this.loading = true
         try {
           await this.registerUser(values)
           this.$router.push('/login?registerSuccess=1')
         } catch (e) {
           this.backendError = e.response.data
+        } finally {
+          this.loading = false
         }
       })
     },
@@ -143,7 +151,7 @@ export default {
       a-form-item(v-bind="tailFormItemLayout" v-if="backendError")
         a-alert(class="backend-errors" :message="backendError.message" type="error")
       a-form-item(v-bind="tailFormItemLayout")
-        a-button(type="primary" html-type="submit" :loading="loading" icon="message") Register
+        a-button(type="primary" html-type="submit" :loading="loading") Register
         div Already have an account? <router-link to="/login">Log in</router-link>
 </template>
 

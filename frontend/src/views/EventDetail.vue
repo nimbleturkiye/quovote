@@ -72,32 +72,55 @@ export default {
     handleVote(question) {
       if (!this.user) return
 
-      this.vote({ questionId: question._id, action: question.voted ? 'unlike' : 'like' })
-
       question.voted = !question.voted
       question.votes += question.voted ? 1 : -1
       this.sortQuestions()
+
+      this.vote({ questionId: question._id, action: question.voted ? 'like' : 'unlike' }).catch(e => {
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+
+        question.voted = !question.voted
+        question.votes += question.voted ? 1 : -1
+        this.sortQuestions()
+      })
     },
     handleArchive(question) {
       if (this.isUnknownAnonymous) return
 
+      this.questions = this.questions.filter(q => q._id != question._id)
+
       this.archiveQuestion({
         questionId: question._id,
         action: question.state == 'archived' ? 'unarchive' : 'archive'
-      })
+      }).catch(e => {
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
 
-      this.questions = this.questions.filter(q => q._id != question._id)
+        this.questions.push(question)
+        this.sortQuestions()
+      })
     },
     handlePin(question) {
       if (this.user._id != this.event.owner) return
 
-      this.pinQuestion({
-        questionId: question._id,
-        action: question.state == 'pinned' ? 'unpin' : 'pin'
-      })
-
       question.state = question.state == 'pinned' ? 'visible' : 'pinned'
       this.sortQuestions()
+
+      this.pinQuestion({
+        questionId: question._id,
+        action: question.state == 'pinned' ? 'pin' : 'unpin'
+      }).catch(e => {
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+
+        question.state = question.state == 'pinned' ? 'visible' : 'pinned'
+        this.sortQuestions()
+      })
+    },
+    async handleWithdraw(question) {
+      try {
+        await this.withdrawQuestion(question._id)
+      } catch (e) {
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+      }
     },
     generateAvatarText(name) {
       let avatarName = name
@@ -114,7 +137,7 @@ export default {
 
       return `avatar-bg-${randomNumber}`
     },
-    pinLatestQuestion() {
+    pinNextSuitableQuestion() {
       this.sortBy = 'popular'
       this.sortQuestions()
 
@@ -137,6 +160,12 @@ export default {
     randomSortOrderIndicator() {
       if (this.sortBy != 'random') return ''
       return '◆'
+    },
+    liveQuestionsCount() {
+      return this.event.questions.length - this.archivedQuestionsCount
+    },
+    archivedQuestionsCount() {
+      return this.event.questions.filter(question => question.state == 'archived').length
     }
   },
   watch: {
@@ -163,7 +192,7 @@ export default {
         a-tab-pane(tab="Ask the speaker" key="1")
           ask-the-speaker-form
         a-tab-pane(tab="Director" key="2")
-          Director(:pin-latest-question="pinLatestQuestion")
+          Director(:pin-next-suitable-question="pinNextSuitableQuestion")
       ask-the-speaker-form(v-else :show-header="true")
     a-card
       .questions
@@ -179,11 +208,11 @@ export default {
           .questions-filter(v-if='event.owner == user._id')
             span(style='margin-right: 0.4em') Filter
             a-radio-group(size='small' v-model='viewingArchive')
-              a-radio-button(:value='false') Live
-              a-radio-button(:value='true') Archived
+              a-radio-button(:value='false') Live ({{ liveQuestionsCount }})
+              a-radio-button(:value='true') Archived ({{ archivedQuestionsCount }})
         .questions-container
           p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
-          a-card(v-for='question in questions', :key='question._id', :bordered='false')
+          a-card(v-for='question in questions', :key='question._id', :bordered='false' :class='{pinned: question.state == "pinned"}')
             a-comment
               template(slot='actions')
                 a-tooltip(:title='getQuestionTooltipTitle(question)', @click='handleVote(question)')
@@ -191,7 +220,7 @@ export default {
                     a-icon(type='like', :theme='question.voted ? "filled" : "outlined"')
                   span(style='padding-left: 4px') {{ question.votes }}
                 span
-                  a-button(type='secondary', v-if='question.ownQuestion', @click='withdrawQuestion(question._id)') Withdraw
+                  a-button(type='secondary', v-if='question.ownQuestion', @click='handleWithdraw(question)') Withdraw
                 span
                   a-button(type='secondary', v-if='event.owner == user._id', @click='handleArchive(question)') {{ viewingArchive ? 'Unarchive' : 'Archive' }}
               a(slot='author') {{ question.author }}
@@ -251,6 +280,12 @@ export default {
 
   .questions-container {
     margin-top: 24px;
+  }
+
+  .pinned {
+    .ant-comment {
+      background: rgb(24 144 255 / 3%);
+    }
   }
 }
 

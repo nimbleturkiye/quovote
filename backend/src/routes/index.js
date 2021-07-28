@@ -78,7 +78,9 @@ router.get('/event-codes/availability', ensureUser, ensureLogin, rateLimiter(), 
   res.send(!(await Event.exists({ code })))
 })
 
-router.get('/events', ensureUser, rateLimiter({ keys: 'user._id' }), async (req, res, next) => {
+const eventRateLimiter = (req, res, next) => rateLimiter({ keys: req.user && 'user._id' })(req, res, next)
+
+router.get('/events', ensureUser, eventRateLimiter, async (req, res, next) => {
   const code = sanitize(req.query.code)
   if (!code) return next({ status: 400 })
 
@@ -154,7 +156,7 @@ const questionsValidator = celebrate({
       .trim()
       .replace(/(\s)\1*/g, '$1')
       .label('Question'),
-    user: Joi.string().trim().replace(/(\s+)/g, '$1'),
+    user: Joi.string().allow('').trim().replace(/(\s+)/g, '$1'),
   }),
 })
 
@@ -162,7 +164,7 @@ router.post('/events/:eventId/questions', ensureUser, questionsValidator, rateLi
   await Event.findByIdAndUpdate(req.params.eventId,
     {
       $push: {
-        questions: { text: req.body.text, author: req.body.user, user: req.session.userId }
+        questions: { text: req.body.text, author: req.body.user || undefined, user: req.session.userId }
       }
     })
 

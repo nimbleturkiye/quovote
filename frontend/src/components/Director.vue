@@ -1,5 +1,7 @@
 <script>
 import { mapState, mapActions } from 'vuex'
+import { notification } from 'ant-design-vue'
+import debounce from 'lodash.debounce'
 
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 const speechRecognitionInstance = window.SpeechRecognition && new window.SpeechRecognition()
@@ -31,7 +33,7 @@ export default {
       return !this.event.questions.length || this.event.questions.every(q => q.state == 'archived')
     }
   },
-  props: ['pinLatestQuestion'],
+  props: ['pinNextSuitableQuestion'],
   methods: {
     ...mapActions('event', ['archiveQuestion']),
     ...mapActions('account', ['updateDirector']),
@@ -56,16 +58,20 @@ export default {
 
       const pinnedQuestions = this.event.questions?.filter(question => question.state == 'pinned')
 
-      if (pinnedQuestions[0]) {
-        await this.archiveQuestion({
-          action: 'archive',
-          questionId: pinnedQuestions[0]._id
-        })
+      try {
+        if (pinnedQuestions[0]) {
+          await this.archiveQuestion({
+            action: 'archive',
+            questionId: pinnedQuestions[0]._id
+          })
+        }
+      } catch (e) {
+        return notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
       }
 
       if (pinnedQuestions.length > 1) return
 
-      await this.pinLatestQuestion()
+      if (!this.noQuestionLeft) await this.pinNextSuitableQuestion()
     },
     checkAndTriggerVoiceCommands(e) {
       this.state = this.STATES.PROCESSING
@@ -103,31 +109,35 @@ export default {
     speechRecognitionInstance.stop()
   },
   watch: {
-    triggers(newTriggers, oldTriggers) {
+    triggers: debounce(function(newTriggers, oldTriggers) {
       const director = {
         triggers: newTriggers.split('\n').filter(t => t),
         language: this.user.director.language
       }
 
-      this.updateDirector(director)
-    }
+      this.updateDirector(director).catch(e =>
+        notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+      )
+    }, 800)
   }
 }
 </script>
 
 <template lang="pug">
   #director
-    audio(ref="mehter" src="/mehter.mp3")
     a-textarea(
+      v-if="state != STATES.UNAVAILABLE"
       placeholder='Enter trigger phrases (each line represents a trigger)'
       :autoSize='{ minRows: 5 }'
       v-model="triggers"
     )
     #director-actions
       a-button(type='primary' @click="skipQuestion" :disabled="noQuestionLeft") Skip question
-      a-button(@click="activateVoiceRecognition" :disabled="state != STATES.INACTIVE") Activate: Voice-Action
-      transition(name="slide-fade")
-        p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
+      #voice-interface(v-if="state != STATES.UNAVAILABLE")
+        audio(ref="mehter" src="/mehter.mp3")
+        a-button(@click="activateVoiceRecognition" :disabled="state != STATES.INACTIVE") Activate: Voice-Action
+        transition(name="slide-fade")
+          p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
       a(:href="`${$router.history.current.path}/monitor`" target="_blank").go-to-monitor Go to monitor
 </template>
 
@@ -137,12 +147,17 @@ export default {
   display: flex;
   align-items: center;
 
-  & > *:not(:first-child) {
-    margin-left: 1rem;
-  }
-
   .go-to-monitor {
     margin-left: auto;
+  }
+}
+
+#voice-interface {
+  display: flex;
+  align-items: center;
+
+  * {
+    margin-left: 1rem;
   }
 }
 
