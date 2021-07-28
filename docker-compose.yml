@@ -10,6 +10,13 @@ services:
     build:
       context: backend
       dockerfile: dev.Dockerfile
+    environment:
+      - FRONTEND_BASE_PATH=http://${DOMAIN:-stack.localhost}
+      - BACKEND_BASE_PATH=http://${DOMAIN:-stack.localhost}/api
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.backend.rule=(Host(`${DOMAIN:-stack.localhost}`) && (PathPrefix(`/api`) || PathPrefix(`/socket`)))'
@@ -51,4 +58,3 @@ services:
       - '8080:8080'
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock:ro'
-

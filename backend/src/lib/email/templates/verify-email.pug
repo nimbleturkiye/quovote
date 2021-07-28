@@ -1,0 +1,18 @@
+extends _layout
+
+block variables
+  - const subject = 'Verify your QuoVote account'
+  - const greeting = `Hello ${name || 'there'}`
+
+block content
+  .card
+    h1.card-header
+      | Welcome to&nbsp;
+      span.text-primary QuoVote
+    .content
+      p #{greeting},
+      p You have just created your account on QuoVote! To verify your account, please click to the button below.
+    .btn.btn-primary
+      a(href=`${verificationUrl}`, target='_blank') Verify your account
+    .content.footnote
+      small If you didn't create an account on QuoVote, please ignore this email.

@@ -41,7 +41,7 @@ const rateLimiterMiddleware = (opts) => {
     }
     catch (e) {
       console.log('rate limiting', consumeKey, e)
-      next({ status: 429, message: 'Too Many Requests' });
+      next({ status: 429, message: opts.message || 'Too Many Requests' });
     }
   };
 }
