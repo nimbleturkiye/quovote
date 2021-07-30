@@ -43,7 +43,7 @@ export default {
         router-view
 
       a-layout-footer(style='text-align: center')
-        | QuoVote Beta ©2021 Armagan Amcalar
+        | QuoVote Beta ©2021 Nimble Turkiye
 </template>
 
 <style lang="scss">
