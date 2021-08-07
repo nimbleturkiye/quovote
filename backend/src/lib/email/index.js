@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
 const pug = require('pug')
 const { htmlToText } = require('html-to-text')
+const path = require('path')
 
 const transport = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -29,7 +30,7 @@ async function sendEmailVerification(email, name, token) {
     from: '"QuoVote" <hello@quo.vote>',
     to: email,
     subject: 'Verify your QuoVote account',
-    html: pug.renderFile(`${__dirname}/templates/verify-email.pug`, {
+    html: pug.renderFile(path.join(__dirname, '/templates/verify-email.pug'), {
       name,
       verificationUrl
     })
