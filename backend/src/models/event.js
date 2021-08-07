@@ -9,18 +9,18 @@ const Event = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 3,
-      maxlength: 80,
+      maxlength: 80
     },
     questions: [Question],
     code: {
       type: String,
       unique: true,
       minlength: 3,
-      maxlength: 8,
+      maxlength: 8
     },
     description: {
       type: String,
-      maxlength: 280,
+      maxlength: 280
     },
     owner: {
       type: 'ObjectId',
@@ -29,15 +29,15 @@ const Event = new mongoose.Schema(
     participants: [
       {
         type: 'ObjectId',
-        ref: 'User',
-      },
-    ],
+        ref: 'User'
+      }
+    ]
   },
   {
     timestamps: true,
     toObject: {
-      virtuals: true,
-    },
+      virtuals: true
+    }
   }
 )
 
@@ -52,21 +52,20 @@ Event.pre('save', async function (next) {
 })
 
 Event.static('decorateForUser', function (event, userIds) {
-  const isEventOwner = userIds.some(userId => event.owner.equals(userId))
+  const isEventOwner = userIds.some((userId) => event.owner.equals(userId))
 
-  const updatedQuestions = event
-    .questions
+  const updatedQuestions = event.questions
     .toObject()
-    .filter(q => isEventOwner ? q : q.state != 'archived')
-    .map(q => {
+    .filter((q) => (isEventOwner ? q : q.state !== 'archived'))
+    .map((q) => {
       return {
         ...q,
-        voted: q.voters.some(v => userIds.some(id => id.equals(v))),
-        ownQuestion: userIds.some(i => i.equals(q.user)),
+        voted: q.voters.some((v) => userIds.some((id) => id.equals(v))),
+        ownQuestion: userIds.some((i) => i.equals(q.user)),
         user: undefined,
-        voters: undefined,
+        voters: undefined
       }
-  })
+    })
 
   return { ...event.toObject(), questions: updatedQuestions }
 })

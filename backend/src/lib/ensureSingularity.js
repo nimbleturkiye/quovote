@@ -1,16 +1,20 @@
 const Singularity = require('../models/singularity')
 
-module.exports = async function ensureSingularity({ sessionId, userId, computerId }) {
+module.exports = async function ensureSingularity({
+  sessionId,
+  userId,
+  computerId
+}) {
   await Singularity.findOneAndUpdate(
     {
-      $or: [{ sessionId }, { userId }, { computerId }],
+      $or: [{ sessionId }, { userId }, { computerId }]
     },
     {
       $addToSet: {
         sessionId,
         userId,
-        computerId,
-      },
+        computerId
+      }
     },
     { upsert: true }
   )

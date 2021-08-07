@@ -4,7 +4,7 @@ const Singularity = new mongoose.Schema(
   {
     userId: ['ObjectId'],
     sessionId: [String],
-    computerId: [String],
+    computerId: [String]
   },
   { timestamps: true }
 )

@@ -10,11 +10,11 @@ const Question = new mongoose.Schema(
     },
     voters: {
       type: ['ObjectId'],
-      default: [],
+      default: []
     },
     user: {
       type: 'ObjectId',
-      ref: 'User',
+      ref: 'User'
     },
     author: {
       type: String,
@@ -30,7 +30,7 @@ const Question = new mongoose.Schema(
   {
     timestamps: true,
     toObject: {
-      virtuals: true,
+      virtuals: true
     },
     toJSON: {
       virtuals: true,
@@ -38,8 +38,8 @@ const Question = new mongoose.Schema(
         delete ret.voters
         delete ret.user
         return ret
-      },
-    },
+      }
+    }
   }
 )
 

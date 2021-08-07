@@ -6,8 +6,8 @@ module.exports = (app, server) => {
 
   socketServer = io(server)
 
-  socketServer.on('connection', socket => {
-    socket.on('join-room', eventId => {
+  socketServer.on('connection', (socket) => {
+    socket.on('join-room', (eventId) => {
       socket.join(eventId)
     })
   })

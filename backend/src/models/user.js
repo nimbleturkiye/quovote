@@ -9,34 +9,34 @@ const User = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 2,
-      maxlength: 64,
+      maxlength: 64
     },
     sessionId: String,
     computerId: String,
     director: {
       language: {
         type: String,
-        default: 'en-US',
+        default: 'en-US'
       },
       triggers: {
         type: Array,
-        default: [],
+        default: []
       }
     },
     events: [
       {
         type: 'ObjectId',
         ref: 'Event',
-        autopopulate: true,
-      },
-    ],
+        autopopulate: true
+      }
+    ]
   },
   { timestamps: true }
 )
 
 User.plugin(passportLocalMongoose, {
   usernameField: 'email',
-  populateFields: ['name, sessionId'],
+  populateFields: ['name, sessionId']
 })
 
 User.plugin(emailVerification)

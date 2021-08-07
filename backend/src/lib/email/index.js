@@ -7,8 +7,8 @@ const transport = nodemailer.createTransport({
   port: process.env.EMAIL_PORT,
   auth: {
     user: process.env.EMAIL_USERNAME,
-    pass: process.env.EMAIL_PASSWORD,
-  },
+    pass: process.env.EMAIL_PASSWORD
+  }
 })
 
 async function send(payload) {
@@ -31,8 +31,8 @@ async function sendEmailVerification(email, name, token) {
     subject: 'Verify your QuoVote account',
     html: pug.renderFile(`${__dirname}/templates/verify-email.pug`, {
       name,
-      verificationUrl,
-    }),
+      verificationUrl
+    })
   })
 }
 
