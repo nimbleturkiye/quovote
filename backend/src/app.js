@@ -1,32 +1,32 @@
-var createError = require('http-errors')
-var express = require('express')
-var cookieParser = require('cookie-parser')
-var logger = require('morgan')
+const createError = require('http-errors')
+const express = require('express')
+const cookieParser = require('cookie-parser')
+const logger = require('morgan')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const passport = require('passport')
 const cors = require('cors')
 const helmet = require('helmet')
-const sanitize = require('express-mongo-sanitize').sanitize;
-const compression = require('compression');
-const { errors } = require('celebrate');
+const sanitize = require('express-mongo-sanitize').sanitize
+const compression = require('compression')
+const { errors } = require('celebrate')
 
-const rateLimiter = require('./lib/rate-limiter');
+const rateLimiter = require('./lib/rate-limiter')
 
 const User = require('./models/user')
 const { mongoose } = require('./bootstrap')
 
-var indexRouter = require('./routes/index')
-var accountRouter = require('./routes/account')
+const indexRouter = require('./routes/index')
+const accountRouter = require('./routes/account')
 
-var app = express()
+const app = express()
 
 app.use(helmet())
 app.use(compression())
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV == 'production' ? 'https://quo.vote' : true,
+    origin: process.env.NODE_ENV === 'production' ? 'https://quo.vote' : true,
     credentials: true
   })
 )
@@ -35,13 +35,16 @@ app.set('trust proxy', 1)
 
 app.use(
   session({
-    store: new MongoStore({ mongooseConnection: mongoose.connection, stringify: false }),
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection,
+      stringify: false
+    }),
     secret: 'thisissupposedtobeasecret',
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000,
-      sameSite: process.env.NODE_ENV == 'production' && 'none',
-      secure: process.env.NODE_ENV == 'production',
-    },
+      sameSite: process.env.NODE_ENV === 'production' && 'none',
+      secure: process.env.NODE_ENV === 'production'
+    }
   })
 )
 
@@ -79,7 +82,7 @@ app.use(function (req, res, next) {
   next(createError(404))
 })
 
-app.use(errors());
+app.use(errors())
 
 // error handler
 app.use(function (err, req, res, next) {
@@ -90,7 +93,11 @@ app.use(function (err, req, res, next) {
   console.log(err)
 
   res.status(err.status || 500)
-  res.send(req.app.get('env') === 'development' ? { stack: err.stack, message: err.message } : { message: err.message })
+  res.send(
+    req.app.get('env') === 'development'
+      ? { stack: err.stack, message: err.message }
+      : { message: err.message }
+  )
 })
 
 module.exports = app

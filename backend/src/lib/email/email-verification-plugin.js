@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
-const nanoid = require('nanoid').customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 40)
+const nanoid = require('nanoid').customAlphabet(
+  '0123456789abcdefghijklmnopqrstuvwxyz',
+  40
+)
 const { sendEmailVerification } = require('./index')
 
 const EmailToken = mongoose.model(
@@ -9,13 +12,13 @@ const EmailToken = mongoose.model(
       type: String,
       unique: true,
       required: true,
-      default: nanoid,
+      default: nanoid
     },
     user: {
       type: mongoose.Types.ObjectId,
-      required: true,
+      required: true
     },
-    createdAt: { type: Date, default: Date.now, expires: '15m'},
+    createdAt: { type: Date, default: Date.now, expires: '15m' }
   },
   'email-tokens'
 )
@@ -24,8 +27,8 @@ module.exports = function (schema) {
   schema.add({
     isVerified: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   })
 
   schema.methods.sendVerificationEmail = async function () {

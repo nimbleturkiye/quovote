@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "check-lint": "prettier --list-different ./ && eslint ./",
+    "lint": "prettier --write ./ && eslint --fix ./"
   },
   "dependencies": {
     "async-validator": "^3.4.0",
@@ -33,5 +35,12 @@
     "rate-limiter-flexible": "^2.2.1",
     "socket.io": "^2.3.0",
     "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.2"
   }
 }
