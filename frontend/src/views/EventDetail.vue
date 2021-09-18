@@ -18,13 +18,15 @@ export default {
       sortBy: 'popular',
       orderBy: -1,
       questions: [],
-      viewingArchive: false
+      viewingArchive: false,
+      loading: false
     }
   },
   async created() {
     dayjs.extend(relativeTime)
 
     this.setEventId(this.$route.params.eventId)
+    this.loading = true
     try {
       await this.joinEvent(this.$route.params.eventId)
     } catch (e) {
@@ -180,6 +182,11 @@ export default {
     },
     viewingArchive() {
       this.sortQuestions()
+    },
+    'loading'() {
+      setTimeout(() => {
+        this.loading = false
+      }, 1000)
     }
   }
 }
@@ -214,30 +221,31 @@ export default {
               a-radio-button(:value='false') Live ({{ liveQuestionsCount }})
               a-radio-button(:value='true') Archived ({{ archivedQuestionsCount }})
         .questions-container
-          p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
-          a-card(v-for='question in questions', :key='question._id', :bordered='false' :class='{pinned: question.state == "pinned"}')
-            a-comment
-              template(slot='actions')
-                a-tooltip(:title='getQuestionTooltipTitle(question)', @click='handleVote(question)')
-                  span(key='comment-basic-like')
-                    a-icon(type='like', :theme='question.voted ? "filled" : "outlined"')
-                  span(style='padding-left: 4px') {{ question.votes }}
-                span
-                  a-button(type='secondary', v-if='question.ownQuestion', @click='handleWithdraw(question)') Withdraw
-                span
-                  a-button(type='secondary', v-if='event.owner == user._id', @click='handleArchive(question)') {{ viewingArchive ? 'Unarchive' : 'Archive' }}
-              a(slot='author') {{ question.author }}
-              a-avatar(v-once, slot='avatar', :class='generateAvatarBgColor()')
-                a-icon(v-if='question.author == "Anonymous"', type='user')
-                span(v-else) {{ generateAvatarText(question.author) }}
-              p(slot='content') {{ question.text }}
-              a-tooltip(slot='datetime', :title='dayjs(question.createdAt).format("YYYY-MM-DD HH:mm:ss")')
-                span(:id='"question-" + question._id.slice(-4)') {{ dayjs(question.createdAt).fromNow() }}
-            .pin(v-if="!viewingArchive")
-              .question-id {{ "#" + question._id.slice(-4) }}
-              a-button(v-if='user._id == event.owner || question.state == "pinned"', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
-                a-icon(type='pushpin', :theme='question.state == "pinned" ? "filled" : "outlined"')
-            hr
+          a-skeleton(:loading='loading' avatar='' :paragraph='{ rows: 3 }')
+            p.no-questions(v-if='!questions.length') This event has no questions, be the first one and ask the first question!
+            a-card(v-for='question in questions', :key='question._id', :bordered='false' :class='{pinned: question.state == "pinned"}')
+              a-comment
+                template(slot='actions')
+                  a-tooltip(:title='getQuestionTooltipTitle(question)', @click='handleVote(question)')
+                    span(key='comment-basic-like')
+                      a-icon(type='like', :theme='question.voted ? "filled" : "outlined"')
+                    span(style='padding-left: 4px') {{ question.votes }}
+                  span
+                    a-button(type='secondary', v-if='question.ownQuestion', @click='handleWithdraw(question)') Withdraw
+                  span
+                    a-button(type='secondary', v-if='event.owner == user._id', @click='handleArchive(question)') {{ viewingArchive ? 'Unarchive' : 'Archive' }}
+                a(slot='author') {{ question.author }}
+                a-avatar(v-once, slot='avatar', :class='generateAvatarBgColor()')
+                  a-icon(v-if='question.author == "Anonymous"', type='user')
+                  span(v-else) {{ generateAvatarText(question.author) }}
+                p(slot='content') {{ question.text }}
+                a-tooltip(slot='datetime', :title='moment(question.createdAt).format("YYYY-MM-DD HH:mm:ss")')
+                  span(:id='"question-" + question._id.slice(-4)') {{ moment(question.createdAt).fromNow() }}
+              .pin(v-if="!viewingArchive")
+                .question-id {{ "#" + question._id.slice(-4) }}
+                a-button(v-if='user._id == event.owner || question.state == "pinned"', type='link', @click='handlePin(question)', :style='{ "pointer-events": user._id == event.owner ? "" : "none" }')
+                  a-icon(type='pushpin', :theme='question.state == "pinned" ? "filled" : "outlined"')
+              hr
 </template>
 
 <style lang="scss">
@@ -283,6 +291,12 @@ export default {
 
   .questions-container {
     margin-top: 24px;
+  }
+
+  .ant-skeleton {
+    margin: 0;
+    padding-bottom: 16px;
+    padding: 7px 24px;
   }
 
   .pinned {
