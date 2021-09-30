@@ -93,7 +93,18 @@ export default {
       console.log({ transcript, isTriggered })
 
       if (isTriggered) this.skipQuestion()
-    }
+    },
+    changeDirectorsLanguage(language) {
+      const { speechRecognitionInstance } = this
+
+      if (language === 'Turkish') {
+        speechRecognitionInstance.language = 'tr-TR'
+        this.user.director.language = 'tr-TR'
+      } else {
+        speechRecognitionInstance.language = 'en-EN'
+        this.user.director.language = 'en-EN'
+      }
+    },
   },
   mounted() {
     this.triggers = this.user.director.triggers.join('\n')
@@ -139,6 +150,14 @@ export default {
         transition(name="slide-fade")
           p.director-listening-state(v-show="state == STATES.ACTIVE") Listening...
       a(:href="`${$router.history.current.path}/monitor`" target="_blank").go-to-monitor Go to monitor
+      a-dropdown(:trigger="['click']")
+        a.ant-dropdown-link(@click="e => e.preventDefault()") Language
+          a-icon(type='down')
+        a-menu(slot='overlay')
+          a-menu-item(key='0')
+            a(href="#" @click="changeDirectorsLanguage('English')") English
+          a-menu-item(key='1')
+            a(href="#" @click="changeDirectorsLanguage('Turkish')") Turkish
 </template>
 
 <style lang="scss" scoped>
