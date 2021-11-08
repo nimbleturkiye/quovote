@@ -86,7 +86,7 @@ export default {
     this.createEventForm.setFieldsValue({ code })
   },
   methods: {
-    ...mapActions('event', ['createEvent', 'getEventCodeAvailability']),
+    ...mapActions('event', ['createEvent', 'getEventCodeAvailability','deleteEvent','getRandomEventCode']),
     submitCreateEventForm(e) {
       e.preventDefault()
       this.backendError = null
@@ -115,8 +115,22 @@ export default {
     },
     hasErrors(fieldsError) {
       return Object.values(fieldsError).some(e => e)
+    },
+    async onDeleteEventForm(event) {
+      try {
+        await this.deleteEvent(event._id)
+        notification.error({
+          message: 'Event deleted successfully'
+          })
+        let index = this.user.events.findIndex(s => s === event)
+        this.user.events.splice(index, 1)
+      } catch (e) {
+       notification.error({ message: e.response?.data?.message ?? e.message ?? 'An unknown error occured' })
+      }
     }
-  }
+
+
+  },
 }
 </script>
 
@@ -130,13 +144,18 @@ export default {
         a-empty(v-if="user && !user.events.length")
           span(slot="description") You haven't created any events. <br> Click the button below to create your first event 🎉
           a-button(type="primary" @click="focusOnCreateEventForm" icon="plus") Create Event
-        a-card(v-for="event in eventsInCurrentPage" :key="event.id")
-          h3
-            router-link(:to="`/events/${event._id}`") {{ event.title }}
-          p {{ event.description }}
-          p
-            a-icon(type="message")
-            span &nbsp{{ event.questions.length }}
+        a-card(v-for="event in eventsInCurrentPage" :key="event._id")
+          a-row(type='flex')
+            a-col(flex='auto')
+              h3
+                router-link(:to="`/events/${event._id}`") {{ event.title }}
+              p {{ event.description }}
+              p
+                a-icon(type="message")
+                span &nbsp{{ event.questions.length }}
+            a-col(flex="25px" )
+              a-button(type="primary" @click="onDeleteEventForm(event)"  icon="delete")         
+                    
         a-pagination(v-if="user && user.events.length" v-model="currentPage" :total="user.events.length" :default-page-size="pageLimit")
       a-card
         a-form(:form="createEventForm" @submit="submitCreateEventForm")
