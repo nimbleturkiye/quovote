@@ -23,6 +23,7 @@ const actions = {
   PATCH_QUESTION: 'patchQuestion',
   UPDATE_QUESTIONS: 'updateQuestions',
   CREATE_EVENT: 'createEvent',
+  DELETE_EVENT: 'deleteEvent',
   SET_EVENT_ID: 'setEventId',
   GET_RANDOM_EVENT_CODE: 'getRandomEventCode',
   GET_EVENT_CODE_AVAILABILITY: 'getEventCodeAvailability',
@@ -115,6 +116,9 @@ const event = {
       await axios.post('/events', event)
 
       await dispatch('account/fetchUser', {}, { root: true })
+    },
+    async [actions.DELETE_EVENT]({ dispatch },eventId) {
+      await axios.delete(`/events/${eventId}`)
     },
     [actions.SET_EVENT_ID]({ commit }, id) {
       commit(mutations.SET_EVENT_ID, id)

@@ -171,6 +171,28 @@ router.post(
   }
 )
 
+router.delete(
+  '/events/:eventId',
+  async (req,res) => {
+    try {
+      const deletedEvent = await Event.findByIdAndDelete({_id: req.params.eventId})
+      if(deletedEvent) {
+        res.json({
+          status: true,
+          messages:"Successfully"
+        })
+      }
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: err.message
+      })
+    }
+  }
+)
+
+
+
 router.get(
   '/events/:eventId',
   ensureUser,
